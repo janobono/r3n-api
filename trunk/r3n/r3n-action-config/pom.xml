@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>r3n</artifactId>
 		<groupId>sk.r3n</groupId>
-		<version>0.0.1</version>
+		<version>1.0.0</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>r3n-action-config</artifactId>
