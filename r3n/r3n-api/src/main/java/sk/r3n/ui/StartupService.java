@@ -5,28 +5,27 @@ import java.net.URL;
 
 public interface StartupService {
 
-	public void autoIncrementProgress();
+    public void autoIncrementProgress();
 
-	public void finishProgress();
+    public void finishProgress();
 
-	public void hideService();
-	
-	public void incrementProgress();
+    public void hideService();
 
-	public boolean isServiceVisible();
+    public void incrementProgress();
 
-	public void setAppIcon(URL url);
+    public boolean isServiceVisible();
 
-	public void setAppImage(URL url, boolean stretch);
+    public void setAppIcon(URL url);
 
-	public void setAppName(String appName);
+    public void setAppImage(URL url, boolean stretch);
 
-	public void setInfoText(String infoText);
-	
-	public void setInfoTextForegroun(Color infoTextColor);
+    public void setAppName(String appName);
 
-	public void showService(int width, int height);
+    public void setInfoText(String infoText);
 
-	public void startProgress();
+    public void setInfoTextForegroun(Color infoTextColor);
 
+    public void showService(int width, int height);
+
+    public void startProgress();
 }

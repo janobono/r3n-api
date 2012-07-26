@@ -4,14 +4,13 @@ import sk.r3n.ui.UIService;
 
 public class UIServiceManager {
 
-	private static UIService uiService;
+    private static UIService uiService;
 
-	public static UIService getDefaultUIService() {
-		return uiService;
-	}
+    public static UIService getDefaultUIService() {
+        return uiService;
+    }
 
-	public static void setDefaultUIService(UIService uiService) {
-		UIServiceManager.uiService = uiService;
-	}
-
+    public static void setDefaultUIService(UIService uiService) {
+        UIServiceManager.uiService = uiService;
+    }
 }

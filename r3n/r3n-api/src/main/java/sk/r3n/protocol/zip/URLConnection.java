@@ -9,44 +9,46 @@ import java.util.zip.ZipFile;
 
 public class URLConnection extends java.net.URLConnection {
 
-	private final String file;
+    private final String file;
+    private final String zipEntryName;
+    private ZipFile zipFile;
+    private ZipEntry zipEntry;
 
-	private final String zipEntryName;
+    protected URLConnection(URL url) throws MalformedURLException {
+        super(url);
+        String spec = url.getFile();
+        int separator = spec.indexOf('!');
+        if (separator == -1) {
+            throw new MalformedURLException("no ! found in url spec:" + spec);
+        }
+        file = spec.substring(0, separator);
+        zipEntryName = spec.substring(separator + 1);
+    }
 
-	private ZipFile zipFile;
+    @Override
+    public void connect() throws IOException {
+        this.zipFile = new ZipFile(file);
+        this.zipEntry = zipFile.getEntry(zipEntryName);
+        if (zipEntry == null) {
+            throw new IOException("Entry " + zipEntryName
+                    + " not found in file " + file);
+        }
+        this.connected = true;
+    }
 
-	private ZipEntry zipEntry;
+    @Override
+    public InputStream getInputStream() throws IOException {
+        if (!connected) {
+            connect();
+        }
+        return zipFile.getInputStream(zipEntry);
+    }
 
-	protected URLConnection(URL url) throws MalformedURLException {
-		super(url);
-		String spec = url.getFile();
-		int separator = spec.indexOf('!');
-		if (separator == -1) {
-			throw new MalformedURLException("no ! found in url spec:" + spec);
-		}
-		file = spec.substring(0, separator);
-		zipEntryName = spec.substring(separator + 1);
-	}
-
-	@Override
-	public void connect() throws IOException {
-		this.zipFile = new ZipFile(file);
-		this.zipEntry = zipFile.getEntry(zipEntryName);
-		if (zipEntry == null)
-			throw new IOException("Entry " + zipEntryName
-					+ " not found in file " + file);
-		this.connected = true;
-	}
-
-	public InputStream getInputStream() throws IOException {
-		if (!connected)
-			connect();
-		return zipFile.getInputStream(zipEntry);
-	}
-
-	public int getContentLength() {
-		if (!connected)
-			return -1;
-		return (int) zipEntry.getSize();
-	}
+    @Override
+    public int getContentLength() {
+        if (!connected) {
+            return -1;
+        }
+        return (int) zipEntry.getSize();
+    }
 }

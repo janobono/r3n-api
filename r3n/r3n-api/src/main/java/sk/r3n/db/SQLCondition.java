@@ -2,57 +2,53 @@ package sk.r3n.db;
 
 public class SQLCondition {
 
-	protected SQLColumn column;
+    protected SQLColumn column;
+    protected short condition;
+    protected short operator;
+    protected String expression;
 
-	protected short condition;
+    public SQLCondition(SQLColumn column, short condition, short operator) {
+        this(column, null, condition, operator);
+    }
 
-	protected short operator;
+    public SQLCondition(SQLColumn column, String expression, short condition,
+            short operator) {
+        super();
+        this.column = column;
+        this.expression = expression;
+        this.condition = condition;
+        this.operator = operator;
+    }
 
-	protected String expression;
+    public SQLColumn getColumn() {
+        return column;
+    }
 
-	public SQLCondition(SQLColumn column, short condition, short operator) {
-		this(column, null, condition, operator);
-	}
+    public short getCondition() {
+        return condition;
+    }
 
-	public SQLCondition(SQLColumn column, String expression, short condition,
-			short operator) {
-		super();
-		this.column = column;
-		this.expression = expression;
-		this.condition = condition;
-		this.operator = operator;
-	}
+    public String getExpression() {
+        return expression;
+    }
 
-	public SQLColumn getColumn() {
-		return column;
-	}
+    public short getOperator() {
+        return operator;
+    }
 
-	public short getCondition() {
-		return condition;
-	}
+    public void setColumn(SQLColumn column) {
+        this.column = column;
+    }
 
-	public String getExpression() {
-		return expression;
-	}
+    public void setCondition(short condition) {
+        this.condition = condition;
+    }
 
-	public short getOperator() {
-		return operator;
-	}
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
 
-	public void setColumn(SQLColumn column) {
-		this.column = column;
-	}
-
-	public void setCondition(short condition) {
-		this.condition = condition;
-	}
-
-	public void setExpression(String expression) {
-		this.expression = expression;
-	}
-
-	public void setOperator(short operator) {
-		this.operator = operator;
-	}
-
+    public void setOperator(short operator) {
+        this.operator = operator;
+    }
 }

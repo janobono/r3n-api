@@ -11,59 +11,54 @@ import java.util.logging.Logger;
 
 public class Lock {
 
-	private static final Logger LOGGER = Logger.getLogger(Lock.class
-			.getCanonicalName());
+    private static final Logger LOGGER = Logger.getLogger(Lock.class.getCanonicalName());
+    private FileLock lock;
+    private FileChannel lockChannel;
+    private volatile boolean locked;
 
-	private FileLock lock;
+    public void lock(String lockName) {
+        try {
+            File file = new File(lockName);
+            lockChannel = new RandomAccessFile(file, "rw").getChannel();
+            lock = lockChannel.tryLock();
+            locked = lock != null;
+            if (!locked) {
+                LOGGER.log(Level.SEVERE,
+                        ResourceBundle.getBundle(Lock.class.getCanonicalName()).getString("CREATE_LOCK"),
+                        new Object[]{lockName});
+                unlock();
+            }
+        } catch (Exception e) {
+            LOGGER.log(
+                    Level.SEVERE,
+                    MessageFormat.format(
+                    ResourceBundle.getBundle(
+                    Lock.class.getCanonicalName()).getString(
+                    "CREATE_LOCK"), new Object[]{lockName}),
+                    e);
+            unlock();
+        }
+    }
 
-	private FileChannel lockChannel;
+    public boolean isLocked() {
+        return locked;
+    }
 
-	private volatile boolean locked;
-
-	public void lock(String lockName) {
-		try {
-			File file = new File(lockName);
-			lockChannel = new RandomAccessFile(file, "rw").getChannel();
-			lock = lockChannel.tryLock();
-			locked = lock != null;
-			if (!locked) {
-				LOGGER.log(Level.SEVERE,
-						ResourceBundle.getBundle(Lock.class.getCanonicalName())
-								.getString("CREATE_LOCK"),
-						new Object[] { lockName });
-				unlock();
-			}
-		} catch (Exception e) {
-			LOGGER.log(
-					Level.SEVERE,
-					MessageFormat.format(
-							ResourceBundle.getBundle(
-									Lock.class.getCanonicalName()).getString(
-									"CREATE_LOCK"), new Object[] { lockName }),
-					e);
-			unlock();
-			return;
-		}
-	}
-
-	public boolean isLocked() {
-		return locked;
-	}
-
-	public void unlock() {
-		try {
-			if (lock != null)
-				lock.release();
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Unlock", e);
-		}
-		try {
-			if (lockChannel != null)
-				lockChannel.close();
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Unlock", e);
-		}
-		locked = false;
-	}
-
+    public void unlock() {
+        try {
+            if (lock != null) {
+                lock.release();
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unlock", e);
+        }
+        try {
+            if (lockChannel != null) {
+                lockChannel.close();
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unlock", e);
+        }
+        locked = false;
+    }
 }

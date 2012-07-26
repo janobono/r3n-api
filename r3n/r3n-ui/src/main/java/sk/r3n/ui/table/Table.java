@@ -5,30 +5,29 @@ import java.util.List;
 
 public class Table {
 
-	private int autoResizeMode;
+    private int autoResizeMode;
+    private List<Column> columns;
 
-	private List<Column> columns;
+    public Table() {
+        super();
+    }
 
-	public Table() {
-		super();
-	}
+    public int getAutoResizeMode() {
+        return autoResizeMode;
+    }
 
-	public int getAutoResizeMode() {
-		return autoResizeMode;
-	}
+    public List<Column> getColumns() {
+        if (columns == null) {
+            columns = new ArrayList<>();
+        }
+        return columns;
+    }
 
-	public List<Column> getColumns() {
-		if (columns == null)
-			columns = new ArrayList<Column>();
-		return columns;
-	}
+    public void setAutoResizeMode(int autoResizeMode) {
+        this.autoResizeMode = autoResizeMode;
+    }
 
-	public void setAutoResizeMode(int autoResizeMode) {
-		this.autoResizeMode = autoResizeMode;
-	}
-
-	public void setColumns(List<Column> columns) {
-		this.columns = columns;
-	}
-
+    public void setColumns(List<Column> columns) {
+        this.columns = columns;
+    }
 }

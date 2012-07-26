@@ -4,6 +4,5 @@ import java.util.EventListener;
 
 public interface TableValueEditedListener extends EventListener {
 
-	public void tableValueEdited(TableValueEditedEvent<?> tableValueEditedEvent);
-
+    public void tableValueEdited(TableValueEditedEvent<?> tableValueEditedEvent);
 }

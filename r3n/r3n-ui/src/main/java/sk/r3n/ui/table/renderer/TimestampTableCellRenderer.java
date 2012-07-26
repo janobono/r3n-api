@@ -6,22 +6,19 @@ import java.util.Date;
 
 public class TimestampTableCellRenderer extends LabelTableCellRenderer<Date> {
 
-	private static final long serialVersionUID = -4965677796686324732L;
+    private DateFormat dateFormat;
 
-	private DateFormat dateFormat;
+    public TimestampTableCellRenderer() {
+        super();
+        dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    }
 
-	public TimestampTableCellRenderer() {
-		super();
-		dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-	}
+    public void setDateFormat(DateFormat dateFormat) {
+        this.dateFormat = dateFormat;
+    }
 
-	public void setDateFormat(DateFormat dateFormat) {
-		this.dateFormat = dateFormat;
-	}
-
-	@Override
-	public String getText(Date value) {
-		return dateFormat.format(value);
-	}
-
+    @Override
+    public String getText(Date value) {
+        return dateFormat.format(value);
+    }
 }
