@@ -5,25 +5,22 @@ import java.awt.event.ActionListener;
 
 public class IdActionListener implements ActionListener {
 
-	public static IdActionService idActionService;
+    public static IdActionService idActionService;
+    protected String groupId;
+    protected int actionId;
+    protected IdActionExecutor idActionExecutor;
 
-	protected String groupId;
+    public IdActionListener(String groupId, int actionId,
+            IdActionExecutor idActionExecutor) {
+        super();
+        this.groupId = groupId;
+        this.actionId = actionId;
+        this.idActionExecutor = idActionExecutor;
+    }
 
-	protected int actionId;
-
-	protected IdActionExecutor idActionExecutor;
-
-	public IdActionListener(String groupId, int actionId,
-			IdActionExecutor idActionExecutor) {
-		super();
-		this.groupId = groupId;
-		this.actionId = actionId;
-		this.idActionExecutor = idActionExecutor;
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		idActionService.processAction(groupId, actionId, idActionExecutor,
-				e.getSource());
-	}
-
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        idActionService.processAction(groupId, actionId, idActionExecutor,
+                e.getSource());
+    }
 }

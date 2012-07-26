@@ -1,73 +1,58 @@
 package sk.r3n.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class DbTable {
 
-	protected String tableName;
+    protected String tableName;
+    protected SQLColumn[] ids;
+    protected SQLColumn[] values;
+    protected SQLColumn[] state;
+    protected SQLColumn[] columns;
+    protected SQLColumn[] valuesAndStates;
 
-	protected SQLColumn[] ids;
+    public DbTable() {
+        super();
+    }
 
-	protected SQLColumn[] values;
+    public SQLColumn[] getColumns() {
+        if (columns == null) {
+            List<SQLColumn> list = new ArrayList<>();
+            list.addAll(Arrays.asList(ids));
+            list.addAll(Arrays.asList(values));
+            list.addAll(Arrays.asList(state));
+            columns = new SQLColumn[list.size()];
+            columns = list.toArray(columns);
+        }
+        return columns;
+    }
 
-	protected SQLColumn[] state;
+    public SQLColumn[] getValuesAndStates() {
+        if (valuesAndStates == null) {
+            List<SQLColumn> list = new ArrayList<>();
+            list.addAll(Arrays.asList(values));
+            list.addAll(Arrays.asList(state));
+            valuesAndStates = new SQLColumn[list.size()];
+            valuesAndStates = list.toArray(valuesAndStates);
+        }
+        return valuesAndStates;
+    }
 
-	protected SQLColumn[] columns;
+    public SQLColumn[] getIds() {
+        return ids;
+    }
 
-	protected SQLColumn[] valuesAndStates;
+    public SQLColumn[] getState() {
+        return state;
+    }
 
-	public DbTable() {
-		super();
-	}
+    public String getTableName() {
+        return tableName;
+    }
 
-	public SQLColumn[] getColumns() {
-		if (columns == null) {
-			List<SQLColumn> list = new ArrayList<SQLColumn>();
-			for (int i = 0; i < ids.length; i++) {
-				list.add(ids[i]);
-			}
-			for (int i = 0; i < values.length; i++) {
-				list.add(values[i]);
-			}
-			for (int i = 0; i < state.length; i++) {
-				list.add(state[i]);
-			}
-			columns = new SQLColumn[list.size()];
-			columns = list.toArray(columns);
-		}
-		return columns;
-	}
-
-	public SQLColumn[] getValuesAndStates() {
-		if (valuesAndStates == null) {
-			List<SQLColumn> list = new ArrayList<SQLColumn>();
-			for (int i = 0; i < values.length; i++) {
-				list.add(values[i]);
-			}
-			for (int i = 0; i < state.length; i++) {
-				list.add(state[i]);
-			}
-			valuesAndStates = new SQLColumn[list.size()];
-			valuesAndStates = list.toArray(valuesAndStates);
-		}
-		return valuesAndStates;
-	}
-
-	public SQLColumn[] getIds() {
-		return ids;
-	}
-
-	public SQLColumn[] getState() {
-		return state;
-	}
-
-	public String getTableName() {
-		return tableName;
-	}
-
-	public SQLColumn[] getValues() {
-		return values;
-	}
-
+    public SQLColumn[] getValues() {
+        return values;
+    }
 }

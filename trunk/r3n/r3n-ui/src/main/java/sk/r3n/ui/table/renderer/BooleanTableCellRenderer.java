@@ -3,7 +3,6 @@ package sk.r3n.ui.table.renderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
-
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -11,150 +10,162 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.UIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
-
 import sk.r3n.ui.UIService;
 import sk.r3n.ui.component.R3NCheckBox;
 import sk.r3n.ui.util.UIServiceManager;
 
 public class BooleanTableCellRenderer<T> extends R3NCheckBox implements
-		TableCellRenderer, UIResource {
+        TableCellRenderer, UIResource {
 
-	private static final long serialVersionUID = -7007392028946515159L;
+    public static class UIResource extends DefaultTableCellRenderer implements
+            javax.swing.plaf.UIResource {
 
-	public static class UIResource extends DefaultTableCellRenderer implements
-			javax.swing.plaf.UIResource {
+    }
+    protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
-		private static final long serialVersionUID = -274986895004156694L;
+    private static Border getBorder(boolean cellHasFocus) {
+        if (cellHasFocus) {
+            return UIManager.getBorder("Table.focusCellHighlightBorder");
+        }
+        return noFocusBorder;
+    }
 
-	}
+    public BooleanTableCellRenderer() {
+        super();
+        setOpaque(true);
+        setBorderPaintedFlat(true);
+        setBorderPainted(true);
+        setBorder(getBorder(false));
+        setHorizontalAlignment(CENTER);
+        getActionMap().remove(
+                UIServiceManager.getDefaultUIService().getActionMapKey(
+                UIService.class.getCanonicalName(),
+                UIService.ACTION_CELL_OK));
+    }
 
-	protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
+    @Override
+    public void firePropertyChange(String propertyName, boolean oldValue,
+            boolean newValue) {
+    }
 
-	private static Border getBorder(boolean cellHasFocus) {
-		if (cellHasFocus) {
-			return UIManager.getBorder("Table.focusCellHighlightBorder");
-		}
-		return noFocusBorder;
-	}
+    @Override
+    public void firePropertyChange(String propertyName, byte oldValue,
+            byte newValue) {
+    }
 
-	public BooleanTableCellRenderer() {
-		super();
-		setOpaque(true);
-		setBorderPaintedFlat(true);
-		setBorderPainted(true);
-		setBorder(getBorder(false));
-		setHorizontalAlignment(CENTER);
-		getActionMap().remove(
-				UIServiceManager.getDefaultUIService().getActionMapKey(
-						UIService.class.getCanonicalName(),
-						UIService.ACTION_CELL_OK));
-	}
+    @Override
+    public void firePropertyChange(String propertyName, double oldValue,
+            double newValue) {
+    }
 
-	public void firePropertyChange(String propertyName, boolean oldValue,
-			boolean newValue) {
-	}
+    @Override
+    public void firePropertyChange(String propertyName, float oldValue,
+            float newValue) {
+    }
 
-	public void firePropertyChange(String propertyName, byte oldValue,
-			byte newValue) {
-	}
+    @Override
+    public void firePropertyChange(String propertyName, char oldValue,
+            char newValue) {
+    }
 
-	public void firePropertyChange(String propertyName, double oldValue,
-			double newValue) {
-	}
+    @Override
+    public void firePropertyChange(String propertyName, int oldValue,
+            int newValue) {
+    }
 
-	public void firePropertyChange(String propertyName, float oldValue,
-			float newValue) {
-	}
+    @Override
+    public void firePropertyChange(String propertyName, long oldValue,
+            long newValue) {
+    }
 
-	public void firePropertyChange(String propertyName, char oldValue,
-			char newValue) {
-	}
+    @Override
+    protected void firePropertyChange(String propertyName, Object oldValue,
+            Object newValue) {
+        // Strings get interned...
+        if (propertyName.equals("text")) {
+            super.firePropertyChange(propertyName, oldValue, newValue);
+        }
+    }
 
-	public void firePropertyChange(String propertyName, int oldValue,
-			int newValue) {
-	}
+    @Override
+    public void firePropertyChange(String propertyName, short oldValue,
+            short newValue) {
+    }
 
-	public void firePropertyChange(String propertyName, long oldValue,
-			long newValue) {
-	}
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        setComponentOrientation(table.getComponentOrientation());
+        if (isSelected) {
+            setBackground(table.getSelectionBackground());
+            setForeground(table.getSelectionForeground());
+        } else {
+            setBackground(table.getBackground());
+            setForeground(table.getForeground());
+        }
+        setEnabled(table.isEnabled());
+        setFont(table.getFont());
+        setBorder(getBorder(hasFocus));
+        if (value == null) {
+            setSelected(false);
+            setText("");
+        } else {
+            setSelected(isSelected((T) value));
+            setText(getText((T) value));
+        }
+        int height_wanted = (int) getPreferredSize().getHeight();
+        if (height_wanted > table.getRowHeight(row)) {
+            table.setRowHeight(row, height_wanted);
+        }
 
-	protected void firePropertyChange(String propertyName, Object oldValue,
-			Object newValue) {
-		// Strings get interned...
-		if (propertyName.equals("text"))
-			super.firePropertyChange(propertyName, oldValue, newValue);
-	}
+        return this;
+    }
 
-	public void firePropertyChange(String propertyName, short oldValue,
-			short newValue) {
-	}
+    public String getText(T value) {
+        return "";
+    }
 
-	@SuppressWarnings("unchecked")
-	public Component getTableCellRendererComponent(JTable table, Object value,
-			boolean isSelected, boolean hasFocus, int row, int column) {
-		setComponentOrientation(table.getComponentOrientation());
-		if (isSelected) {
-			setBackground(table.getSelectionBackground());
-			setForeground(table.getSelectionForeground());
-		} else {
-			setBackground(table.getBackground());
-			setForeground(table.getForeground());
-		}
-		setEnabled(table.isEnabled());
-		setFont(table.getFont());
-		setBorder(getBorder(hasFocus));
-		if (value == null) {
-			setSelected(false);
-			setText("");
-		} else {
-			setSelected(isSelected((T) value));
-			setText(getText((T) value));
-		}
-		int height_wanted = (int) getPreferredSize().getHeight();
-		if (height_wanted > table.getRowHeight(row))
-			table.setRowHeight(row, height_wanted);
+    public boolean isSelected(T value) {
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        return false;
+    }
 
-		return this;
-	}
+    @Override
+    public void invalidate() {
+    }
 
-	public String getText(T value) {
-		return "";
-	}
+    @Override
+    public boolean isOpaque() {
+        Color back = getBackground();
+        Component p = getParent();
+        if (p != null) {
+            p = p.getParent();
+        }
+        // p should now be the JList.
+        boolean colorMatch = (back != null) && (p != null)
+                && back.equals(p.getBackground()) && p.isOpaque();
+        return !colorMatch && super.isOpaque();
+    }
 
-	public boolean isSelected(T value) {
-		if (value instanceof Boolean)
-			return (Boolean) value;
-		return false;
-	}
+    @Override
+    public void repaint() {
+    }
 
-	public void invalidate() {
-	}
+    @Override
+    public void repaint(long tm, int x, int y, int width, int height) {
+    }
 
-	public boolean isOpaque() {
-		Color back = getBackground();
-		Component p = getParent();
-		if (p != null) {
-			p = p.getParent();
-		}
-		// p should now be the JList.
-		boolean colorMatch = (back != null) && (p != null)
-				&& back.equals(p.getBackground()) && p.isOpaque();
-		return !colorMatch && super.isOpaque();
-	}
+    @Override
+    public void repaint(Rectangle r) {
+    }
 
-	public void repaint() {
-	}
+    @Override
+    public void revalidate() {
+    }
 
-	public void repaint(long tm, int x, int y, int width, int height) {
-	}
-
-	public void repaint(Rectangle r) {
-	}
-
-	public void revalidate() {
-	}
-
-	public void validate() {
-	}
-
+    @Override
+    public void validate() {
+    }
 }

@@ -4,31 +4,26 @@ import java.util.EventObject;
 
 public class IdEvent extends EventObject {
 
-	private static final long serialVersionUID = -2387438732663068734L;
+    private String groupId;
+    private int actionId;
+    private Object[] data;
 
-	private String groupId;
+    public IdEvent(Object source, String groupId, int actionId, Object[] data) {
+        super(source);
+        this.groupId = groupId;
+        this.actionId = actionId;
+        this.data = data;
+    }
 
-	private int actionId;
+    public int getActionId() {
+        return actionId;
+    }
 
-	private Object[] data;
+    public Object[] getData() {
+        return data;
+    }
 
-	public IdEvent(Object source, String groupId, int actionId, Object[] data) {
-		super(source);
-		this.groupId = groupId;
-		this.actionId = actionId;
-		this.data = data;
-	}
-
-	public int getActionId() {
-		return actionId;
-	}
-
-	public Object[] getData() {
-		return data;
-	}
-
-	public String getGroupId() {
-		return groupId;
-	}
-
+    public String getGroupId() {
+        return groupId;
+    }
 }

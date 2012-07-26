@@ -4,46 +4,50 @@ import java.io.File;
 import java.io.FileFilter;
 
 public abstract class R3NFileFilter extends javax.swing.filechooser.FileFilter
-		implements FileFilter {
+        implements FileFilter {
 
-	protected boolean dir;
+    protected boolean dir;
+    protected boolean ext;
 
-	protected boolean ext;
+    public R3NFileFilter(boolean dir, boolean ext) {
+        super();
+        this.dir = dir;
+        this.ext = ext;
+    }
 
-	public R3NFileFilter(boolean dir, boolean ext) {
-		super();
-		this.dir = dir;
-		this.ext = ext;
-	}
+    @Override
+    public boolean accept(File f) {
+        if (f.isDirectory() && dir) {
+            return true;
+        }
+        return accept(f.getParentFile(), f.getName());
+    }
 
-	@Override
-	public boolean accept(File f) {
-		if (f.isDirectory() && dir) {
-			return true;
-		}
-		return accept(f.getParentFile(), f.getName());
-	}
+    protected abstract boolean accept(File parentFile, String name);
 
-	protected abstract boolean accept(File parentFile, String name);
+    public abstract String getExtension();
 
-	public abstract String getExtension();
+    public String getName(String name) {
+        if (name == null) {
+            name = "new";
+        }
 
-	public String getName(String name) {
-		if (name == null)
-			name = "new";
+        if (name.equals("")) {
+            name = "new";
+        }
 
-		if (name.equals(""))
-			name = "new";
+        if (!ext) {
+            return name;
+        }
 
-		if (!ext)
-			return name;
+        if (name.equalsIgnoreCase(getExtension())) {
+            return "new" + getExtension();
+        }
 
-		if (name.equalsIgnoreCase(getExtension()))
-			return "new" + getExtension();
+        if (name.lastIndexOf('.') == -1) {
+            return name + getExtension();
+        }
 
-		if (name.lastIndexOf('.') == -1)
-			return name + getExtension();
-
-		return name;
-	}
+        return name;
+    }
 }

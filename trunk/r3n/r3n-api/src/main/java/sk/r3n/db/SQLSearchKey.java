@@ -1,23 +1,21 @@
 package sk.r3n.db;
 
 public class SQLSearchKey {
-	
-	private SQLCondition sqlCondition;
-	
-	private Object value;
 
-	public SQLSearchKey(SQLCondition sqlCondition, Object value) {
-		super();
-		this.sqlCondition = sqlCondition;
-		this.value = value;
-	}
+    private SQLCondition sqlCondition;
+    private Object value;
 
-	public SQLCondition getSqlCondition() {
-		return sqlCondition;
-	}
+    public SQLSearchKey(SQLCondition sqlCondition, Object value) {
+        super();
+        this.sqlCondition = sqlCondition;
+        this.value = value;
+    }
 
-	public Object getValue() {
-		return value;
-	}
+    public SQLCondition getSqlCondition() {
+        return sqlCondition;
+    }
 
+    public Object getValue() {
+        return value;
+    }
 }

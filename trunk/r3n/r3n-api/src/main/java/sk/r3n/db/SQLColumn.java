@@ -1,59 +1,68 @@
 package sk.r3n.db;
 
+import java.util.Objects;
+
 public class SQLColumn {
 
-	protected short dataType;
+    protected short dataType;
+    protected String name;
+    protected String table;
 
-	protected String name;
+    public SQLColumn(String table, String name, short dataType) {
+        super();
+        this.table = table;
+        this.dataType = dataType;
+        this.name = name;
+    }
 
-	protected String table;
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof SQLColumn) {
+            SQLColumn objColumn = (SQLColumn) obj;
+            return table.equals(objColumn.getTable())
+                    && name.equals(objColumn.getName());
+        }
+        return false;
+    }
 
-	public SQLColumn(String table, String name, short dataType) {
-		super();
-		this.table = table;
-		this.dataType = dataType;
-		this.name = name;
-	}
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + this.dataType;
+        hash = 29 * hash + Objects.hashCode(this.name);
+        hash = 29 * hash + Objects.hashCode(this.table);
+        return hash;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this)
-			return true;
-		if (obj instanceof SQLColumn) {
-			SQLColumn objColumn = (SQLColumn) obj;
-			return table.equals(objColumn.getTable())
-					&& name.equals(objColumn.getName());
-		}
-		return false;
-	}
+    public short getDataType() {
+        return dataType;
+    }
 
-	public short getDataType() {
-		return dataType;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getTable() {
+        return table;
+    }
 
-	public String getTable() {
-		return table;
-	}
+    public void setDataType(short dataType) {
+        this.dataType = dataType;
+    }
 
-	public void setDataType(short dataType) {
-		this.dataType = dataType;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setTable(String table) {
+        this.table = table;
+    }
 
-	public void setTable(String table) {
-		this.table = table;
-	}
-
-	@Override
-	public String toString() {
-		return table + "[" + name + "]";
-	}
-
+    @Override
+    public String toString() {
+        return table + "[" + name + "]";
+    }
 }

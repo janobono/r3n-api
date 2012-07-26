@@ -5,9 +5,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Properties;
 import java.util.ResourceBundle;
-
 import org.osgi.service.component.ComponentContext;
-
 import sk.r3n.action.IdActionService;
 import sk.r3n.action.IdEvent;
 import sk.r3n.action.IdEventListener;
@@ -457,6 +455,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
         this.sqlGenerator = getSQLGenerator(getProperties());
     }
 
+    @Override
     public boolean isEnabled(IdEvent idEvent) {
         if (idEvent.getGroupId().equals(
                 DbManagerService.class.getCanonicalName())) {

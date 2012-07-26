@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0"
-	name="IdActionService" immediate="true" activate="activate" deactivate="deactivate">
-	<implementation class="sk.r3n.action.impl.IdActionServiceImpl" />
-	<service>
-		<provide interface="sk.r3n.action.IdActionService" />
-	</service>
+               name="IdActionService" immediate="true" activate="activate" deactivate="deactivate">
+    <implementation class="sk.r3n.action.impl.IdActionServiceImpl" />
+    <service>
+        <provide interface="sk.r3n.action.IdActionService" />
+    </service>
 </scr:component>
