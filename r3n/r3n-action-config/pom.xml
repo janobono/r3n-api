@@ -5,7 +5,7 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-action-config</artifactId>
@@ -13,13 +13,8 @@
     <name>R3N action config</name>
     <description>R3N action service config.</description>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <build>
         <defaultGoal>package</defaultGoal>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -83,12 +78,12 @@
         <dependency>
             <groupId>sk.r3n</groupId>
             <artifactId>r3n-api</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>sk.r3n</groupId>
             <artifactId>r3n-ui</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
 </project>
