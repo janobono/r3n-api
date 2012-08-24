@@ -10,7 +10,7 @@
     </parent>
     <artifactId>r3n-action-config</artifactId>
 
-    <name>R3N action config</name>
+    <name>r3n action config</name>
     <description>R3N action service config.</description>
 
     <build>

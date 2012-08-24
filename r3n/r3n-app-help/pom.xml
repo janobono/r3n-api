@@ -9,7 +9,8 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-app-help</artifactId>
-    <name>R3N help</name>
+    
+    <name>r3n help</name>
     <description>R3N help service.</description>
 
     <build>

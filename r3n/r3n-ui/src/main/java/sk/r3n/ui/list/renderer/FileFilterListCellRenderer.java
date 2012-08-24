@@ -1,6 +1,6 @@
 package sk.r3n.ui.list.renderer;
 
-import sk.r3n.ui.R3NFileFilter;
+import sk.r3n.ui.component.R3NFileFilter;
 
 public class FileFilterListCellRenderer extends LabelListCellRenderer<R3NFileFilter> {
 

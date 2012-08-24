@@ -6,27 +6,21 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import org.osgi.service.component.ComponentContext;
-import sk.r3n.action.IdActionService;
-import sk.r3n.action.IdEvent;
-import sk.r3n.action.IdEventListener;
-import sk.r3n.app.AppHelp;
 import sk.r3n.db.ConnectionCreator;
 import sk.r3n.db.DbManagerService;
 import sk.r3n.db.DbManagerServiceIO;
+import sk.r3n.db.DbManagerServiceUI;
 import sk.r3n.db.SQLGenerator;
 import sk.r3n.properties.R3NProperties;
-import sk.r3n.ui.UIService;
 import sk.r3n.util.R3NException;
 
-public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
+public class DbManagerServiceImpl implements DbManagerService {
 
     public static final String POSTGRES_DRIVER = org.postgresql.Driver.class.getCanonicalName();
     public static final String MS_SQL_DRIVER = net.sourceforge.jtds.jdbc.Driver.class.getCanonicalName();
-    protected static ComponentContext context;
-    protected static R3NProperties r3nProperties;
-    protected static AppHelp appHelp;
-    protected static IdActionService idActionService;
-    protected static UIService uiService;
+    private ComponentContext context;
+    private R3NProperties r3nProperties;
+    private DbManagerServiceUI dbManagerServiceUI;
     private DbManagerServiceIO dbManagerServiceIO;
     private ConnectionCreator connectionCreator;
     private SQLGenerator sqlGenerator;
@@ -36,16 +30,9 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
     }
 
     protected void activate(ComponentContext context) {
-        DbManagerServiceImpl.context = context;
-
+        this.context = context;
         r3nProperties = (R3NProperties) context.locateService("R3NProperties");
-        appHelp = (AppHelp) context.locateService("AppHelp");
-        idActionService = (IdActionService) context.locateService("IdActionService");
-        idActionService.add(DbManagerService.class.getCanonicalName(),
-                ACTION_TEST);
-        idActionService.addIdEventListener(
-                DbManagerService.class.getCanonicalName(), this);
-        uiService = (UIService) context.locateService("UIService");
+        dbManagerServiceUI = (DbManagerServiceUI) context.locateService("DbManagerServiceUI");
         dbManagerServiceIO = (DbManagerServiceIO) context.locateService("DbManagerServiceIO");
     }
 
@@ -204,26 +191,15 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
         }
         connectionCreator = null;
 
-        DbManagerServiceImpl.context = null;
-
         r3nProperties = null;
-        appHelp = null;
-        idActionService.removeIdEventListener(
-                DbManagerService.class.getCanonicalName(), this);
-        idActionService.remove(DbManagerService.class.getCanonicalName(),
-                ACTION_TEST);
-        idActionService = null;
-        uiService = null;
+        dbManagerServiceUI = null;
+        dbManagerServiceIO = null;
+        context = null;
     }
 
     private Properties editProperties(Properties properties) throws Exception {
-        Properties result = null;
-        ConnectionPropertiesDialog connectionPropertiesDialog;
-        connectionPropertiesDialog = new ConnectionPropertiesDialog(
-                uiService.getRootFrame());
-        if (connectionPropertiesDialog.init(properties)) {
-            result = connectionPropertiesDialog.getProperties();
-        } else {
+        Properties result = dbManagerServiceUI.edit(properties);
+        if (result == null) {
             throw new R3NException(ResourceBundle.getBundle(
                     DbManagerService.class.getCanonicalName()).getString(
                     Integer.toString(ERR_CANCEL)), ERR_CANCEL);
@@ -276,17 +252,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
         return null;
     }
 
-    public void idEvent(IdEvent idEvent) {
-        if (idEvent.getGroupId().equals(
-                DbManagerService.class.getCanonicalName())) {
-            switch (idEvent.getActionId()) {
-                case ACTION_TEST:
-                    testProperties((Properties) idEvent.getData()[0], false);
-                    break;
-            }
-        }
-    }
-
+    @Override
     public void init() throws R3NException {
         Properties properties = getProperties();
         try {
@@ -302,10 +268,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
                         connectionCreator = getConnectionCreator(properties);
                         if (connectionCreator == null) {
                             ResourceBundle bundle = ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName());
-                            uiService.showMessageDialog(
-                                    bundle.getString("TITLE"),
-                                    bundle.getString("UNSUPPORTED"),
-                                    UIService.MESSAGE_ACTION_ERROR);
+                            dbManagerServiceUI.showError(bundle.getString("TITLE"), bundle.getString("UNSUPPORTED"));
                         }
                     } while (connectionCreator == null);
                     try {
@@ -331,9 +294,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
                         }
                     } catch (R3NException e) {
                         ResourceBundle bundle = ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName());
-                        uiService.showMessageDialog(bundle.getString("TITLE"),
-                                e.getLocalizedMessage(),
-                                UIService.MESSAGE_ACTION_ERROR);
+                        dbManagerServiceUI.showError(bundle.getString("TITLE"), e.getLocalizedMessage());
                     } finally {
                         connectionCreator.close();
                     }
@@ -343,7 +304,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
                 // Databaza je nastavena
                 while (!testProperties(properties, true)) {
                     testProperties(properties, false);
-                    boolean edit = false;
+                    boolean edit;
                     ConnectionCreator connectionCreator = getConnectionCreator(properties);
                     if (connectionCreator == null) {
                         edit = true;
@@ -352,10 +313,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
                         switch (connectionCreator.getConnStatus()) {
                             case ERR_NOT_RUN:
                                 ResourceBundle bundle = ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName());
-                                edit = uiService.showYesNoDialog(
-                                        bundle.getString("TITLE"),
-                                        bundle.getString("NOT_RUN_QUESTION"),
-                                        UIService.MESSAGE_ACTION_WARNING) == UIService.ANSWER_NO;
+                                edit = dbManagerServiceUI.askWarning(bundle.getString("TITLE"), bundle.getString("NOT_RUN_QUESTION"));
                                 if (!edit) {
                                     continue;
                                 } else {
@@ -369,10 +327,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
                     // Vyhodnotene ze je nutny zasah do konfiguracie
                     if (edit) {
                         ResourceBundle bundle = ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName());
-                        if (uiService.showYesNoDialog(
-                                bundle.getString("TITLE"),
-                                bundle.getString("SET_PROP_QUESTION"),
-                                UIService.MESSAGE_ACTION_WARNING) == UIService.ANSWER_YES) {
+                        if (dbManagerServiceUI.askWarning(bundle.getString("TITLE"), bundle.getString("SET_PROP_QUESTION"))) {
                             // editacia parametrov
                             do {
                                 // Ak nie je tvorca pripojeni opakovanie procesu
@@ -382,10 +337,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
                                     connectionCreator = getConnectionCreator(properties);
                                     if (connectionCreator == null) {
                                         bundle = ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName());
-                                        uiService.showMessageDialog(
-                                                bundle.getString("TITLE"),
-                                                bundle.getString("UNSUPPORTED"),
-                                                UIService.MESSAGE_ACTION_ERROR);
+                                        dbManagerServiceUI.showError(bundle.getString("TITLE"), bundle.getString("UNSUPPORTED"));
                                     }
                                 } while (connectionCreator == null);
                                 try {
@@ -414,10 +366,7 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
                                     }
                                 } catch (R3NException e) {
                                     bundle = ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName());
-                                    uiService.showMessageDialog(
-                                            bundle.getString("TITLE"),
-                                            e.getLocalizedMessage(),
-                                            UIService.MESSAGE_ACTION_ERROR);
+                                    dbManagerServiceUI.showError(bundle.getString("TITLE"), e.getLocalizedMessage());
                                 } finally {
                                     connectionCreator.close();
                                 }
@@ -455,18 +404,6 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
         this.sqlGenerator = getSQLGenerator(getProperties());
     }
 
-    @Override
-    public boolean isEnabled(IdEvent idEvent) {
-        if (idEvent.getGroupId().equals(
-                DbManagerService.class.getCanonicalName())) {
-            switch (idEvent.getActionId()) {
-                case ACTION_TEST:
-                    return true;
-            }
-        }
-        return false;
-    }
-
     private boolean isNotSet(Properties properties) {
         return properties.getProperty(ConnectionCreator.DRIVER, "").equals("")
                 || properties.getProperty(ConnectionCreator.HOST, "").equals("")
@@ -488,7 +425,8 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
         connectionCreator.close();
     }
 
-    private boolean testProperties(Properties properties, boolean silent) {
+    @Override
+    public boolean testProperties(Properties properties, boolean silent) {
         boolean result = false;
         // Vytvorenie tvorcu pripojeni
         ConnectionCreator connectionCreator = getConnectionCreator(properties);
@@ -496,62 +434,39 @@ public class DbManagerServiceImpl implements DbManagerService, IdEventListener {
         if (connectionCreator == null) {
             if (!silent) {
                 ResourceBundle bundle = ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName());
-                uiService.showMessageDialog(bundle.getString("TITLE"),
-                        bundle.getString("UNSUPPORTED"),
-                        UIService.MESSAGE_ACTION_ERROR);
+                dbManagerServiceUI.showError(bundle.getString("TITLE"), bundle.getString("UNSUPPORTED"));
             }
             return result;
         }
         switch (connectionCreator.getConnStatus()) {
             case ConnectionCreator.CONN_STATUS_UNKNOWN:
                 if (!silent) {
-                    uiService.showMessageDialog(
-                            ResourceBundle.getBundle(
-                            DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(
-                            DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_UNKNOWN)),
-                            UIService.MESSAGE_ACTION_ERROR);
+                    dbManagerServiceUI.showError(ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
+                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_UNKNOWN)));
                 }
                 return result;
             case ConnectionCreator.CONN_STATUS_NOT_RUN:
                 if (!silent) {
-                    uiService.showMessageDialog(
-                            ResourceBundle.getBundle(
-                            DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(
-                            DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_NOT_RUN)),
-                            UIService.MESSAGE_ACTION_WARNING);
+                    dbManagerServiceUI.showWarning(ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
+                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_NOT_RUN)));
                 }
                 return result;
             case ConnectionCreator.CONN_STATUS_NOT_EXIST:
                 if (!silent) {
-                    uiService.showMessageDialog(
-                            ResourceBundle.getBundle(
-                            DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(
-                            DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_NOT_EXIST)),
-                            UIService.MESSAGE_ACTION_ERROR);
+                    dbManagerServiceUI.showError(ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
+                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_NOT_EXIST)));
                 }
                 return result;
             case ConnectionCreator.CONN_STATUS_AUTHENTICATION:
                 if (!silent) {
-                    uiService.showMessageDialog(
-                            ResourceBundle.getBundle(
-                            DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(
-                            DbManagerService.class.getCanonicalName()).getString(
-                            Integer.toString(ERR_AUTHENTICATION)),
-                            UIService.MESSAGE_ACTION_ERROR);
+                    dbManagerServiceUI.showError(ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
+                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_AUTHENTICATION)));
                 }
                 return result;
             case 0:
                 if (!silent) {
-                    uiService.showMessageDialog(
-                            ResourceBundle.getBundle(
-                            DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(
-                            DbManagerService.class.getCanonicalName()).getString(Integer.toString(0)),
-                            UIService.MESSAGE_ACTION_INFORMATION);
+                    dbManagerServiceUI.showInfo(ResourceBundle.getBundle(DbManagerServiceImpl.class.getCanonicalName()).getString("TITLE"),
+                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(0)));
                 }
                 result = true;
                 return result;

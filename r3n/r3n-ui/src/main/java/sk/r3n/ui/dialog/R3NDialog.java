@@ -10,7 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import sk.r3n.action.IdActionExecutor;
-import sk.r3n.ui.R3NInputComponent;
+import sk.r3n.ui.component.R3NInputComponent;
 import sk.r3n.ui.UIService;
 import sk.r3n.ui.util.UIServiceManager;
 

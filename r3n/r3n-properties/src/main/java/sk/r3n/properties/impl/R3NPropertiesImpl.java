@@ -103,11 +103,7 @@ public class R3NPropertiesImpl implements R3NProperties {
     }
 
     public void print() {
-        try {
-            System.out.println(properties);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println(properties);
     }
 
     @Override

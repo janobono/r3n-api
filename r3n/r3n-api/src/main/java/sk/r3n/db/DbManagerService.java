@@ -1,11 +1,10 @@
 package sk.r3n.db;
 
+import java.util.Properties;
 import sk.r3n.util.R3NException;
 
 public interface DbManagerService {
 
-    public int ACTION_TEST = 10;
-    
     public int ERR_UNKNOWN = 10;
     public int ERR_NOT_SET = 20;
     public int ERR_NOT_RUN = 30;
@@ -29,4 +28,6 @@ public interface DbManagerService {
     public ConnectionCreator getConnectionCreator();
 
     public SQLGenerator getSQLGenerator();
+    
+    public boolean testProperties(Properties properties, boolean silent);
 }

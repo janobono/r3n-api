@@ -13,9 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import sk.r3n.action.IdAction;
+import sk.r3n.ui.IdAction;
 import sk.r3n.action.IdActionExecutor;
-import sk.r3n.ui.R3NInputComponent;
 import sk.r3n.ui.UIService;
 import sk.r3n.ui.util.UIServiceManager;
 
