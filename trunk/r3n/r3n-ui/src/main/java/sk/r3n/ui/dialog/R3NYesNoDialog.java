@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Frame;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import sk.r3n.action.IdAction;
+import sk.r3n.ui.IdAction;
 import sk.r3n.ui.UIService;
 import sk.r3n.ui.component.R3NButton;
 import sk.r3n.ui.panel.ButtonPanel;

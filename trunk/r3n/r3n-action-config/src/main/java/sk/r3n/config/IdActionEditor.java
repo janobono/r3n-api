@@ -26,7 +26,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -37,7 +36,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.AbstractTableModel;
-
 import sk.r3n.ui.UIService;
 import sk.r3n.ui.component.R3NTextArea;
 import sk.r3n.ui.list.R3NList;
@@ -45,51 +43,51 @@ import sk.r3n.ui.list.renderer.LabelListCellRenderer;
 import sk.r3n.ui.table.editor.R3NButtonTableEditor;
 import sk.r3n.ui.table.renderer.LabelTableCellRenderer;
 import sk.r3n.ui.util.SVGIcon;
+import sk.r3n.ui.util.UIServiceManager;
 import sk.r3n.util.ConfigUtil;
 
 public class IdActionEditor extends JFrame {
-    
+
     private class KeyStrokeTableEditor extends R3NButtonTableEditor {
-        
+
         private JTextField textField;
         private JDialog keyCodeDialog;
-        
+
         @Override
         public KeyStroke getCellEditorValue() {
             return (KeyStroke) oldValue;
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             keyCodeDialog = new JDialog(IdActionEditor.this);
             keyCodeDialog.setModal(true);
             keyCodeDialog.addWindowListener(new WindowListener() {
-                
                 @Override
                 public void windowOpened(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowIconified(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowDeiconified(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowDeactivated(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowClosing(WindowEvent e) {
                     close(true);
                 }
-                
+
                 @Override
                 public void windowClosed(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowActivated(WindowEvent e) {
                 }
@@ -107,15 +105,14 @@ public class IdActionEditor extends JFrame {
                 textField.setText(oldValue.toString());
             }
             textField.addKeyListener(new KeyListener() {
-                
                 @Override
                 public void keyTyped(KeyEvent e) {
                 }
-                
+
                 @Override
                 public void keyReleased(KeyEvent e) {
                 }
-                
+
                 @Override
                 public void keyPressed(KeyEvent e) {
                     KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
@@ -127,11 +124,10 @@ public class IdActionEditor extends JFrame {
                 }
             });
             keyCodeDialog.add(textField, BorderLayout.CENTER);
-            
+
             JPanel panel = new JPanel(new GridLayout(1, 2));
             JButton btn = new JButton("clear");
             btn.addActionListener(new ActionListener() {
-                
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     textField.setText("");
@@ -141,7 +137,6 @@ public class IdActionEditor extends JFrame {
             panel.add(btn);
             btn = new JButton("ok");
             btn.addActionListener(new ActionListener() {
-                
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     close(false);
@@ -150,11 +145,11 @@ public class IdActionEditor extends JFrame {
             panel.add(btn);
             keyCodeDialog.add(panel, BorderLayout.SOUTH);
             keyCodeDialog.pack();
-            R3NActionConfig.uiService.positionCenterWindow(IdActionEditor.this,
+            UIServiceManager.getDefaultUIService().positionCenterWindow(IdActionEditor.this,
                     keyCodeDialog);
             keyCodeDialog.setVisible(true);
         }
-        
+
         private void close(boolean cancel) {
             if (cancel) {
                 cancelCellEditing();
@@ -164,17 +159,15 @@ public class IdActionEditor extends JFrame {
             keyCodeDialog.dispose();
         }
     }
-    
+
     private class IconTableRenderer extends LabelTableCellRenderer<URL> {
-        
-        private static final long serialVersionUID = -8705894270157758979L;
-        
+
         @Override
         public String getNullText() {
             setIcon(null);
             return super.getNullText();
         }
-        
+
         @Override
         public String getText(URL value) {
             setIcon(null);
@@ -190,17 +183,17 @@ public class IdActionEditor extends JFrame {
             return "";
         }
     }
-    
+
     private class IconTableEditor extends R3NButtonTableEditor {
-        
+
         private class IconListRenderer extends LabelListCellRenderer<URL> {
-            
+
             @Override
             public String getNullText() {
                 setIcon(null);
                 return super.getNullText();
             }
-            
+
             @Override
             public String getText(URL value) {
                 try {
@@ -217,43 +210,42 @@ public class IdActionEditor extends JFrame {
         }
         private JDialog iconDialog;
         private R3NList<URL> iconList;
-        
+
         @Override
         public Object getCellEditorValue() {
             return oldValue;
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             iconDialog = new JDialog(IdActionEditor.this);
             iconDialog.setModal(true);
             iconDialog.addWindowListener(new WindowListener() {
-                
                 @Override
                 public void windowOpened(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowIconified(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowDeiconified(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowDeactivated(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowClosing(WindowEvent e) {
                     close(true);
                 }
-                
+
                 @Override
                 public void windowClosed(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowActivated(WindowEvent e) {
                 }
@@ -261,7 +253,7 @@ public class IdActionEditor extends JFrame {
             iconDialog.setLayout(new BorderLayout());
             iconList = new R3NList<>();
             iconList.setCellRenderer(new IconListRenderer());
-            
+
             List<URL> iconResource = new ArrayList<>();
             try {
                 File resDir = new File(resField.getText());
@@ -289,11 +281,10 @@ public class IdActionEditor extends JFrame {
             iconList.setValues(iconResource);
             iconList.setSelectedValue((URL) oldValue);
             iconDialog.add(new JScrollPane(iconList), BorderLayout.CENTER);
-            
+
             JPanel panel = new JPanel(new GridLayout(1, 2));
             JButton btn = new JButton("clear");
             btn.addActionListener(new ActionListener() {
-                
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     iconList.setSelectedValue(null);
@@ -303,7 +294,6 @@ public class IdActionEditor extends JFrame {
             panel.add(btn);
             btn = new JButton("ok");
             btn.addActionListener(new ActionListener() {
-                
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     close(false);
@@ -312,11 +302,10 @@ public class IdActionEditor extends JFrame {
             panel.add(btn);
             iconDialog.add(panel, BorderLayout.SOUTH);
             iconDialog.pack();
-            R3NActionConfig.uiService.positionCenterWindow(IdActionEditor.this,
-                    iconDialog);
+            UIServiceManager.getDefaultUIService().positionCenterWindow(IdActionEditor.this, iconDialog);
             iconDialog.setVisible(true);
         }
-        
+
         private void close(boolean cancel) {
             if (cancel) {
                 cancelCellEditing();
@@ -327,11 +316,9 @@ public class IdActionEditor extends JFrame {
             iconDialog.dispose();
         }
     }
-    
+
     private class PropertiesTableRenderer extends LabelTableCellRenderer<Properties> {
-        
-        private static final long serialVersionUID = -2068414032996651905L;
-        
+
         @Override
         public String getText(Properties value) {
             List<String> lines = new ArrayList<>();
@@ -341,56 +328,54 @@ public class IdActionEditor extends JFrame {
             return getLines(lines);
         }
     }
-    
+
     private class PropertiesTableEditor extends R3NButtonTableEditor {
-        
-        private static final long serialVersionUID = -2584120578909152681L;
+
         private JDialog propertiesDialog;
         private R3NTextArea propertiesArea;
-        
+
         @Override
         public Object getCellEditorValue() {
             return oldValue;
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             propertiesDialog = new JDialog(IdActionEditor.this);
             propertiesDialog.setModal(true);
             propertiesDialog.addWindowListener(new WindowListener() {
-                
                 @Override
                 public void windowOpened(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowIconified(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowDeiconified(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowDeactivated(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowClosing(WindowEvent e) {
                     close(true);
                 }
-                
+
                 @Override
                 public void windowClosed(WindowEvent e) {
                 }
-                
+
                 @Override
                 public void windowActivated(WindowEvent e) {
                 }
             });
             propertiesDialog.setLayout(new BorderLayout());
             propertiesArea = new R3NTextArea();
-            
+
             String text = "";
             Properties properties = (Properties) oldValue;
             for (Object key : properties.keySet()) {
@@ -398,13 +383,12 @@ public class IdActionEditor extends JFrame {
                         + ";\n";
             }
             propertiesArea.setText(text);
-            
+
             propertiesDialog.add(new JScrollPane(propertiesArea),
                     BorderLayout.CENTER);
-            
+
             JButton btn = new JButton("ok");
             btn.addActionListener(new ActionListener() {
-                
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     close(false);
@@ -412,11 +396,10 @@ public class IdActionEditor extends JFrame {
             });
             propertiesDialog.add(btn, BorderLayout.SOUTH);
             propertiesDialog.pack();
-            R3NActionConfig.uiService.positionCenterWindow(IdActionEditor.this,
-                    propertiesDialog);
+            UIServiceManager.getDefaultUIService().positionCenterWindow(IdActionEditor.this, propertiesDialog);
             propertiesDialog.setVisible(true);
         }
-        
+
         private void close(boolean cancel) {
             if (cancel) {
                 cancelCellEditing();
@@ -442,14 +425,14 @@ public class IdActionEditor extends JFrame {
             propertiesDialog.dispose();
         }
     }
-    
+
     private class IdServiceTableModel extends AbstractTableModel {
-        
+
         @Override
         public int getRowCount() {
             return allActions.size();
         }
-        
+
         @Override
         public String getColumnName(int column) {
             switch (column) {
@@ -470,12 +453,12 @@ public class IdActionEditor extends JFrame {
             }
             return null;
         }
-        
+
         @Override
         public int getColumnCount() {
             return 7;
         }
-        
+
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             String key = allActions.get(rowIndex);
@@ -509,7 +492,7 @@ public class IdActionEditor extends JFrame {
             }
             return null;
         }
-        
+
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             String key = allActions.get(rowIndex);
@@ -545,7 +528,7 @@ public class IdActionEditor extends JFrame {
                     break;
             }
         }
-        
+
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
             return columnIndex > 0;
@@ -556,7 +539,7 @@ public class IdActionEditor extends JFrame {
     private JTextField confField;
     private JTextField locField;
     private JTextField resField;
-    
+
     public IdActionEditor() {
         super();
         allActions = R3NActionConfig.idActionService.getActions();
@@ -568,13 +551,10 @@ public class IdActionEditor extends JFrame {
                 + "conf" + File.separatorChar + "actions.conf");
         JButton button = new JButton("...");
         button.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent e) {
-                File file = R3NActionConfig.uiService.openFile(
-                        UIService.FILE_FILES_ONLY,
-                        "Actions configuration file",
-                        new File(System.getProperty("user.dir")), null, null);
+                File file = UIServiceManager.getDefaultUIService().openFile(UIService.FILE_FILES_ONLY,
+                        "Actions configuration file", new File(System.getProperty("user.dir")), null, null);
                 if (file != null) {
                     try {
                         IdActionEditor.this.confField.setText(file.getCanonicalPath());
@@ -589,18 +569,16 @@ public class IdActionEditor extends JFrame {
         panel.add(button, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
                 0, 0, 0, 0), 0, 0));
-        
+
         locField = new JTextField();
         locField.setText(System.getProperty("user.dir") + File.separatorChar
                 + "conf" + File.separatorChar + "actions.properties");
         button = new JButton("...");
         button.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent e) {
-                File file = R3NActionConfig.uiService.openFile(
-                        UIService.FILE_FILES_ONLY, "Actions locale file",
-                        new File(System.getProperty("user.dir")), null, null);
+                File file = UIServiceManager.getDefaultUIService().openFile(UIService.FILE_FILES_ONLY,
+                        "Actions locale file", new File(System.getProperty("user.dir")), null, null);
                 if (file != null) {
                     try {
                         IdActionEditor.this.locField.setText(file.getCanonicalPath());
@@ -619,13 +597,10 @@ public class IdActionEditor extends JFrame {
         resField.setText("lib");
         button = new JButton("...");
         button.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent e) {
-                File file = R3NActionConfig.uiService.openFile(
-                        UIService.FILE_DIRECTORIES_ONLY,
-                        "Icon archive directory",
-                        new File(System.getProperty("user.dir")), null, null);
+                File file = UIServiceManager.getDefaultUIService().openFile(UIService.FILE_DIRECTORIES_ONLY,
+                        "Icon archive directory", new File(System.getProperty("user.dir")), null, null);
                 if (file != null) {
                     try {
                         IdActionEditor.this.resField.setText(file.getCanonicalPath());
@@ -640,9 +615,9 @@ public class IdActionEditor extends JFrame {
         panel.add(button, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
                 0, 0, 0, 0), 0, 0));
-        
+
         add(panel, BorderLayout.NORTH);
-        
+
         codeTable = new JTable();
         codeTable.setModel(new IdServiceTableModel());
         codeTable.getColumnModel().getColumn(2).setCellEditor(new KeyStrokeTableEditor());
@@ -655,11 +630,10 @@ public class IdActionEditor extends JFrame {
         codeTable.getColumnModel().getColumn(6).setCellRenderer(new PropertiesTableRenderer());
         codeTable.getColumnModel().getColumn(6).setCellEditor(new PropertiesTableEditor());
         add(new JScrollPane(codeTable), BorderLayout.CENTER);
-        
+
         panel = new JPanel(new GridLayout(1, 3));
         button = new JButton("sync");
         button.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 sync();
@@ -668,7 +642,6 @@ public class IdActionEditor extends JFrame {
         panel.add(button);
         button = new JButton("load");
         button.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 load();
@@ -677,7 +650,6 @@ public class IdActionEditor extends JFrame {
         panel.add(button);
         button = new JButton("save");
         button.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 save();
@@ -686,7 +658,7 @@ public class IdActionEditor extends JFrame {
         panel.add(button);
         add(panel, BorderLayout.SOUTH);
     }
-    
+
     private void load() {
         FileInputStream conf = null;
         FileInputStream loc = null;
@@ -709,7 +681,7 @@ public class IdActionEditor extends JFrame {
         allActions = R3NActionConfig.idActionService.getActions();
         ((IdServiceTableModel) codeTable.getModel()).fireTableDataChanged();
     }
-    
+
     private void save() {
         FileOutputStream conf = null;
         FileOutputStream loc = null;
@@ -730,7 +702,7 @@ public class IdActionEditor extends JFrame {
             }
         }
     }
-    
+
     private void sync() {
         FileInputStream conf = null;
         FileInputStream loc = null;

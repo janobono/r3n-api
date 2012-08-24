@@ -13,7 +13,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import sk.r3n.action.IdAction;
+import sk.r3n.ui.IdAction;
 import sk.r3n.action.IdActionExecutor;
 import sk.r3n.ui.UIService;
 import sk.r3n.ui.component.R3NButton;

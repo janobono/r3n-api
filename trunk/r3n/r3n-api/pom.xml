@@ -10,7 +10,7 @@
     </parent>
     <artifactId>r3n-api</artifactId>
 
-    <name>R3N API</name>
+    <name>r3n api</name>
     <description>Base objects and service descriptors of R3N framework.</description>
 
     <build>
@@ -57,8 +57,6 @@
                     <instructions>
                         <Export-Package>*</Export-Package>
                         <Import-Package>*</Import-Package>
-                        <Private-Package>sk.r3n.action.impl</Private-Package>
-                        <Service-Component>OSGI-INF/component.xml</Service-Component>
                     </instructions>
                 </configuration>
                 <executions>

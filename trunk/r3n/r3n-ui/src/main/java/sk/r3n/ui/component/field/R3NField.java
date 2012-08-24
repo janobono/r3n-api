@@ -9,7 +9,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
-import sk.r3n.ui.R3NInputComponent;
+import sk.r3n.ui.component.R3NInputComponent;
 import sk.r3n.ui.UIService;
 import sk.r3n.ui.util.UIServiceManager;
 

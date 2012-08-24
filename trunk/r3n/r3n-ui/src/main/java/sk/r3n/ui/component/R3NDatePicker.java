@@ -12,7 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import sk.r3n.action.IdActionExecutor;
-import sk.r3n.action.IdActionListener;
+import sk.r3n.ui.IdActionListener;
 import sk.r3n.ui.UIService;
 import sk.r3n.ui.component.field.VarcharField;
 

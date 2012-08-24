@@ -9,7 +9,7 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-properties</artifactId>
-    <name>R3N properties</name>
+    <name>r3n properties</name>
     <description>R3N properties service.</description>
 
     <build>

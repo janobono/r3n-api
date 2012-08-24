@@ -3,12 +3,11 @@ package sk.r3n.config;
 import org.osgi.service.component.ComponentContext;
 import sk.r3n.action.IdActionConfig;
 import sk.r3n.action.IdActionService;
-import sk.r3n.ui.UIService;
+import sk.r3n.ui.util.UIServiceManager;
 
 public class R3NActionConfig implements IdActionConfig {
 
     protected static IdActionService idActionService;
-    protected static UIService uiService;
     private IdActionEditor idActionEditor;
 
     public R3NActionConfig() {
@@ -17,7 +16,6 @@ public class R3NActionConfig implements IdActionConfig {
 
     protected void activate(ComponentContext context) {
         idActionService = (IdActionService) context.locateService("IdActionService");
-        uiService = (UIService) context.locateService("UIService");
     }
 
     protected void deactivate(ComponentContext context) {
@@ -25,7 +23,6 @@ public class R3NActionConfig implements IdActionConfig {
             idActionEditor.dispose();
         }
         idActionEditor = null;
-        uiService = null;
     }
 
     @Override
@@ -33,7 +30,7 @@ public class R3NActionConfig implements IdActionConfig {
         if (idActionEditor == null) {
             idActionEditor = new IdActionEditor();
             idActionEditor.setSize(800, 600);
-            uiService.positionCenterScreen(idActionEditor);
+            UIServiceManager.getDefaultUIService().positionCenterScreen(idActionEditor);
         }
         idActionEditor.setVisible(true);
     }

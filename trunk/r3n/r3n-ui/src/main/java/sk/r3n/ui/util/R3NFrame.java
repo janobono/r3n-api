@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
 import sk.r3n.action.IdActionExecutor;
-import sk.r3n.ui.R3NInputComponent;
+import sk.r3n.ui.component.R3NInputComponent;
 import sk.r3n.ui.UIService;
 
 public abstract class R3NFrame extends JFrame implements IdActionExecutor,
