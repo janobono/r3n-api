@@ -5,7 +5,7 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-app-help</artifactId>
@@ -77,7 +77,7 @@
         <dependency>
             <groupId>sk.r3n</groupId>
             <artifactId>r3n-api</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
 </project>
