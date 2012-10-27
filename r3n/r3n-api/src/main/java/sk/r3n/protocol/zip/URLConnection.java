@@ -10,8 +10,11 @@ import java.util.zip.ZipFile;
 public class URLConnection extends java.net.URLConnection {
 
     private final String file;
+
     private final String zipEntryName;
+
     private ZipFile zipFile;
+
     private ZipEntry zipEntry;
 
     protected URLConnection(URL url) throws MalformedURLException {
@@ -51,4 +54,5 @@ public class URLConnection extends java.net.URLConnection {
         }
         return (int) zipEntry.getSize();
     }
+
 }
