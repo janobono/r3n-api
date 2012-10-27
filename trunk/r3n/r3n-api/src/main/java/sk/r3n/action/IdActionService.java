@@ -55,4 +55,5 @@ public interface IdActionService {
             Properties properties);
 
     public void sync(InputStream conf, InputStream loc) throws Exception;
+
 }
