@@ -12,8 +12,11 @@ import java.util.logging.Logger;
 public class Lock {
 
     private static final Logger LOGGER = Logger.getLogger(Lock.class.getCanonicalName());
+
     private FileLock lock;
+
     private FileChannel lockChannel;
+
     private volatile boolean locked;
 
     public void lock(String lockName) {
@@ -61,4 +64,5 @@ public class Lock {
         }
         locked = false;
     }
+
 }

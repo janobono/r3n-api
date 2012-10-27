@@ -128,6 +128,7 @@ public class ByteArray implements Comparable<ByteArray>, Serializable {
     public static String toString(ByteArray value) {
         return toString(value.getBytes());
     }
+
     private byte[] byteArray;
 
     public ByteArray() {
@@ -415,4 +416,5 @@ public class ByteArray implements Comparable<ByteArray>, Serializable {
     public byte valueAt(int p) {
         return this.byteArray[p];
     }
+
 }
