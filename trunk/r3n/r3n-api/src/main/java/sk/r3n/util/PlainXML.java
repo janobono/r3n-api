@@ -6,9 +6,13 @@ import java.util.Map.Entry;
 public class PlainXML {
 
     public static final String NEW_LINE = "\r\n";
+
     public static final String OPEN_START = "<";
+
     public static final String OPEN_END = "</";
+
     public static final String SIMPLE_CLOSE = "/>";
+
     public static final String CLOSE = ">";
 
     public static String getProlog(String version, String encoding) {
@@ -83,4 +87,5 @@ public class PlainXML {
         }
         return "" + c;
     }
+
 }

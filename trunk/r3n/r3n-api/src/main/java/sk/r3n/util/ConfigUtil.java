@@ -15,4 +15,5 @@ public class ConfigUtil {
         result[1] = Integer.parseInt(tokenizer.nextToken());
         return result;
     }
+
 }

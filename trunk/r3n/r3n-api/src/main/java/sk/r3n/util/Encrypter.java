@@ -12,6 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class Encrypter {
 
     private Cipher cipher;
+
     private Key key;
 
     public Encrypter() throws Exception {
@@ -127,4 +128,5 @@ public class Encrypter {
             throw e;
         }
     }
+
 }

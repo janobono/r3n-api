@@ -18,6 +18,7 @@ public class R3NException extends Exception {
         }
         return result.toString();
     }
+
     private int errorCode;
 
     public R3NException(String message, int errorCode) {
@@ -32,4 +33,5 @@ public class R3NException extends Exception {
     public int getErrorCode() {
         return errorCode;
     }
+
 }

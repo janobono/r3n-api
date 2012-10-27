@@ -4,22 +4,28 @@ import java.security.SecureRandom;
 
 public class PasswordGenerator {
 
-    public static final short NUMERIC = 10;
-    public static final short ALPHA = 20;
-    public static final short ALPHA_NUMERIC = 30;
+    public enum Type {
+
+        NUMERIC, ALPHA, ALPHA_NUMERIC;
+
+    }
+
     private char[] numeric = new char[]{'1', '2', '3', '4', '5', '6', '7',
         '8', '9', '0'};
+
     private char[] alpha = new char[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
         'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
         'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
         'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
         'v', 'w', 'x', 'y', 'z'};
+
     private char[] alphaNumberic = new char[]{'A', 'B', 'C', 'D', 'E', 'F',
         'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
         'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
         'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
         't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6',
         '7', '8', '9', '0'};
+
     private SecureRandom secureRandom;
 
     public PasswordGenerator() throws Exception {
@@ -31,7 +37,7 @@ public class PasswordGenerator {
         secureRandom = SecureRandom.getInstance(algorithm);
     }
 
-    public String generatePassword(short type, int length) {
+    public String generatePassword(Type type, int length) {
         if (length <= 0) {
             return "";
         }
@@ -63,4 +69,5 @@ public class PasswordGenerator {
         }
         return stringBuffer.toString();
     }
+
 }
