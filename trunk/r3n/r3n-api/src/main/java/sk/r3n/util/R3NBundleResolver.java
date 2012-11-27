@@ -15,8 +15,8 @@ public class R3NBundleResolver {
         List<String> messageArguments = new ArrayList<>(parameters.length);
         for (Object obj : parameters) {
             if (obj != null) {
-                if (obj instanceof R3NEnum) {
-                    messageArguments.add(((R3NEnum) obj).value());
+                if (obj instanceof R3NBundleEnum) {
+                    messageArguments.add(((R3NBundleEnum) obj).value());
                 } else {
                     messageArguments.add(obj.toString());
                 }

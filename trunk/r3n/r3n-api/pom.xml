@@ -5,7 +5,7 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>1.2.0</version>
+        <version>2.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-api</artifactId>
@@ -71,4 +71,13 @@
             </plugin>
         </plugins>
     </build>
+    
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
