@@ -1,8 +1,8 @@
 package sk.r3n.jdbc;
 
 import java.util.EnumSet;
-import sk.r3n.util.R3NBundleResolver;
 import sk.r3n.util.R3NBundleEnum;
+import sk.r3n.util.R3NBundleResolver;
 
 public enum DbStatus implements R3NBundleEnum {
 

@@ -4,9 +4,11 @@ import java.util.Calendar;
 import javax.persistence.TemporalType;
 
 class TemporalParameter {
+
     private final Calendar value;
+
     private final TemporalType temporalType;
-    
+
     public TemporalParameter(Calendar value, TemporalType temporalType) {
         this.value = value;
         this.temporalType = temporalType;
@@ -19,4 +21,5 @@ class TemporalParameter {
     public Calendar getValue() {
         return value;
     }
+
 }
