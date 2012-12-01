@@ -4,8 +4,7 @@ public enum DbType {
 
     POSTGRE(org.postgresql.Driver.class.getCanonicalName()),
     SQL_SERVER(net.sourceforge.jtds.jdbc.Driver.class.getCanonicalName()),
-    H2(org.h2.Driver.class.getCanonicalName())
-    ;
+    H2(org.h2.Driver.class.getCanonicalName());
 
     private final String driver;
 
