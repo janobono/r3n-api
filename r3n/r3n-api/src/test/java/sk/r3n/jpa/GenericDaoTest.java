@@ -1,17 +1,24 @@
 package sk.r3n.jpa;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.junit.Test;
 
 public class GenericDaoTest {
 
-    private class TestGenericDaoImpl extends GenericDaoImpl  {
+    private class TestGenericDaoImpl extends GenericDaoImpl {
+
+        private EntityManager entityManager;
 
         @Override
         protected EntityManager getEntityManager() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            if (entityManager == null) {
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("TestOpenJPAPersistence");
+                entityManager = emf.createEntityManager();
+            }
+            return entityManager;
         }
-
 
     }
 
@@ -26,6 +33,9 @@ public class GenericDaoTest {
         subdomain.setCode("code");
         subdomain.setName("name");
         domain.getSubdomains().add(subdomain);
+        genericDao.create(domain);
+        genericDao.findByNamedQuery(Domain.class, Domain.DOMAIN_BY_CODE,
+                QueryParameter.with("code", "code").parameters());
         //TODO.
     }
 
