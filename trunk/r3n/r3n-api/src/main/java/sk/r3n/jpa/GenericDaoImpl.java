@@ -16,7 +16,6 @@ public abstract class GenericDaoImpl implements GenericDao {
     @Override
     public <T> T create(T t) {
         getEntityManager().persist(t);
-        getEntityManager().flush();
         return t;
     }
 
