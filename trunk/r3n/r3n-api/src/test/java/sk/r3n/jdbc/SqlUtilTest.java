@@ -38,7 +38,7 @@ public class SqlUtilTest {
             preparedStatement.close();
             preparedStatement = SqlUtil.prepare(connection, "SELECT * FROM TEST_DATA WHERE ID = ?", new Object[]{1});
             resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()){
+            while (resultSet.next()) {
                 assertEquals("value", resultSet.getString(2));
             }
         } finally {

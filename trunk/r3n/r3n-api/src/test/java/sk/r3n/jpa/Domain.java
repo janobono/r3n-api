@@ -9,11 +9,16 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "DOMAIN")
+@NamedQueries({
+    @NamedQuery(name = Domain.DOMAIN_BY_CODE, query = "SELECT d FROM Domain d WHERE d.code = :code")
+})
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Domain extends BaseEntity implements Serializable {
 
