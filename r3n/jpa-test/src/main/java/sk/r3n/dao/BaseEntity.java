@@ -1,4 +1,4 @@
-package sk.r3n.jpa;
+package sk.r3n.dao;
 
 import java.io.Serializable;
 import java.util.Calendar;
