@@ -14,7 +14,8 @@
 
     <modules>
         <module>r3n-action</module>
-        <module>r3n-api</module>        
+        <module>r3n-api</module>
+        <module>jpa-test</module>        
     </modules>
     
     <build>
