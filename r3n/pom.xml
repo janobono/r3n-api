@@ -13,9 +13,9 @@
     </properties>
 
     <modules>
-        <module>r3n-action</module>
         <module>r3n-api</module>
-        <module>jpa-test</module>        
+        <module>jpa-test</module>
+        <module>r3n-swing</module>      
     </modules>
     
     <build>
@@ -98,6 +98,11 @@
             <groupId>org.apache.openjpa</groupId>
             <artifactId>openjpa-all</artifactId>
             <version>2.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.7</version>
         </dependency>
     </dependencies>
 </project>
