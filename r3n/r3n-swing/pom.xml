@@ -13,7 +13,6 @@
     <description>R3N swing components.</description>
 
     <build>
-        <defaultGoal>package</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>

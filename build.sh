@@ -5,7 +5,7 @@ PATH=$JAVA_HOME:$MAVEN_HOME:$PATH
 
 mvn -version
 
-R3N="$HOME/workspace/r3n/r3n-api/r3n"
+R3N="$HOME/workspace/r3n/trunk/r3n"
 
 cd $R3N
 mvn clean
