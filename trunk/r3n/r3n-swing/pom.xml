@@ -7,9 +7,9 @@
         <version>2.0.0</version>
         <relativePath>..</relativePath>
     </parent>
-    <artifactId>r3n-swing</artifactId>
+    <artifactId>r3n-sw</artifactId>
 
-    <name>r3n swing</name>
+    <name>r3n sw</name>
     <description>R3N swing components.</description>
 
     <build>
