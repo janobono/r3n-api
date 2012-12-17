@@ -8,18 +8,21 @@ import java.util.Date;
 import java.util.Locale;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import sk.r3n.action.IdActionExecutor;
-import sk.r3n.ui.IdActionListener;
-import sk.r3n.ui.UIService;
 import sk.r3n.sw.component.list.R3NListCellRenderer;
+import sk.r3n.sw.util.UIActionExecutor;
+import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UIActionListener;
+import sk.r3n.sw.util.UISWAction;
 
-public final class R3NMonthPicker extends JPanel implements IdActionExecutor {
+public final class MonthPicker extends JPanel implements UIActionExecutor {
 
     public JComboBox<Integer> monthBox;
+
     public JComboBox<Integer> yearBox;
+
     private boolean blocked;
 
-    public R3NMonthPicker(Date date) {
+    public MonthPicker(Date date) {
         super(new GridBagLayout());
         if (date == null) {
             date = new Date();
@@ -29,7 +32,6 @@ public final class R3NMonthPicker extends JPanel implements IdActionExecutor {
         // MONTH
         monthBox = new JComboBox<>();
         monthBox.setRenderer(new R3NListCellRenderer<Integer>() {
-
             @Override
             public String getText(Integer value) {
                 Calendar calendar = Calendar.getInstance();
@@ -37,6 +39,7 @@ public final class R3NMonthPicker extends JPanel implements IdActionExecutor {
                 calendar.set(Calendar.MONTH, value);
                 return calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
             }
+
         });
         for (int i = 0; i < 12; i++) {
             monthBox.addItem(i);
@@ -47,7 +50,7 @@ public final class R3NMonthPicker extends JPanel implements IdActionExecutor {
                 0, 0, 0), 0, 0));
         // YEAR
         yearBox = new JComboBox<>();
-        yearBox.addActionListener(new IdActionListener(UIService.class.getCanonicalName(), UIService.ACTION_SELECT, this));
+        yearBox.addActionListener(new UIActionListener(UISWAction.SELECT, this));
         setYear(calendar.get(Calendar.YEAR));
         add(yearBox, new GridBagConstraints(1, 0, 1, 1, 0.5, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
@@ -55,10 +58,10 @@ public final class R3NMonthPicker extends JPanel implements IdActionExecutor {
     }
 
     @Override
-    public void execute(String groupId, int actionId, Object source) {
-        if (groupId.equals(UIService.class.getCanonicalName())) {
-            switch (actionId) {
-                case UIService.ACTION_SELECT:
+    public void execute(UIActionKey actionKey, Object source) {
+        if (actionKey instanceof UISWAction) {
+            switch ((UISWAction) actionKey) {
+                case SELECT:
                     if (!blocked) {
                         setYear((int) yearBox.getSelectedItem());
                     }
@@ -90,4 +93,5 @@ public final class R3NMonthPicker extends JPanel implements IdActionExecutor {
         yearBox.setSelectedItem(year);
         blocked = false;
     }
+
 }

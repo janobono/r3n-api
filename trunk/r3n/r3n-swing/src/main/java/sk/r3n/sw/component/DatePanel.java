@@ -4,68 +4,67 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionListener;
 import java.util.Date;
 import java.util.ResourceBundle;
 import javax.swing.JPanel;
-import sk.r3n.action.IdActionExecutor;
-import sk.r3n.sw.component.R3NInputComponent;
 import sk.r3n.sw.component.field.DateField;
+import sk.r3n.sw.dialog.OkCancelDialog;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIService;
-import sk.r3n.ui.IdActionListener;
-import sk.r3n.ui.UIService;
-import sk.r3n.ui.component.field.DateField;
-import sk.r3n.sw.dialog.R3NOkCancelDialog;
-import sk.r3n.sw.util.UIServiceManager;
+import sk.r3n.sw.util.UIActionExecutor;
+import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UISWAction;
 
-public final class R3NDatePanel extends JPanel implements R3NInputComponent<Date>, ActionListener {
+public final class DatePanel extends JPanel implements InputComponent<Date>, UIActionExecutor {
 
-    private class DatePickerDialog extends R3NOkCancelDialog {
+    private class DatePickerDialog extends OkCancelDialog {
 
         public DatePickerDialog() {
-            super(SwingUtil.getFrameForComponent(R3NDatePanel.this));
+            super(SwingUtil.getFrameForComponent(DatePanel.this));
             setModal(true);
-            setTitle(ResourceBundle.getBundle(R3NDatePanel.class.getCanonicalName()).getString("TITLE"));
+            setTitle(ResourceBundle.getBundle(DatePanel.class.getCanonicalName()).getString("TITLE"));
         }
 
-        public boolean initDialog(R3NDatePicker datePicker) {
+        public boolean initDialog(DatePicker datePicker) {
             add(datePicker, BorderLayout.CENTER);
             pack();
             setVisible(true);
-            return lastGroup.equals(UIService.class.getCanonicalName()) && lastAction == UIService.ACTION_OK;
+            return lastActionKey.equals(UISWAction.OK);
+        }
+
+        @Override
+        public boolean isInputValid() {
+            return true;
         }
 
     }
-
     public DateField dateField;
 
     public R3NButton selectButton;
 
-    public R3NDatePanel(boolean canBeNull) {
+    public DatePanel(boolean canBeNull) {
         super();
         dateField = new DateField(canBeNull);
         init(dateField);
     }
 
-    public R3NDatePanel(boolean canBeNull, char separator) {
+    public DatePanel(boolean canBeNull, char separator) {
         super();
         dateField = new DateField(canBeNull, separator);
         init(dateField);
     }
 
     @Override
-    public int contentValid() {
-        return dateField.contentValid();
+    public InputStatus inputStatus() {
+        return dateField.inputStatus();
     }
 
     @Override
-    public void execute(String groupId, int actionId, Object source) {
-        if (groupId.equals(UIService.class.getCanonicalName())) {
-            switch (actionId) {
-                case UIService.ACTION_SELECT:
+    public void execute(UIActionKey actionKey, Object source) {
+        if (actionKey instanceof UISWAction) {
+            switch ((UISWAction) actionKey) {
+                case SELECT:
                     DatePickerDialog dateDialog = new DatePickerDialog();
-                    R3NDatePicker datePicker = new R3NDatePicker(
+                    DatePicker datePicker = new DatePicker(
                             dateField.getValue());
                     if (dateDialog.initDialog(datePicker)) {
                         dateField.setValue(datePicker.getDate());
@@ -84,10 +83,8 @@ public final class R3NDatePanel extends JPanel implements R3NInputComponent<Date
         setLayout(new GridBagLayout());
         add(dateField, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
-        selectButton = new R3NButton(UIService.class.getCanonicalName(),
-                UIService.ACTION_SELECT);
+        selectButton = new R3NButton(UISWAction.SELECT, this);
         selectButton.setText("...");
-        selectButton.addActionListener(new IdActionListener(UIService.class.getCanonicalName(), UIService.ACTION_SELECT, this));
         add(selectButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     }

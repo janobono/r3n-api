@@ -1,6 +1,7 @@
 package sk.r3n.sw.component.field;
 
 import java.io.File;
+import sk.r3n.sw.component.InputStatus;
 
 public class FileField extends VarcharField {
 
@@ -9,16 +10,16 @@ public class FileField extends VarcharField {
     }
 
     @Override
-    public int contentValid() {
-        int contentValid = super.contentValid();
-        if (contentValid != VALID) {
-            return contentValid;
+    public InputStatus inputStatus() {
+        InputStatus inputStatus = super.inputStatus();
+        if (!inputStatus.equals(InputStatus.VALID)) {
+            return inputStatus;
         }
         File file = new File(getValue());
         if (file.isFile()) {
-            return VALID;
+            return InputStatus.VALID;
         }
-        return FORMAT;
+        return InputStatus.FORMAT;
     }
 
 }

@@ -10,16 +10,18 @@ import sk.r3n.sw.util.SwingUtil;
 import sk.r3n.sw.util.UIActionKey;
 import sk.r3n.sw.util.UISWAction;
 
-public abstract class OkDialog extends Dialog {
+public abstract class YesNoDialog extends Dialog {
 
-    protected R3NButton okButton;
+    protected R3NButton noButton;
 
-    public OkDialog() {
+    protected R3NButton yesButton;
+
+    public YesNoDialog() {
         super();
         init();
     }
 
-    public OkDialog(Frame frame) {
+    public YesNoDialog(Frame frame) {
         super(frame);
         init();
     }
@@ -27,15 +29,16 @@ public abstract class OkDialog extends Dialog {
     @Override
     public void execute(UIActionKey actionKey, Object source) {
         lastActionKey = actionKey;
-        if (actionKey instanceof UISWAction) {
+        if (lastActionKey instanceof UISWAction) {
             switch ((UISWAction) actionKey) {
-                case OK:
+                case YES:
                     if (!isInputValid()) {
                         break;
                     }
                     dispose();
                     break;
                 case CLOSE:
+                case NO:
                     dispose();
                     break;
             }
@@ -43,12 +46,15 @@ public abstract class OkDialog extends Dialog {
     }
 
     private void init() {
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.OK, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.YES, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.NO, this);
         SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.CLOSE, this);
 
-        ButtonPanel buttonPanel = new ButtonPanel(1, true);
-        okButton = new R3NButton(UISWAction.OK, this);
-        buttonPanel.addButton(okButton);
+        ButtonPanel buttonPanel = new ButtonPanel(2, true);
+        yesButton = new R3NButton(UISWAction.YES, this);
+        buttonPanel.addButton(yesButton);
+        noButton = new R3NButton(UISWAction.NO, this);
+        buttonPanel.addButton(noButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 

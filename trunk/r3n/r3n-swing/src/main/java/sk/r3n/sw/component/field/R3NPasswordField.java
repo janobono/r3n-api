@@ -2,6 +2,7 @@ package sk.r3n.sw.component.field;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import sk.r3n.sw.component.InputStatus;
 
 public class R3NPasswordField extends R3NField<byte[]> {
 
@@ -66,8 +67,8 @@ public class R3NPasswordField extends R3NField<byte[]> {
     }
 
     @Override
-    public int contentValid() {
-        return VALID;
+    public InputStatus inputStatus() {
+        return InputStatus.VALID;
     }
 
     @Override

@@ -7,42 +7,63 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import sk.r3n.ui.IdAction;
-import sk.r3n.action.IdActionExecutor;
-import sk.r3n.ui.UIService;
+import sk.r3n.sw.component.ButtonPanel;
 import sk.r3n.sw.component.R3NButton;
-import sk.r3n.ui.panel.ButtonPanel;
-import sk.r3n.sw.util.UIServiceManager;
+import sk.r3n.sw.util.Answer;
+import sk.r3n.sw.util.MessageType;
+import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.sw.util.UIActionExecutor;
+import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UISWAction;
+import sk.r3n.util.BundleEnum;
+import sk.r3n.util.BundleResolver;
 
-public class R3NKeyStrokeDialog extends JDialog implements IdActionExecutor,
-        WindowListener, KeyListener {
+public class KeyStrokeDialog extends JDialog implements UIActionExecutor, WindowListener, KeyListener {
 
+    private enum Bundle implements BundleEnum {
+
+        TITLE,
+        EXISTS;
+
+        @Override
+        public String value() {
+            return BundleResolver.resolve(KeyStrokeDialog.class.getCanonicalName(), name());
+        }
+
+        @Override
+        public String value(Object[] parameters) {
+            return BundleResolver.resolve(KeyStrokeDialog.class.getCanonicalName(), name(), parameters);
+        }
+
+    }
     protected KeyStroke keyStroke;
-    protected JTextField textField;
-    protected List<KeyStroke> keyStrokes;
-    protected int lastAction;
 
-    public R3NKeyStrokeDialog() {
+    protected JTextField textField;
+
+    protected List<KeyStroke> keyStrokes;
+
+    protected UIActionKey lastActionKey = UISWAction.CLOSE;
+
+    public KeyStrokeDialog() {
         super();
         init();
     }
 
-    public R3NKeyStrokeDialog(Frame owner) {
+    public KeyStrokeDialog(Frame owner) {
         super(owner);
         init();
     }
 
     private void init() {
+        setTitle(Bundle.TITLE.value());
         setModal(true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(this);
-        setTitle(ResourceBundle.getBundle(this.getClass().getCanonicalName()).getString("TITLE"));
 
         JPanel form = new JPanel(new GridBagLayout());
 
@@ -62,31 +83,27 @@ public class R3NKeyStrokeDialog extends JDialog implements IdActionExecutor,
 
         add(form, BorderLayout.CENTER);
 
-        ButtonPanel buttonPanel = new ButtonPanel(1, 2);
-        R3NButton okButton = new R3NButton(UIService.class.getCanonicalName(),
-                UIService.ACTION_OK);
-        okButton.addActionListener(new IdAction(UIService.class.getCanonicalName(), UIService.ACTION_OK, this));
+        ButtonPanel buttonPanel = new ButtonPanel(2, true);
+        R3NButton okButton = new R3NButton(UISWAction.OK, this);
         buttonPanel.addButton(okButton);
-        R3NButton cancelButton = new R3NButton(
-                UIService.class.getCanonicalName(), UIService.ACTION_CANCEL);
-        cancelButton.addActionListener(new IdAction(UIService.class.getCanonicalName(), UIService.ACTION_CANCEL, this));
+        R3NButton cancelButton = new R3NButton(UISWAction.CANCEL, this);
         buttonPanel.addButton(cancelButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
     @Override
-    public void execute(String groupId, int actionId, Object source) {
-        lastAction = actionId;
-        if (groupId.equals(UIService.class.getCanonicalName())) {
-            switch (actionId) {
-                case UIService.ACTION_OK:
+    public void execute(UIActionKey actionKey, Object source) {
+        lastActionKey = actionKey;
+        if (lastActionKey instanceof UISWAction) {
+            switch ((UISWAction) actionKey) {
+                case OK:
                     if (keyStroke == null) {
-                        lastAction = UIService.ACTION_CANCEL;
+                        lastActionKey = UISWAction.CANCEL;
                     }
                     dispose();
                     break;
-                case UIService.ACTION_CLOSE:
-                case UIService.ACTION_CANCEL:
+                case CLOSE:
+                case CANCEL:
                     dispose();
                     break;
             }
@@ -99,13 +116,10 @@ public class R3NKeyStrokeDialog extends JDialog implements IdActionExecutor,
 
     public boolean initDialog(List<KeyStroke> keyStrokes) {
         this.keyStrokes = keyStrokes;
-        lastAction = UIService.ACTION_CANCEL;
         pack();
-        UIServiceManager.getDefaultUIService().positionCenterWindow(
-                UIServiceManager.getDefaultUIService().getFrameForComponent(
-                this), this);
+        SwingUtil.positionCenterWindow(SwingUtil.getRootFrame(), this);
         setVisible(true);
-        return lastAction == UIService.ACTION_OK;
+        return lastActionKey.equals(UISWAction.OK);
     }
 
     @Override
@@ -113,16 +127,8 @@ public class R3NKeyStrokeDialog extends JDialog implements IdActionExecutor,
         keyStroke = KeyStroke.getKeyStrokeForEvent(keyEvent);
         if (keyStrokes != null) {
             for (KeyStroke exStroke : keyStrokes) {
-                if (keyStroke.getKeyCode() == exStroke.getKeyCode()
-                        && keyStroke.getModifiers() == exStroke.getModifiers()
-                        && UIServiceManager.getDefaultUIService().showYesNoDialog(
-                        null,
-                        ResourceBundle.getBundle(
-                        R3NKeyStrokeDialog.class.getCanonicalName()).getString("EXISTS")
-                        + "\n["
-                        + keyStroke.toString()
-                        + "]",
-                        UIService.MESSAGE_ACTION_WARNING) != UIService.ANSWER_YES) {
+                if (keyStroke.getKeyCode() == exStroke.getKeyCode() && keyStroke.getModifiers() == exStroke.getModifiers()
+                        && SwingUtil.showYesNoDialog(null, Bundle.EXISTS.value(new Object[]{keyStroke}), MessageType.WARNING) != Answer.YES) {
                     keyStroke = null;
                     break;
                 }
@@ -139,8 +145,7 @@ public class R3NKeyStrokeDialog extends JDialog implements IdActionExecutor,
                 case KeyEvent.VK_CONTROL:
                     break;
                 default:
-                    execute(UIService.class.getCanonicalName(),
-                            UIService.ACTION_OK, this);
+                    execute(UISWAction.OK, this);
             }
         }
     }
@@ -163,8 +168,7 @@ public class R3NKeyStrokeDialog extends JDialog implements IdActionExecutor,
 
     @Override
     public void windowClosing(WindowEvent e) {
-        execute(UIService.class.getCanonicalName(), UIService.ACTION_CLOSE,
-                this);
+        execute(UISWAction.CLOSE, e.getSource());
     }
 
     @Override
@@ -182,4 +186,5 @@ public class R3NKeyStrokeDialog extends JDialog implements IdActionExecutor,
     @Override
     public void windowOpened(WindowEvent e) {
     }
+
 }

@@ -20,7 +20,6 @@ public class JPAtest {
         genericDao.create(domain);
         genericDao.findByNamedQuery(Domain.class, Domain.DOMAIN_BY_CODE,
                 QueryParameter.with("code", "code").parameters());
-        //TODO.
     }
 
 }

@@ -62,7 +62,7 @@ public class StartupFrame extends R3NFrame {
     }
 
     @Override
-    public void execute(ActionKey actionKey, Object source) {
+    public void execute(UIActionKey actionKey, Object source) {
     }
 
     public void finishProgress() {

@@ -8,6 +8,4 @@ public interface R3NTableConfig {
 
     public String columnName(int column);
 
-    public int columnId(int column);
-
 }

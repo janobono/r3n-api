@@ -1,6 +1,5 @@
 package sk.r3n.sw.util;
 
-import sk.r3n.sw.util.R3NFileFilter;
 import java.io.File;
 
 public class ExtensionFileFilter extends R3NFileFilter {

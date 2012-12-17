@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import sk.r3n.sw.component.InputStatus;
 
 public class TimestampField extends MaskField<Date> {
 
@@ -109,29 +110,29 @@ public class TimestampField extends MaskField<Date> {
     }
 
     @Override
-    public int contentValid() {
+    public InputStatus inputStatus() {
         if (canBeNull && isContentNull()) {
-            return VALID;
+            return InputStatus.VALID;
         }
         if (!canBeNull && isContentNull()) {
-            return NULL;
+            return InputStatus.NULL;
         }
         try {
             Date value = getValue();
             if (getMinValue() != null) {
                 if (value.compareTo(getMinValue()) < 0) {
-                    return SCOPE;
+                    return InputStatus.SCOPE;
                 }
             }
             if (getMaxValue() != null) {
                 if (value.compareTo(getMaxValue()) > 0) {
-                    return SCOPE;
+                    return InputStatus.SCOPE;
                 }
             }
         } catch (Exception e) {
-            return FORMAT;
+            return InputStatus.FORMAT;
         }
-        return VALID;
+        return InputStatus.VALID;
     }
 
     @Override

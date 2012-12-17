@@ -1,83 +1,39 @@
 package sk.r3n.sw.component;
 
-import java.awt.event.KeyEvent;
-import java.net.URL;
 import javax.swing.*;
-import sk.r3n.ui.UIService;
-import sk.r3n.sw.util.UIServiceManager;
+import sk.r3n.sw.util.IconType;
+import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.sw.util.UIActionExecutor;
+import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UIActionListener;
 
 public class R3NButton extends JButton {
 
-    public R3NButton() {
+    public R3NButton(UIActionKey actionKey) {
         super();
-        // Modifikacia klavesovych skratiek
-        KeyStroke keyStroke = UIServiceManager.getDefaultUIService().getIdActionService().getKeyStroke(UIService.class.getCanonicalName(),
-                UIService.ACTION_BUTTON);
-        if (keyStroke != null
-                && (keyStroke.getKeyCode() != KeyEvent.VK_SPACE || keyStroke.getModifiers() != 0)) {
-            InputMap im = getInputMap(JComponent.WHEN_FOCUSED);
-            KeyStroke[] ks = im.allKeys();
-            InputMap im2 = new InputMap();
-            if (ks != null) {
-                for (int x = 0; x < ks.length; x++) {
-                    if (ks[x].equals(KeyStroke.getKeyStroke("pressed SPACE"))) {
-                        im2.put(ks[x], im.get(ks[x]));
-                        im2.put(KeyStroke.getKeyStroke(keyStroke.getKeyCode(),
-                                keyStroke.getModifiers(), false), im.get(ks[x]));
-                    }
-                    if (ks[x].equals(KeyStroke.getKeyStroke("released SPACE"))) {
-                        im2.put(ks[x], im.get(ks[x]));
-                        im2.put(KeyStroke.getKeyStroke(keyStroke.getKeyCode(),
-                                keyStroke.getModifiers(), true), im.get(ks[x]));
-                    }
-                }
-                setInputMap(JComponent.WHEN_FOCUSED, im2);
-            }
-        }
-        // Fokus
-        UIServiceManager.getDefaultUIService().modifyFocus(this);
-    }
-
-    public R3NButton(String text) {
-        this();
-        setText(text);
-    }
-
-    public R3NButton(String groupId, int actionId) {
-        this();
-        Icon icon = null;
-        URL url = UIServiceManager.getDefaultUIService().getIdActionService().getIcon(groupId, actionId);
-        if (url != null) {
-            icon = UIServiceManager.getDefaultUIService().getIcon(url);
-        }
-        String text = UIServiceManager.getDefaultUIService().getIdActionService().getName(groupId, actionId);
+        Icon icon = SwingUtil.getIcon(actionKey, IconType.ENABLED);
+        String text = actionKey.actionName();
         if (icon != null) {
             setIcon(icon);
         } else {
-            if (text != null) {
-                setText(text);
-            }
+            setText(text);
         }
-        if (text != null) {
-            setToolTipText(text);
-        }
+        setToolTipText(text);
 
-        icon = null;
-        url = UIServiceManager.getDefaultUIService().getIdActionService().getDisabledIcon(groupId, actionId);
-        if (url != null) {
-            icon = UIServiceManager.getDefaultUIService().getIcon(url);
-        }
+        icon = SwingUtil.getIcon(actionKey, IconType.DISABLED);
         if (icon != null) {
             setDisabledIcon(icon);
         }
 
-        icon = null;
-        url = UIServiceManager.getDefaultUIService().getIdActionService().getPressedIcon(groupId, actionId);
-        if (url != null) {
-            icon = UIServiceManager.getDefaultUIService().getIcon(url);
-        }
+        icon = SwingUtil.getIcon(actionKey, IconType.PRESSED);
         if (icon != null) {
             setPressedIcon(icon);
         }
     }
+
+    public R3NButton(UIActionKey actionKey, UIActionExecutor actionExecutor) {
+        this(actionKey);
+        addActionListener(new UIActionListener(actionKey, actionExecutor));
+    }
+
 }

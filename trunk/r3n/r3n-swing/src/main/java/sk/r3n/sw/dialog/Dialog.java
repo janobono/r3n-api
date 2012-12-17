@@ -4,23 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import sk.r3n.action.IdActionExecutor;
-import sk.r3n.ui.component.R3NInputComponent;
-import sk.r3n.ui.UIService;
-import sk.r3n.sw.util.UIServiceManager;
+import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.sw.util.UIActionExecutor;
+import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UISWAction;
 
-public abstract class Dialog extends JDialog implements WindowListener, IdActionExecutor {
+public abstract class Dialog extends JDialog implements WindowListener, UIActionExecutor {
 
-    private List<R3NInputComponent<?>> inputComponents;
-
-    protected String lastGroup;
-
-    protected int lastAction;
+    protected UIActionKey lastActionKey = UISWAction.CLOSE;
 
     public Dialog() {
         super();
@@ -32,68 +26,42 @@ public abstract class Dialog extends JDialog implements WindowListener, IdAction
         init();
     }
 
-    public void addInputComponent(R3NInputComponent<?> inputComponent) {
-        inputComponents.add(inputComponent);
+    public UIActionKey getLastActionKey() {
+        return lastActionKey;
     }
 
     @Override
-    public void execute(String groupId, int actionId, Object source) {
-        lastGroup = groupId;
-        lastAction = actionId;
-        if (groupId.equals(UIService.class.getCanonicalName())) {
-            switch (actionId) {
-                case UIService.ACTION_CLOSE:
+    public void execute(UIActionKey actionKey, Object source) {
+        lastActionKey = actionKey;
+        if (lastActionKey instanceof UISWAction) {
+            switch ((UISWAction) actionKey) {
+                case CLOSE:
                     dispose();
                     break;
             }
         }
     }
 
-    public List<R3NInputComponent<?>> getInputComponents() {
-        return inputComponents;
-    }
-
-    public String getLastGroup() {
-        return lastGroup;
-    }
-
-    public int getLastAction() {
-        return lastAction;
-    }
-
     private void init() {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(this);
         setLayout(new BorderLayout());
-        inputComponents = new ArrayList<>();
-        UIServiceManager.getDefaultUIService().setKeyStroke(
-                UIService.class.getCanonicalName(), UIService.ACTION_CLOSE,
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
-                (JPanel) getContentPane(), this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.CLOSE, this);
     }
 
-    public boolean isInputValid() {
-        return UIServiceManager.getDefaultUIService().isInputValid(
-                inputComponents);
-    }
+    public abstract boolean isInputValid();
 
     @Override
     public void pack() {
         super.pack();
-        UIServiceManager.getDefaultUIService().modifyDimensions(this);
-    }
-
-    public void removeInputComponent(R3NInputComponent<?> inputComponent) {
-        inputComponents.remove(inputComponent);
+        SwingUtil.modifyDimensions(this);
     }
 
     @Override
     public void setVisible(boolean visible) {
-        lastGroup = null;
-        lastAction = -1;
+        lastActionKey = null;
         if (visible) {
-            UIServiceManager.getDefaultUIService().positionCenterWindow(
-                    getOwner(), this);
+            SwingUtil.positionCenterWindow(getOwner(), this);
         }
         super.setVisible(visible);
     }
@@ -108,8 +76,7 @@ public abstract class Dialog extends JDialog implements WindowListener, IdAction
 
     @Override
     public void windowClosing(WindowEvent windowEvent) {
-        execute(UIService.class.getCanonicalName(), UIService.ACTION_CLOSE,
-                windowEvent.getSource());
+        execute(UISWAction.CLOSE, windowEvent.getSource());
     }
 
     @Override

@@ -1,10 +1,10 @@
 package sk.r3n.jdbc;
 
 import java.util.EnumSet;
-import sk.r3n.util.R3NBundleEnum;
-import sk.r3n.util.R3NBundleResolver;
+import sk.r3n.util.BundleEnum;
+import sk.r3n.util.BundleResolver;
 
-public enum DbStatus implements R3NBundleEnum {
+public enum DbStatus implements BundleEnum {
 
     OK(0),
     UNKNOWN(10),
@@ -35,7 +35,7 @@ public enum DbStatus implements R3NBundleEnum {
 
     @Override
     public String value() {
-        return R3NBundleResolver.resolve(DbStatus.class.getCanonicalName(), name());
+        return BundleResolver.resolve(DbStatus.class.getCanonicalName(), name());
     }
 
     @Override

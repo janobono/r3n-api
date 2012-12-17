@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import sk.r3n.sw.component.InputStatus;
 
 public final class BigDecimalField extends R3NField<BigDecimal> {
 
@@ -165,31 +166,31 @@ public final class BigDecimalField extends R3NField<BigDecimal> {
     }
 
     @Override
-    public int contentValid() {
+    public InputStatus inputStatus() {
         if (isEnabled() && isEditable() && isVisible()) {
             if (canBeNull && isContentNull()) {
-                return VALID;
+                return InputStatus.VALID;
             }
             if (!canBeNull && isContentNull()) {
-                return NULL;
+                return InputStatus.NULL;
             }
             try {
                 BigDecimal value = getValue();
                 if (getMinValue() != null) {
                     if (value.compareTo(getMinValue()) < 0) {
-                        return SCOPE;
+                        return InputStatus.SCOPE;
                     }
                 }
                 if (getMaxValue() != null) {
                     if (value.compareTo(getMaxValue()) > 0) {
-                        return SCOPE;
+                        return InputStatus.SCOPE;
                     }
                 }
             } catch (Exception e) {
-                return FORMAT;
+                return InputStatus.FORMAT;
             }
         }
-        return VALID;
+        return InputStatus.VALID;
     }
 
     @Override
