@@ -1,6 +1,6 @@
 package sk.r3n.util;
 
-public interface R3NBundleEnum {
+public interface BundleEnum {
 
     public String value();
 

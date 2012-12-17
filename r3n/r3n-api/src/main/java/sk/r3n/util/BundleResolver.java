@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class R3NBundleResolver {
+public class BundleResolver {
 
     public static String resolve(final String baseName, final String key) {
         return ResourceBundle.getBundle(baseName).getString(key);
@@ -15,8 +15,8 @@ public class R3NBundleResolver {
         List<String> messageArguments = new ArrayList<>(parameters.length);
         for (Object obj : parameters) {
             if (obj != null) {
-                if (obj instanceof R3NBundleEnum) {
-                    messageArguments.add(((R3NBundleEnum) obj).value());
+                if (obj instanceof BundleEnum) {
+                    messageArguments.add(((BundleEnum) obj).value());
                 } else {
                     messageArguments.add(obj.toString());
                 }

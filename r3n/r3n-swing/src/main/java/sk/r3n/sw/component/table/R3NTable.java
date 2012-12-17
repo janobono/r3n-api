@@ -1,13 +1,9 @@
 package sk.r3n.sw.component.table;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 public abstract class R3NTable<T> extends JTable {
 
@@ -35,7 +31,7 @@ public abstract class R3NTable<T> extends JTable {
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             try {
-                return getValue(tableConfig.columnId(columnIndex), rows.get(rowIndex));
+                return getValue(columnIndex, rows.get(rowIndex));
             } catch (Exception e) {
                 return null;
             }
@@ -47,7 +43,6 @@ public abstract class R3NTable<T> extends JTable {
         }
 
     }
-
     protected R3NTableConfig tableConfig;
 
     protected boolean focusable;
@@ -55,6 +50,8 @@ public abstract class R3NTable<T> extends JTable {
     protected List<T> rows;
 
     protected T selectedRow;
+
+    protected int selectedColumn;
 
     public R3NTable(R3NTableConfig tableConfig) {
         super();
@@ -64,25 +61,6 @@ public abstract class R3NTable<T> extends JTable {
         focusable = super.isFocusable();
         rows = new ArrayList<>();
         setModel(new BaseTableModel());
-        initColumns();
-        if (UIManager.getLookAndFeel().getClass().getCanonicalName().endsWith("NimbusLookAndFeel")) {
-            setRowHeight((int) (getRowHeight() * 2f));
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void initColumns() {
-        columnsMap.clear();
-        ((BaseTableModel) getModel()).fireTableStructureChanged();
-        TableColumnModel tableColumnModel = getColumnModel();
-        int index = 0;
-        for (Column column : table.getColumns()) {
-            TableColumn tableColumn = tableColumnModel.getColumn(index);
-            customizeColumn(column.getId(), tableColumn);
-            tableColumn.setPreferredWidth(column.getWidth());
-            columnsMap.put(column.getId(), tableColumn);
-            index++;
-        }
     }
 
     public void addValue(T row) {
@@ -93,8 +71,6 @@ public abstract class R3NTable<T> extends JTable {
         getBaseTableModel().fireTableDataChanged();
         setSelectedValue(row);
     }
-
-    protected abstract void customizeColumn(int index, TableColumn tableColumn);
 
     public void down() {
         if (getRowCount() > 0) {
@@ -189,8 +165,6 @@ public abstract class R3NTable<T> extends JTable {
             getSelectionModel().removeSelectionInterval(0, rows.size());
         }
     }
-
-    protected int selectedColumn;
 
     public void setValues(List<T> rows) {
         if (getSelectedColumn() != -1) {

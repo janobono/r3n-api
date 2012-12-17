@@ -33,8 +33,7 @@ public class URLConnection extends java.net.URLConnection {
         this.zipFile = new ZipFile(file);
         this.zipEntry = zipFile.getEntry(zipEntryName);
         if (zipEntry == null) {
-            throw new IOException("Entry " + zipEntryName
-                    + " not found in file " + file);
+            throw new IOException("Entry " + zipEntryName + " not found in file " + file);
         }
         this.connected = true;
     }

@@ -1,20 +1,25 @@
 package sk.r3n.sw.dialog;
 
-import java.awt.*;
-import java.util.concurrent.TimeUnit;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
-import sk.r3n.ui.UIService;
+import sk.r3n.sw.util.UIActionKey;
 
-public class R3NStatusDialog extends Dialog {
+public class StatusDialog extends Dialog {
 
     private JProgressBar progressBar;
+
     private JLabel statusLabel;
-    private boolean auto;
+
     private boolean asc;
 
-    public R3NStatusDialog(Frame frame) {
+    public StatusDialog(Frame frame) {
         super(frame);
         setModal(true);
         // Formular -------------------------------------------------------
@@ -38,18 +43,15 @@ public class R3NStatusDialog extends Dialog {
     }
 
     @Override
-    public void execute(String groupId, int actionId, Object source) {
-        lastGroup = groupId;
-        lastAction = actionId;
+    public void execute(UIActionKey actionKey, Object source) {
+        lastActionKey = actionKey;
     }
 
     public void finishProgress() {
-        auto = false;
         progressBar.setValue(100);
     }
 
     public void incrementProgress() {
-        auto = false;
         incProgress();
     }
 
@@ -81,55 +83,23 @@ public class R3NStatusDialog extends Dialog {
     }
 
     public void startProgress() {
-        auto = false;
         asc = true;
         progressBar.setValue(0);
         progressBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
     }
 
     public void statusHide() {
-        auto = false;
         dispose();
     }
 
     public void statusShow() {
-        auto = false;
         asc = true;
-        lastGroup = UIService.class.getCanonicalName();
-        lastAction = UIService.ACTION_OK;
-        pack();
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                setVisible(true);
-            }
-        }).start();
-        while (!isVisible()) {
-            try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(1));
-            } catch (Exception e) {
-            }
-        }
+        setVisible(true);
     }
 
-    public void autoProgress() {
-        if (!auto) {
-            auto = true;
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    while (auto) {
-                        incProgress();
-                        try {
-                            Thread.sleep(25);
-                        } catch (Exception e) {
-                            auto = false;
-                        }
-                    }
-                }
-            }).start();
-        }
+    @Override
+    public boolean isInputValid() {
+        return true;
     }
+
 }

@@ -1,50 +1,70 @@
 package sk.r3n.sw.util;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
 import org.apache.batik.transcoder.TranscoderInput;
+import sk.r3n.sw.component.MessagePanel;
+import sk.r3n.sw.dialog.OkDialog;
+import sk.r3n.sw.dialog.YesNoCancelDialog;
+import sk.r3n.sw.dialog.YesNoDialog;
+import sk.r3n.util.ConfigUtil;
 
 public class SwingUtil {
 
     private static Frame frame;
 
-    private static Dimension max;
+    private static SwingUtilConfig config;
 
-    private static float coefficient = 1.0f;
-
-    private static Dimension defaultDimension;
-
-    private static Map<String, Dimension> dimensionMap = new HashMap<>();
-
-    private static Map<String, Boolean> recountMap = new HashMap<>();
-
-    public static Dimension getDefaultDimension() {
-        if (defaultDimension == null) {
-            defaultDimension = new Dimension(20, 20);
+    public static SwingUtilConfig getConfig() {
+        if (config == null) {
+            config = new SwingUtilConfig();
         }
-        return defaultDimension;
+        return config;
+    }
+
+    public static void setConfig(SwingUtilConfig config) {
+        SwingUtil.config = config;
+    }
+
+    public static Icon getIcon(UIActionKey actionKey, IconType iconType) {
+        Icon result = null;
+        URL url = getConfig().getURL(actionKey, iconType);
+        if (url != null) {
+            result = getIcon(url);
+        }
+        return result;
     }
 
     public static Icon getIcon(URL url) {
-        return getIcon(url, getDefaultDimension());
+        return getIcon(url, getConfig().getDefaultIconDimension());
     }
 
     public static Icon getIcon(URL url, Dimension dimension) {
@@ -82,35 +102,16 @@ public class SwingUtil {
         return image;
     }
 
-    public static Dimension getMaxDimension() {
-        if (max == null) {
-            max = Toolkit.getDefaultToolkit().getScreenSize();
-        } else {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            if (screenSize.height < max.height) {
-                max.height = screenSize.height;
-            }
-            if (screenSize.width < max.width) {
-                max.width = screenSize.width;
-            }
-        }
-        return max;
-    }
-
-    public static void setMaxDimension(Dimension max) {
-        SwingUtil.max = max;
-    }
-
     public static Frame getRootFrame() {
         if (frame == null) {
             frame = new Frame();
-            frame.setSize(getMaxDimension());
+            frame.setSize(getConfig().getMaxDimension());
             positionCenterScreen(frame);
         }
         return frame;
     }
 
-    public final void setRootFrame(Frame frame) {
+    public static void setRootFrame(Frame frame) {
         SwingUtil.frame = frame;
     }
 
@@ -216,7 +217,7 @@ public class SwingUtil {
                     UIManager.put(item, font);
                 }
             }
-            SwingUtil.coefficient = coefficient;
+            getConfig().setCoefficient(coefficient);
         } catch (Exception e) {
         }
     }
@@ -228,8 +229,7 @@ public class SwingUtil {
             }
         }
         Dimension result = window.getSize();
-
-        Dimension dim = dimensionMap.get(window.getClass().getCanonicalName());
+        Dimension dim = getConfig().getDimension(window.getClass().getCanonicalName());
         if (dim != null) {
             if (result.width < dim.width) {
                 result.width = dim.width;
@@ -240,7 +240,7 @@ public class SwingUtil {
         }
 
         Window owner = window.getOwner();
-        Boolean rec = recountMap.get(window.getClass().getCanonicalName());
+        Boolean rec = getConfig().getRecount(window.getClass().getCanonicalName());
         if (owner != null && rec != null && rec) {
             dim = owner.getSize();
             if (result.width < dim.width) {
@@ -252,10 +252,10 @@ public class SwingUtil {
         }
 
         if (!(UIManager.getLookAndFeel().getClass().getCanonicalName().endsWith("NimbusLookAndFeel"))) {
-            result.setSize(coefficient * result.width, coefficient * result.height);
+            result.setSize(getConfig().getCoefficient() * result.width, getConfig().getCoefficient() * result.height);
         }
 
-        Dimension maxDimension = getMaxDimension();
+        Dimension maxDimension = getConfig().getMaxDimension();
         if (maxDimension.width < result.width) {
             result.width = maxDimension.width - 20;
         }
@@ -273,22 +273,6 @@ public class SwingUtil {
         window.setSize(result);
     }
 
-    public static void setDimension(String key, Dimension dimension) {
-        if (dimension == null) {
-            dimensionMap.remove(key);
-        } else {
-            dimensionMap.put(key, dimension);
-        }
-    }
-
-    public static void setRecount(String key, Boolean recount) {
-        if (recount == null) {
-            recountMap.remove(key);
-        } else {
-            recountMap.put(key, recount);
-        }
-    }
-
     public static void showCenterScreen(Window window) {
         positionCenterScreen(window);
         window.setVisible(true);
@@ -297,6 +281,221 @@ public class SwingUtil {
     public static void showCenterWindow(Window parent, Window window) {
         positionCenterWindow(parent, window);
         window.setVisible(true);
+    }
+
+    public static void setKeyStroke(JComponent component, int condition, KeyStroke keyStroke, UIAction action) {
+        String key = ConfigUtil.createKey(action.actionKey.group(), action.actionKey.code());
+        if (keyStroke == null) {
+            keyStroke = getConfig().getKeyStroke(action.actionKey);
+        }
+        if (keyStroke != null) {
+            component.getInputMap(condition).put(keyStroke, key);
+            component.getActionMap().put(key, action);
+        }
+    }
+
+    public static void setKeyStroke(JComponent component, int condition, UIActionKey actionKey,
+            UIActionExecutor actionExecutor) {
+        setKeyStroke(component, condition, null, new UIAction(actionKey, actionExecutor));
+    }
+
+    public static void setKeyStroke(JComponent component, int condition, KeyStroke keyStroke, UIActionKey actionKey,
+            UIActionExecutor actionExecutor) {
+        setKeyStroke(component, condition, keyStroke, new UIAction(actionKey, actionExecutor));
+    }
+
+    public static void removeKeyStroke(JComponent component, UIActionKey actionKey) {
+        String actionMapKey = ConfigUtil.createKey(actionKey.group(), actionKey.code());
+        component.getActionMap().remove(actionMapKey);
+    }
+
+    public static File openFile(Filter filter, String title, File defaultDir, R3NFileFilter[] filters, String fileName) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        fileChooser.setFileSelectionMode(filter.code());
+        if (title != null) {
+            fileChooser.setDialogTitle(title);
+        } else {
+            fileChooser.setDialogTitle(UtilBundle.OPEN.value());
+        }
+        if (defaultDir != null && defaultDir.exists()) {
+            fileChooser.setCurrentDirectory(defaultDir);
+        } else {
+            fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+        }
+        if (filters != null && filters.length > 0) {
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            for (R3NFileFilter fl : filters) {
+                fileChooser.addChoosableFileFilter(fl);
+            }
+        }
+        if (fileName != null) {
+            fileChooser.setSelectedFile(new File(fileName));
+        }
+        if (fileChooser.showOpenDialog(getRootFrame()) == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    public static File saveFile(Filter filter, String title, File defaultDir, R3NFileFilter[] filters, String fileName) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        fileChooser.setFileSelectionMode(filter.code());
+        if (title != null) {
+            fileChooser.setDialogTitle(title);
+        } else {
+            fileChooser.setDialogTitle(UtilBundle.SAVE.value());
+        }
+        if (defaultDir != null && defaultDir.exists()) {
+            fileChooser.setCurrentDirectory(defaultDir);
+        } else {
+            fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+        }
+        if (filters != null && filters.length > 0) {
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            for (R3NFileFilter fl : filters) {
+                fileChooser.addChoosableFileFilter(fl);
+            }
+        }
+        if (fileName != null) {
+            fileChooser.setSelectedFile(new File(fileName));
+        }
+        if (fileChooser.showSaveDialog(getRootFrame()) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            FileFilter fileFilter = fileChooser.getFileFilter();
+            if (fileFilter instanceof R3NFileFilter) {
+                String ext = ((R3NFileFilter) fileFilter).getExtension();
+                if (!file.getName().toLowerCase().endsWith(ext.toLowerCase())) {
+                    file = new File(file.getPath() + ext);
+                }
+            }
+            return file;
+        }
+        return null;
+    }
+
+    public static void showMessageDialog(String title, Object message, MessageType messageType) {
+        OkDialog dialog = new OkDialog(getRootFrame()) {
+            @Override
+            public boolean isInputValid() {
+                return true;
+            }
+
+        };
+        dialog.setModal(true);
+        JPanel form = new JPanel(new GridBagLayout());
+        if (title != null) {
+            dialog.setTitle(title);
+        } else {
+            dialog.setTitle(messageType.value());
+        }
+        JLabel icon = new JLabel();
+        icon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        icon.setVerticalAlignment(JLabel.TOP);
+        icon.setIcon(getDialogIcon(messageType));
+        form.add(icon, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+                5, 5, 5, 0), 0, 0));
+        MessagePanel messagePanel = new MessagePanel();
+        messagePanel.setMessage(message);
+        form.add(messagePanel, new GridBagConstraints(1, 0, 2, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+                5, 0, 5, 5), 0, 0));
+        dialog.add(form, BorderLayout.CENTER);
+        dialog.pack();
+        dialog.setVisible(true);
+    }
+
+    public static Answer showYesNoCancelDialog(String title, Object message, MessageType messageType) {
+        YesNoCancelDialog dialog = new YesNoCancelDialog(getRootFrame()) {
+            @Override
+            public boolean isInputValid() {
+                return true;
+            }
+
+        };
+        dialog.setModal(true);
+        JPanel form = new JPanel(new GridBagLayout());
+        if (title != null) {
+            dialog.setTitle(title);
+        } else {
+            dialog.setTitle(messageType.value());
+        }
+        JLabel icon = new JLabel();
+        icon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        icon.setVerticalAlignment(JLabel.TOP);
+        icon.setIcon(getDialogIcon(messageType));
+        form.add(icon, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+                5, 5, 5, 0), 0, 0));
+        MessagePanel messagePanel = new MessagePanel();
+        messagePanel.setMessage(message);
+        form.add(messagePanel, new GridBagConstraints(1, 0, 2, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+                5, 0, 5, 5), 0, 0));
+        dialog.add(form, BorderLayout.CENTER);
+        dialog.pack();
+        dialog.setVisible(true);
+        Answer result;
+        switch ((UISWAction) dialog.getLastActionKey()) {
+            case YES:
+                result = Answer.YES;
+                break;
+            case NO:
+                result = Answer.NO;
+                break;
+            default:
+                result = Answer.CANCEL;
+                break;
+        }
+        return result;
+    }
+
+    public static Answer showYesNoDialog(String title, Object message, MessageType messageType) {
+        YesNoDialog dialog = new YesNoDialog(getRootFrame()) {
+            @Override
+            public boolean isInputValid() {
+                return true;
+            }
+
+        };
+        dialog.setModal(true);
+        JPanel form = new JPanel(new GridBagLayout());
+        if (title != null) {
+            dialog.setTitle(title);
+        } else {
+            dialog.setTitle(messageType.value());
+        }
+        JLabel icon = new JLabel();
+        icon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        icon.setVerticalAlignment(JLabel.TOP);
+        icon.setIcon(getDialogIcon(messageType));
+        form.add(icon, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+                5, 5, 5, 0), 0, 0));
+        MessagePanel messagePanel = new MessagePanel();
+        messagePanel.setMessage(message);
+        form.add(messagePanel, new GridBagConstraints(1, 0, 2, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+                5, 0, 5, 5), 0, 0));
+        dialog.add(form, BorderLayout.CENTER);
+        dialog.pack();
+        dialog.setVisible(true);
+        Answer result;
+        switch ((UISWAction) dialog.getLastActionKey()) {
+            case YES:
+                result = Answer.YES;
+                break;
+            default:
+                result = Answer.NO;
+                break;
+        }
+        return result;
+    }
+
+    private static Icon getDialogIcon(MessageType messageType) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 }

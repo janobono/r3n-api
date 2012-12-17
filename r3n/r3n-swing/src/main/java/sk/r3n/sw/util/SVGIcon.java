@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.net.URL;
 import javax.swing.Icon;
 import org.apache.batik.bridge.UserAgentAdapter;

@@ -3,13 +3,13 @@ package sk.r3n.sw.util;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
-public class Action extends AbstractAction {
+public class UIAction extends AbstractAction {
 
-    protected ActionKey actionKey;
+    protected UIActionKey actionKey;
 
-    protected ActionExecutor actionExecutor;
+    protected UIActionExecutor actionExecutor;
 
-    public Action(ActionKey actionKey, ActionExecutor actionExecutor) {
+    public UIAction(UIActionKey actionKey, UIActionExecutor actionExecutor) {
         super();
         this.actionKey = actionKey;
         this.actionExecutor = actionExecutor;

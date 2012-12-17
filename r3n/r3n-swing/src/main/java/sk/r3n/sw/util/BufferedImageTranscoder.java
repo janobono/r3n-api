@@ -36,8 +36,7 @@ public class BufferedImageTranscoder extends ImageTranscoder {
     }
 
     @Override
-    public void writeImage(BufferedImage img, TranscoderOutput output)
-            throws TranscoderException {
+    public void writeImage(BufferedImage img, TranscoderOutput output) throws TranscoderException {
         bufferedImage = img;
     }
 

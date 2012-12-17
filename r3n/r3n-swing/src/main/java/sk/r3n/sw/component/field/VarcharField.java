@@ -2,7 +2,7 @@ package sk.r3n.sw.component.field;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import sk.r3n.sw.util.UIServiceManager;
+import sk.r3n.sw.component.InputStatus;
 
 public class VarcharField extends R3NField<String> {
 
@@ -24,17 +24,17 @@ public class VarcharField extends R3NField<String> {
     }
 
     @Override
-    public int contentValid() {
+    public InputStatus inputStatus() {
         if (canBeNull && isContentNull()) {
-            return VALID;
+            return InputStatus.VALID;
         }
         if (!canBeNull && isContentNull()) {
-            return NULL;
+            return InputStatus.NULL;
         }
         if (getText().length() > size) {
-            return SIZE;
+            return InputStatus.SIZE;
         }
-        return VALID;
+        return InputStatus.VALID;
     }
 
     @Override
@@ -54,7 +54,6 @@ public class VarcharField extends R3NField<String> {
     @Override
     protected void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
         if (document.getLength() + str.length() > size && !overSize) {
-            UIServiceManager.getDefaultUIService().getBuzzer().buzz(this);
             return;
         }
         document.insertString(offset, str, a);

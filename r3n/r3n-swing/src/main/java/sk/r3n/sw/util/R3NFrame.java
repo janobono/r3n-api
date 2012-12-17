@@ -5,7 +5,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 
-public abstract class R3NFrame extends JFrame implements ActionExecutor, WindowListener {
+public abstract class R3NFrame extends JFrame implements UIActionExecutor, WindowListener {
 
     public R3NFrame() {
         super();
@@ -34,7 +34,7 @@ public abstract class R3NFrame extends JFrame implements ActionExecutor, WindowL
 
     @Override
     public void windowClosing(WindowEvent windowEvent) {
-        execute(UIServiceAction.CLOSE, windowEvent.getSource());
+        execute(UISWAction.CLOSE, windowEvent.getSource());
     }
 
     @Override

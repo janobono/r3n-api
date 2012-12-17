@@ -3,13 +3,13 @@ package sk.r3n.sw.util;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class R3NActionListener implements ActionListener {
+public class UIActionListener implements ActionListener {
 
-    protected ActionKey actionKey;
+    protected UIActionKey actionKey;
 
-    protected ActionExecutor actionExecutor;
+    protected UIActionExecutor actionExecutor;
 
-    public R3NActionListener(ActionKey actionKey, ActionExecutor actionExecutor) {
+    public UIActionListener(UIActionKey actionKey, UIActionExecutor actionExecutor) {
         super();
         this.actionKey = actionKey;
         this.actionExecutor = actionExecutor;

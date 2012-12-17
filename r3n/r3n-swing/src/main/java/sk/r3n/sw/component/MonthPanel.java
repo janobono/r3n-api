@@ -7,61 +7,64 @@ import java.awt.Insets;
 import java.util.Date;
 import java.util.ResourceBundle;
 import javax.swing.JPanel;
-import sk.r3n.action.IdActionExecutor;
-import sk.r3n.ui.IdActionListener;
-import sk.r3n.ui.UIService;
 import sk.r3n.sw.component.field.MonthField;
-import sk.r3n.sw.dialog.R3NOkCancelDialog;
-import sk.r3n.sw.util.UIServiceManager;
+import sk.r3n.sw.dialog.OkCancelDialog;
+import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.sw.util.UIActionExecutor;
+import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UISWAction;
 
-public final class R3NMonthPanel extends JPanel implements R3NInputComponent<Date>, IdActionExecutor {
+public final class MonthPanel extends JPanel implements InputComponent<Date>, UIActionExecutor {
 
-    private class MonthPickerDialog extends R3NOkCancelDialog {
+    private class MonthPickerDialog extends OkCancelDialog {
 
         public MonthPickerDialog() {
-            super(UIServiceManager.getDefaultUIService().getFrameForComponent(
-                    R3NMonthPanel.this));
+            super(SwingUtil.getFrameForComponent(MonthPanel.this));
             setModal(true);
-            setTitle(ResourceBundle.getBundle(R3NMonthPanel.class.getCanonicalName()).getString("TITLE"));
+            setTitle(ResourceBundle.getBundle(MonthPanel.class.getCanonicalName()).getString("TITLE"));
         }
 
-        public boolean initDialog(R3NMonthPicker monthPicker) {
+        public boolean initDialog(MonthPicker monthPicker) {
             add(monthPicker, BorderLayout.CENTER);
             pack();
             setVisible(true);
-            return lastGroup.equals(UIService.class.getCanonicalName()) && lastAction == UIService.ACTION_OK;
+            return lastActionKey.equals(UISWAction.OK);
+        }
+
+        @Override
+        public boolean isInputValid() {
+            return true;
         }
 
     }
-
     public MonthField monthField;
 
     public R3NButton selectButton;
 
-    public R3NMonthPanel(boolean canBeNull) {
+    public MonthPanel(boolean canBeNull) {
         super();
         monthField = new MonthField(canBeNull);
         init(monthField);
     }
 
-    public R3NMonthPanel(boolean canBeNull, char separator) {
+    public MonthPanel(boolean canBeNull, char separator) {
         super();
         monthField = new MonthField(canBeNull, separator);
         init(monthField);
     }
 
     @Override
-    public int contentValid() {
-        return monthField.contentValid();
+    public InputStatus inputStatus() {
+        return monthField.inputStatus();
     }
 
     @Override
-    public void execute(String groupId, int actionId, Object source) {
-        if (groupId.equals(UIService.class.getCanonicalName())) {
-            switch (actionId) {
-                case UIService.ACTION_SELECT:
+    public void execute(UIActionKey actionKey, Object source) {
+        if (actionKey instanceof UISWAction) {
+            switch ((UISWAction) actionKey) {
+                case SELECT:
                     MonthPickerDialog monthDialog = new MonthPickerDialog();
-                    R3NMonthPicker monthPicker = new R3NMonthPicker(monthField.getValue());
+                    MonthPicker monthPicker = new MonthPicker(monthField.getValue());
                     if (monthDialog.initDialog(monthPicker)) {
                         monthField.setValue(monthPicker.getDate());
                     }
@@ -80,13 +83,10 @@ public final class R3NMonthPanel extends JPanel implements R3NInputComponent<Dat
         add(dateField, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
                 0, 0, 0, 0), 0, 0));
-        selectButton = new R3NButton(UIService.class.getCanonicalName(),
-                UIService.ACTION_SELECT);
+        selectButton = new R3NButton(UISWAction.SELECT, this);
         selectButton.setText("...");
-        selectButton.addActionListener(new IdActionListener(UIService.class.getCanonicalName(), UIService.ACTION_SELECT, this));
-        add(selectButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-                0, 0, 0, 0), 0, 0));
+        add(selectButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                new Insets(0, 0, 0, 0), 0, 0));
     }
 
     @Override

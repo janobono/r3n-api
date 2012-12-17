@@ -6,17 +6,17 @@ import java.awt.event.MouseListener;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import sk.r3n.action.IdActionExecutor;
-import sk.r3n.ui.IdActionListener;
-import sk.r3n.ui.UIService;
-import sk.r3n.ui.component.field.VarcharField;
+import sk.r3n.sw.component.field.VarcharField;
+import sk.r3n.sw.util.UIActionExecutor;
+import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UISWAction;
 
-public final class R3NDatePicker extends JPanel implements IdActionExecutor, MouseListener {
+public final class DatePicker extends JPanel implements UIActionExecutor, MouseListener {
 
     private class PickerDayField extends JLabel {
 
@@ -48,7 +48,6 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
         }
 
     }
-
     protected Dimension size;
 
     protected DateFormat monthAndYearFormat;
@@ -67,7 +66,7 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
 
     protected List<PickerDayField> dayFields;
 
-    public R3NDatePicker(Date date) {
+    public DatePicker(Date date) {
         super();
         if (date == null) {
             date = new Date();
@@ -82,8 +81,7 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
         monthAndYearFormat = new SimpleDateFormat("MMMMMMMMM yyyy");
         setLayout(new GridBagLayout());
         navigationPanel = new JPanel(new GridBagLayout());
-        previousButton = new R3NButton(UIService.class.getCanonicalName(), UIService.ACTION_PREVIOUS);
-        previousButton.addActionListener(new IdActionListener(UIService.class.getCanonicalName(), UIService.ACTION_PREVIOUS, this));
+        previousButton = new R3NButton(UISWAction.PREVIOUS, this);
         navigationPanel.add(previousButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
         monthAndYear = new JLabel(monthAndYearFormat.format(date),
@@ -95,8 +93,7 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
         monthAndYear.setBorder(BorderFactory.createLoweredBevelBorder());
         navigationPanel.add(monthAndYear, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        nextButton = new R3NButton(UIService.class.getCanonicalName(), UIService.ACTION_NEXT);
-        nextButton.addActionListener(new IdActionListener(UIService.class.getCanonicalName(), UIService.ACTION_NEXT, this));
+        nextButton = new R3NButton(UISWAction.NEXT, this);
         navigationPanel.add(nextButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
         add(navigationPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER,
@@ -150,7 +147,7 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
             calendar2.set(Calendar.DAY_OF_MONTH, i);
             PickerDayField pickerDayField = new PickerDayField(i);
             pickerDayField.addMouseListener(this);
-            if (calendar2.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
+            if (calendar2.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY 
                     || calendar2.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 pickerDayField.setForeground(Color.RED);
             }
@@ -169,12 +166,12 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
     }
 
     @Override
-    public void execute(String groupId, int actionId, Object source) {
-        if (groupId.equals(UIService.class.getCanonicalName())) {
+    public void execute(UIActionKey actionKey, Object source) {
+        if (actionKey instanceof UISWAction) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
-            switch (actionId) {
-                case UIService.ACTION_PREVIOUS:
+            switch ((UISWAction) actionKey) {
+                case PREVIOUS:
                     int year = calendar.get(Calendar.YEAR);
                     int month = calendar.get(Calendar.MONTH);
                     if (month == Calendar.JANUARY) {
@@ -189,7 +186,7 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
                     date = calendar.getTime();
                     createDays(calendar);
                     break;
-                case UIService.ACTION_NEXT:
+                case NEXT:
                     year = calendar.get(Calendar.YEAR);
                     month = calendar.get(Calendar.MONTH);
                     if (month == Calendar.DECEMBER) {
@@ -204,13 +201,12 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
                     date = calendar.getTime();
                     createDays(calendar);
                     break;
-                case UIService.ACTION_SELECT:
+                case SELECT:
                     for (PickerDayField dayField : dayFields) {
                         dayField.setSelected(false);
                     }
                     ((PickerDayField) source).setSelected(true);
-                    calendar.set(Calendar.DAY_OF_MONTH,
-                            ((PickerDayField) source).getDay());
+                    calendar.set(Calendar.DAY_OF_MONTH, ((PickerDayField) source).getDay());
                     date = calendar.getTime();
                     break;
             }
@@ -236,8 +232,7 @@ public final class R3NDatePicker extends JPanel implements IdActionExecutor, Mou
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        execute(UIService.class.getCanonicalName(), UIService.ACTION_SELECT,
-                e.getComponent());
+        execute(UISWAction.SELECT, e.getComponent());
     }
 
     @Override
