@@ -16,6 +16,9 @@
         <module>r3n-api</module>
         <module>r3n-swing</module>
         <module>jpa-test</module>
+        <module>r3n-app-help</module>
+        <module>r3n-db-manager</module>
+        <module>r3n-properties</module>
     </modules>
     
     <build>
