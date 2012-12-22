@@ -1,5 +1,7 @@
 package sk.r3n.jdbc;
 
+import sk.r3n.util.BundleResolver;
+
 public enum DbType {
 
     POSTGRE(org.postgresql.Driver.class.getCanonicalName()),
@@ -14,6 +16,10 @@ public enum DbType {
 
     public String driver() {
         return driver;
+    }
+
+    public String value() {
+        return BundleResolver.resolve(DbType.class.getCanonicalName(), name());
     }
 
 }
