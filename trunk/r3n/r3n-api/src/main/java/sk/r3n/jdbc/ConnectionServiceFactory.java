@@ -5,11 +5,11 @@ public class ConnectionServiceFactory {
     public static ConnectionService createConnectionService(DbType dbType) {
         switch (dbType) {
             case POSTGRE:
-                return new PostgreConnectionCreator();
+                return new PostgreConnectionService();
             case SQL_SERVER:
-                return new SqlServerConnectionCreator();
+                return new SqlServerConnectionService();
             case H2:
-                return new H2ConnectionCreator();
+                return new H2ConnectionService();
         }
         return null;
     }

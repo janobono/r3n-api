@@ -9,7 +9,7 @@ public enum ConnectionParameter {
     USER,
     PASSWORD;
 
-    public String key() {
+    public String code() {
         return name().toLowerCase();
     }
 
