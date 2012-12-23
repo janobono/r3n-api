@@ -5,9 +5,9 @@ import java.util.logging.Level;
 import org.apache.commons.dbcp.BasicDataSource;
 import sk.r3n.util.R3NException;
 
-public class PostgreConnectionCreator extends DataSourceConnectionService {
+public class PostgreConnectionService extends DataSourceConnectionService {
 
-    public PostgreConnectionCreator() {
+    public PostgreConnectionService() {
         super();
     }
 
@@ -21,8 +21,8 @@ public class PostgreConnectionCreator extends DataSourceConnectionService {
             if (ds == null) {
                 ds = new BasicDataSource();
                 ds.setDriverClassName(DbType.POSTGRE.driver());
-                ds.setUsername(getParameter(ConnectionParameter.USER.key()));
-                ds.setPassword(getParameter(ConnectionParameter.PASSWORD.key()));
+                ds.setUsername(getParameter(ConnectionParameter.USER.code()));
+                ds.setPassword(getParameter(ConnectionParameter.PASSWORD.code()));
                 ds.setUrl(getConnectionURL());
                 ds.setMinIdle(5);
             }
@@ -57,11 +57,11 @@ public class PostgreConnectionCreator extends DataSourceConnectionService {
     public String getConnectionURL() {
         StringBuilder buff = new StringBuilder();
         buff.append("jdbc:postgresql://");
-        buff.append(getParameter(ConnectionParameter.HOST.key()));
+        buff.append(getParameter(ConnectionParameter.HOST.code()));
         buff.append(":");
-        buff.append(getParameter(ConnectionParameter.PORT.key()));
+        buff.append(getParameter(ConnectionParameter.PORT.code()));
         buff.append("/");
-        buff.append(getParameter(ConnectionParameter.NAME.key()));
+        buff.append(getParameter(ConnectionParameter.NAME.code()));
         return buff.toString();
     }
 

@@ -5,9 +5,9 @@ import java.util.logging.Level;
 import org.apache.commons.dbcp.BasicDataSource;
 import sk.r3n.util.R3NException;
 
-public class SqlServerConnectionCreator extends DataSourceConnectionService {
+public class SqlServerConnectionService extends DataSourceConnectionService {
 
-    public SqlServerConnectionCreator() {
+    public SqlServerConnectionService() {
         super();
     }
 
@@ -21,8 +21,8 @@ public class SqlServerConnectionCreator extends DataSourceConnectionService {
             if (ds == null) {
                 ds = new BasicDataSource();
                 ds.setDriverClassName(DbType.SQL_SERVER.driver());
-                ds.setUsername(getParameter(ConnectionParameter.USER.key()));
-                ds.setPassword(getParameter(ConnectionParameter.PASSWORD.key()));
+                ds.setUsername(getParameter(ConnectionParameter.USER.code()));
+                ds.setPassword(getParameter(ConnectionParameter.PASSWORD.code()));
                 ds.setUrl(getConnectionURL());
                 ds.setMinIdle(5);
             }
@@ -55,11 +55,11 @@ public class SqlServerConnectionCreator extends DataSourceConnectionService {
     public String getConnectionURL() {
         StringBuilder buff = new StringBuilder();
         buff.append("jdbc:jtds:sqlserver://");
-        buff.append(getParameter(ConnectionParameter.HOST.key()));
+        buff.append(getParameter(ConnectionParameter.HOST.code()));
         buff.append(":");
-        buff.append(getParameter(ConnectionParameter.PORT.key()));
+        buff.append(getParameter(ConnectionParameter.PORT.code()));
         buff.append("/");
-        buff.append(getParameter(ConnectionParameter.NAME.key()));
+        buff.append(getParameter(ConnectionParameter.NAME.code()));
         return buff.toString();
     }
 

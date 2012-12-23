@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.logging.Logger;
 import sk.r3n.util.R3NException;
 
-public class H2ConnectionCreator implements ConnectionService {
+public class H2ConnectionService implements ConnectionService {
 
     public static final String DB_CLOSE_DELAY = ";DB_CLOSE_DELAY=-1;MVCC=TRUE";
 
@@ -14,14 +14,14 @@ public class H2ConnectionCreator implements ConnectionService {
 
     private String name;
 
-    public H2ConnectionCreator() {
+    public H2ConnectionService() {
         super();
         name = "";
     }
 
     @Override
     public String getParameter(String key) {
-        if (key.equals(ConnectionParameter.NAME.key())) {
+        if (key.equals(ConnectionParameter.NAME.code())) {
             return name;
         }
         return null;
@@ -29,7 +29,7 @@ public class H2ConnectionCreator implements ConnectionService {
 
     @Override
     public void setParameter(String key, String value) {
-        if (key.equals(ConnectionParameter.NAME.key())) {
+        if (key.equals(ConnectionParameter.NAME.code())) {
             name = value;
         }
     }
@@ -72,7 +72,7 @@ public class H2ConnectionCreator implements ConnectionService {
     public String getConnectionURL() {
         StringBuilder sb = new StringBuilder();
         sb.append("jdbc:h2:mem:");
-        if (name != null && !name.equals("")) {
+        if (name != null) {
             sb.append(name);
         }
         return sb.toString();
