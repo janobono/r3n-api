@@ -9,7 +9,7 @@ import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.util.SwingUtil;
 import sk.r3n.sw.util.UISWAction;
 
-public abstract class CloseDialog extends Dialog {
+public abstract class CloseDialog extends R3NDialog {
 
     protected R3NButton closeButton;
 

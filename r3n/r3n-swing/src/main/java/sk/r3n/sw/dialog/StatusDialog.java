@@ -11,7 +11,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import sk.r3n.sw.util.UIActionKey;
 
-public class StatusDialog extends Dialog {
+public class StatusDialog extends R3NDialog {
 
     private JProgressBar progressBar;
 

@@ -12,16 +12,16 @@ import sk.r3n.sw.util.UIActionExecutor;
 import sk.r3n.sw.util.UIActionKey;
 import sk.r3n.sw.util.UISWAction;
 
-public abstract class Dialog extends JDialog implements WindowListener, UIActionExecutor {
+public abstract class R3NDialog extends JDialog implements WindowListener, UIActionExecutor {
 
     protected UIActionKey lastActionKey = UISWAction.CLOSE;
 
-    public Dialog() {
+    public R3NDialog() {
         super();
         init();
     }
 
-    public Dialog(Frame owner) {
+    public R3NDialog(Frame owner) {
         super(owner);
         init();
     }
@@ -46,7 +46,8 @@ public abstract class Dialog extends JDialog implements WindowListener, UIAction
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(this);
         setLayout(new BorderLayout());
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.CLOSE, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
+                UISWAction.CLOSE, this);
     }
 
     public abstract boolean isInputValid();
