@@ -10,7 +10,7 @@ import sk.r3n.sw.util.SwingUtil;
 import sk.r3n.sw.util.UIActionKey;
 import sk.r3n.sw.util.UISWAction;
 
-public abstract class OkCancelDialog extends Dialog {
+public abstract class OkCancelDialog extends R3NDialog {
 
     protected R3NButton cancelButton;
 
