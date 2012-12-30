@@ -11,6 +11,7 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import sk.r3n.sw.component.ImagePanel;
+import sk.r3n.ui.UIActionKey;
 
 public class StartupFrame extends R3NFrame {
 

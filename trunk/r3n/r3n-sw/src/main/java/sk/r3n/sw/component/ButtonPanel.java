@@ -7,9 +7,9 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIActionExecutor;
-import sk.r3n.sw.util.UIActionKey;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.UIActionExecutor;
+import sk.r3n.ui.UIActionKey;
+import sk.r3n.ui.R3NAction;
 
 public class ButtonPanel extends JPanel implements UIActionExecutor {
 
@@ -33,20 +33,20 @@ public class ButtonPanel extends JPanel implements UIActionExecutor {
         button.setFocusTraversalKeysEnabled(true);
         buttons.add(button);
         if (row) {
-            SwingUtil.setKeyStroke(button, JComponent.WHEN_FOCUSED, null, UISWAction.LEFT, this);
-            SwingUtil.setKeyStroke(button, JComponent.WHEN_FOCUSED, null, UISWAction.RIGHT, this);
+            SwingUtil.setKeyStroke(button, JComponent.WHEN_FOCUSED, null, R3NAction.LEFT, this);
+            SwingUtil.setKeyStroke(button, JComponent.WHEN_FOCUSED, null, R3NAction.RIGHT, this);
         } else {
-            SwingUtil.setKeyStroke(button, JComponent.WHEN_FOCUSED, null, UISWAction.UP, this);
-            SwingUtil.setKeyStroke(button, JComponent.WHEN_FOCUSED, null, UISWAction.DOWN, this);
+            SwingUtil.setKeyStroke(button, JComponent.WHEN_FOCUSED, null, R3NAction.UP, this);
+            SwingUtil.setKeyStroke(button, JComponent.WHEN_FOCUSED, null, R3NAction.DOWN, this);
         }
     }
 
     @Override
     public void execute(UIActionKey actionKey, Object source) {
-        if (actionKey instanceof UISWAction) {
+        if (actionKey instanceof R3NAction) {
             int index = buttons.indexOf(source);
             if (index != -1) {
-                switch ((UISWAction) actionKey) {
+                switch ((R3NAction) actionKey) {
                     case LEFT:
                     case UP:
                         moveBackward(index, index);

@@ -12,9 +12,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import sk.r3n.sw.component.field.VarcharField;
-import sk.r3n.sw.util.UIActionExecutor;
-import sk.r3n.sw.util.UIActionKey;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.UIActionExecutor;
+import sk.r3n.ui.UIActionKey;
+import sk.r3n.ui.R3NAction;
 
 public final class DatePicker extends JPanel implements UIActionExecutor, MouseListener {
 
@@ -81,7 +81,7 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
         monthAndYearFormat = new SimpleDateFormat("MMMMMMMMM yyyy");
         setLayout(new GridBagLayout());
         navigationPanel = new JPanel(new GridBagLayout());
-        previousButton = new R3NButton(UISWAction.PREVIOUS, this);
+        previousButton = new R3NButton(R3NAction.PREVIOUS, this);
         navigationPanel.add(previousButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
         monthAndYear = new JLabel(monthAndYearFormat.format(date),
@@ -93,7 +93,7 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
         monthAndYear.setBorder(BorderFactory.createLoweredBevelBorder());
         navigationPanel.add(monthAndYear, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        nextButton = new R3NButton(UISWAction.NEXT, this);
+        nextButton = new R3NButton(R3NAction.NEXT, this);
         navigationPanel.add(nextButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
         add(navigationPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER,
@@ -167,10 +167,10 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
 
     @Override
     public void execute(UIActionKey actionKey, Object source) {
-        if (actionKey instanceof UISWAction) {
+        if (actionKey instanceof R3NAction) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
-            switch ((UISWAction) actionKey) {
+            switch ((R3NAction) actionKey) {
                 case PREVIOUS:
                     int year = calendar.get(Calendar.YEAR);
                     int month = calendar.get(Calendar.MONTH);
@@ -232,7 +232,7 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        execute(UISWAction.SELECT, e.getComponent());
+        execute(R3NAction.SELECT, e.getComponent());
     }
 
     @Override

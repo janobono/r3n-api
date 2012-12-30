@@ -35,6 +35,14 @@ import sk.r3n.sw.component.MessagePanel;
 import sk.r3n.sw.dialog.OkDialog;
 import sk.r3n.sw.dialog.YesNoCancelDialog;
 import sk.r3n.sw.dialog.YesNoDialog;
+import sk.r3n.ui.Answer;
+import sk.r3n.ui.Filter;
+import sk.r3n.ui.IconType;
+import sk.r3n.ui.MessageType;
+import sk.r3n.ui.R3NAction;
+import sk.r3n.ui.R3NFileFilter;
+import sk.r3n.ui.UIActionExecutor;
+import sk.r3n.ui.UIActionKey;
 import sk.r3n.util.ConfigUtil;
 
 public class SwingUtil {
@@ -326,7 +334,7 @@ public class SwingUtil {
         if (filters != null && filters.length > 0) {
             fileChooser.setAcceptAllFileFilterUsed(false);
             for (R3NFileFilter fl : filters) {
-                fileChooser.addChoosableFileFilter(fl);
+                fileChooser.addChoosableFileFilter(new SWFileFilter(fl));
             }
         }
         if (fileName != null) {
@@ -355,7 +363,7 @@ public class SwingUtil {
         if (filters != null && filters.length > 0) {
             fileChooser.setAcceptAllFileFilterUsed(false);
             for (R3NFileFilter fl : filters) {
-                fileChooser.addChoosableFileFilter(fl);
+                fileChooser.addChoosableFileFilter(new SWFileFilter(fl));
             }
         }
         if (fileName != null) {
@@ -364,8 +372,8 @@ public class SwingUtil {
         if (fileChooser.showSaveDialog(getRootFrame()) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             FileFilter fileFilter = fileChooser.getFileFilter();
-            if (fileFilter instanceof R3NFileFilter) {
-                String ext = ((R3NFileFilter) fileFilter).getExtension();
+            if (fileFilter instanceof SWFileFilter) {
+                String ext = ((SWFileFilter) fileFilter).getFileFilter().getExtension();
                 if (!file.getName().toLowerCase().endsWith(ext.toLowerCase())) {
                     file = new File(file.getPath() + ext);
                 }
@@ -438,7 +446,7 @@ public class SwingUtil {
         dialog.pack();
         dialog.setVisible(true);
         Answer result;
-        switch ((UISWAction) dialog.getLastActionKey()) {
+        switch ((R3NAction) dialog.getLastActionKey()) {
             case YES:
                 result = Answer.YES;
                 break;
@@ -483,7 +491,7 @@ public class SwingUtil {
         dialog.pack();
         dialog.setVisible(true);
         Answer result;
-        switch ((UISWAction) dialog.getLastActionKey()) {
+        switch ((R3NAction) dialog.getLastActionKey()) {
             case YES:
                 result = Answer.YES;
                 break;

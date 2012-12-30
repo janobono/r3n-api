@@ -4,28 +4,14 @@ import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComponent;
-import sk.r3n.sw.util.MessageType;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.util.BundleEnum;
+import sk.r3n.ui.MessageType;
 import sk.r3n.util.BundleResolver;
 
 public class InputStatusValidator {
 
-    private enum Bundle implements BundleEnum {
+    private static final String NOT_VALID = "NOT_VALID";
 
-        NO_VALID;
-
-        @Override
-        public String value() {
-            return BundleResolver.resolve(InputStatusValidator.class.getCanonicalName(), name());
-        }
-
-        @Override
-        public String value(Object[] parameters) {
-            return BundleResolver.resolve(InputStatusValidator.class.getCanonicalName(), name(), parameters);
-        }
-
-    }
     private List<InputComponent> components;
 
     public InputStatusValidator() {
@@ -52,7 +38,9 @@ public class InputStatusValidator {
                             component.requestFocus();
                         }
                         Toolkit.getDefaultToolkit().beep();
-                        SwingUtil.showMessageDialog(null, Bundle.NO_VALID.value(), MessageType.WARNING);
+                        SwingUtil.showMessageDialog(null,
+                                BundleResolver.resolve(InputStatusValidator.class.getCanonicalName(), NOT_VALID),
+                                MessageType.WARNING);
                         return false;
                     }
                 }

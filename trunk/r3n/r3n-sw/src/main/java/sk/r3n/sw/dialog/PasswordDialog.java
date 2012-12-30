@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import sk.r3n.sw.component.field.R3NPasswordField;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.R3NAction;
 
 public class PasswordDialog extends OkCancelDialog {
 
@@ -36,7 +36,7 @@ public class PasswordDialog extends OkCancelDialog {
         passwordField.setValue(null);
         pack();
         setVisible(true);
-        return lastActionKey.equals(UISWAction.OK);
+        return lastActionKey.equals(R3NAction.OK);
     }
 
     @Override

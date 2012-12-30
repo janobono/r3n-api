@@ -14,40 +14,27 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import sk.r3n.sw.component.ButtonPanel;
 import sk.r3n.sw.component.R3NButton;
-import sk.r3n.sw.util.Answer;
-import sk.r3n.sw.util.MessageType;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIActionExecutor;
-import sk.r3n.sw.util.UIActionKey;
-import sk.r3n.sw.util.UISWAction;
-import sk.r3n.util.BundleEnum;
+import sk.r3n.ui.Answer;
+import sk.r3n.ui.MessageType;
+import sk.r3n.ui.R3NAction;
+import sk.r3n.ui.UIActionExecutor;
+import sk.r3n.ui.UIActionKey;
 import sk.r3n.util.BundleResolver;
 
 public class KeyStrokeDialog extends JDialog implements UIActionExecutor, WindowListener, KeyListener {
 
-    private enum Bundle implements BundleEnum {
+    private static final String TITLE = "TITLE";
 
-        TITLE,
-        EXISTS;
+    private static final String EXISTS = "EXISTS";
 
-        @Override
-        public String value() {
-            return BundleResolver.resolve(KeyStrokeDialog.class.getCanonicalName(), name());
-        }
-
-        @Override
-        public String value(Object[] parameters) {
-            return BundleResolver.resolve(KeyStrokeDialog.class.getCanonicalName(), name(), parameters);
-        }
-
-    }
     protected KeyStroke keyStroke;
 
     protected JTextField textField;
 
     protected List<KeyStroke> keyStrokes;
 
-    protected UIActionKey lastActionKey = UISWAction.CLOSE;
+    protected UIActionKey lastActionKey = R3NAction.CLOSE;
 
     public KeyStrokeDialog() {
         super();
@@ -60,7 +47,7 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
     }
 
     private void init() {
-        setTitle(Bundle.TITLE.value());
+        setTitle(BundleResolver.resolve(KeyStrokeDialog.class.getCanonicalName(), TITLE));
         setModal(true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(this);
@@ -84,9 +71,9 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
         add(form, BorderLayout.CENTER);
 
         ButtonPanel buttonPanel = new ButtonPanel(2, true);
-        R3NButton okButton = new R3NButton(UISWAction.OK, this);
+        R3NButton okButton = new R3NButton(R3NAction.OK, this);
         buttonPanel.addButton(okButton);
-        R3NButton cancelButton = new R3NButton(UISWAction.CANCEL, this);
+        R3NButton cancelButton = new R3NButton(R3NAction.CANCEL, this);
         buttonPanel.addButton(cancelButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }
@@ -94,11 +81,11 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
     @Override
     public void execute(UIActionKey actionKey, Object source) {
         lastActionKey = actionKey;
-        if (lastActionKey instanceof UISWAction) {
-            switch ((UISWAction) actionKey) {
+        if (lastActionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
                 case OK:
                     if (keyStroke == null) {
-                        lastActionKey = UISWAction.CANCEL;
+                        lastActionKey = R3NAction.CANCEL;
                     }
                     dispose();
                     break;
@@ -119,7 +106,7 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
         pack();
         SwingUtil.positionCenterWindow(SwingUtil.getRootFrame(), this);
         setVisible(true);
-        return lastActionKey.equals(UISWAction.OK);
+        return lastActionKey.equals(R3NAction.OK);
     }
 
     @Override
@@ -127,8 +114,11 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
         keyStroke = KeyStroke.getKeyStrokeForEvent(keyEvent);
         if (keyStrokes != null) {
             for (KeyStroke exStroke : keyStrokes) {
-                if (keyStroke.getKeyCode() == exStroke.getKeyCode() && keyStroke.getModifiers() == exStroke.getModifiers()
-                        && SwingUtil.showYesNoDialog(null, Bundle.EXISTS.value(new Object[]{keyStroke}), MessageType.WARNING) != Answer.YES) {
+                if (keyStroke.getKeyCode() == exStroke.getKeyCode()
+                        && keyStroke.getModifiers() == exStroke.getModifiers()
+                        && SwingUtil.showYesNoDialog(null, BundleResolver.resolve(
+                        KeyStrokeDialog.class.getCanonicalName(), EXISTS, new Object[]{keyStroke}),
+                        MessageType.WARNING) != Answer.YES) {
                     keyStroke = null;
                     break;
                 }
@@ -145,7 +135,7 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
                 case KeyEvent.VK_CONTROL:
                     break;
                 default:
-                    execute(UISWAction.OK, this);
+                    execute(R3NAction.OK, this);
             }
         }
     }
@@ -168,7 +158,7 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
 
     @Override
     public void windowClosing(WindowEvent e) {
-        execute(UISWAction.CLOSE, e.getSource());
+        execute(R3NAction.CLOSE, e.getSource());
     }
 
     @Override

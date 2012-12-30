@@ -10,9 +10,9 @@ import javax.swing.JPanel;
 import sk.r3n.sw.component.field.DateField;
 import sk.r3n.sw.dialog.OkCancelDialog;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIActionExecutor;
-import sk.r3n.sw.util.UIActionKey;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.UIActionExecutor;
+import sk.r3n.ui.UIActionKey;
+import sk.r3n.ui.R3NAction;
 
 public final class DatePanel extends JPanel implements InputComponent<Date>, UIActionExecutor {
 
@@ -28,7 +28,7 @@ public final class DatePanel extends JPanel implements InputComponent<Date>, UIA
             add(datePicker, BorderLayout.CENTER);
             pack();
             setVisible(true);
-            return lastActionKey.equals(UISWAction.OK);
+            return lastActionKey.equals(R3NAction.OK);
         }
 
         @Override
@@ -60,8 +60,8 @@ public final class DatePanel extends JPanel implements InputComponent<Date>, UIA
 
     @Override
     public void execute(UIActionKey actionKey, Object source) {
-        if (actionKey instanceof UISWAction) {
-            switch ((UISWAction) actionKey) {
+        if (actionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
                 case SELECT:
                     DatePickerDialog dateDialog = new DatePickerDialog();
                     DatePicker datePicker = new DatePicker(
@@ -83,7 +83,7 @@ public final class DatePanel extends JPanel implements InputComponent<Date>, UIA
         setLayout(new GridBagLayout());
         add(dateField, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
-        selectButton = new R3NButton(UISWAction.SELECT, this);
+        selectButton = new R3NButton(R3NAction.SELECT, this);
         selectButton.setText("...");
         add(selectButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
