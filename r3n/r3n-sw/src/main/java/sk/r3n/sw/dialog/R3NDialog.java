@@ -8,13 +8,13 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIActionExecutor;
-import sk.r3n.sw.util.UIActionKey;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.UIActionExecutor;
+import sk.r3n.ui.UIActionKey;
+import sk.r3n.ui.R3NAction;
 
 public abstract class R3NDialog extends JDialog implements WindowListener, UIActionExecutor {
 
-    protected UIActionKey lastActionKey = UISWAction.CLOSE;
+    protected UIActionKey lastActionKey = R3NAction.CLOSE;
 
     public R3NDialog() {
         super();
@@ -33,8 +33,8 @@ public abstract class R3NDialog extends JDialog implements WindowListener, UIAct
     @Override
     public void execute(UIActionKey actionKey, Object source) {
         lastActionKey = actionKey;
-        if (lastActionKey instanceof UISWAction) {
-            switch ((UISWAction) actionKey) {
+        if (lastActionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
                 case CLOSE:
                     dispose();
                     break;
@@ -47,7 +47,7 @@ public abstract class R3NDialog extends JDialog implements WindowListener, UIAct
         addWindowListener(this);
         setLayout(new BorderLayout());
         SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
-                UISWAction.CLOSE, this);
+                R3NAction.CLOSE, this);
     }
 
     public abstract boolean isInputValid();
@@ -77,7 +77,7 @@ public abstract class R3NDialog extends JDialog implements WindowListener, UIAct
 
     @Override
     public void windowClosing(WindowEvent windowEvent) {
-        execute(UISWAction.CLOSE, windowEvent.getSource());
+        execute(R3NAction.CLOSE, windowEvent.getSource());
     }
 
     @Override

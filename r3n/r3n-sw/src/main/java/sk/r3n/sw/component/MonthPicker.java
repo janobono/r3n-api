@@ -9,10 +9,10 @@ import java.util.Locale;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import sk.r3n.sw.component.list.R3NListCellRenderer;
-import sk.r3n.sw.util.UIActionExecutor;
-import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.ui.UIActionExecutor;
+import sk.r3n.ui.UIActionKey;
 import sk.r3n.sw.util.UIActionListener;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.R3NAction;
 
 public final class MonthPicker extends JPanel implements UIActionExecutor {
 
@@ -50,7 +50,7 @@ public final class MonthPicker extends JPanel implements UIActionExecutor {
                 0, 0, 0), 0, 0));
         // YEAR
         yearBox = new JComboBox<>();
-        yearBox.addActionListener(new UIActionListener(UISWAction.SELECT, this));
+        yearBox.addActionListener(new UIActionListener(R3NAction.SELECT, this));
         setYear(calendar.get(Calendar.YEAR));
         add(yearBox, new GridBagConstraints(1, 0, 1, 1, 0.5, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
@@ -59,8 +59,8 @@ public final class MonthPicker extends JPanel implements UIActionExecutor {
 
     @Override
     public void execute(UIActionKey actionKey, Object source) {
-        if (actionKey instanceof UISWAction) {
-            switch ((UISWAction) actionKey) {
+        if (actionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
                 case SELECT:
                     if (!blocked) {
                         setYear((int) yearBox.getSelectedItem());

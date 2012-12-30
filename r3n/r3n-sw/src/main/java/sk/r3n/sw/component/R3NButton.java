@@ -1,10 +1,10 @@
 package sk.r3n.sw.component;
 
 import javax.swing.*;
-import sk.r3n.sw.util.IconType;
+import sk.r3n.ui.IconType;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIActionExecutor;
-import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.ui.UIActionExecutor;
+import sk.r3n.ui.UIActionKey;
 import sk.r3n.sw.util.UIActionListener;
 
 public class R3NButton extends JButton {

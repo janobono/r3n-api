@@ -7,8 +7,8 @@ import javax.swing.JPanel;
 import sk.r3n.sw.component.ButtonPanel;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIActionKey;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.UIActionKey;
+import sk.r3n.ui.R3NAction;
 
 public abstract class OkDialog extends R3NDialog {
 
@@ -27,8 +27,8 @@ public abstract class OkDialog extends R3NDialog {
     @Override
     public void execute(UIActionKey actionKey, Object source) {
         lastActionKey = actionKey;
-        if (actionKey instanceof UISWAction) {
-            switch ((UISWAction) actionKey) {
+        if (actionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
                 case OK:
                     if (!isInputValid()) {
                         break;
@@ -43,11 +43,11 @@ public abstract class OkDialog extends R3NDialog {
     }
 
     private void init() {
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.OK, this);
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.CLOSE, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.OK, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.CLOSE, this);
 
         ButtonPanel buttonPanel = new ButtonPanel(1, true);
-        okButton = new R3NButton(UISWAction.OK, this);
+        okButton = new R3NButton(R3NAction.OK, this);
         buttonPanel.addButton(okButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }

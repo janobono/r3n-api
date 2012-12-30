@@ -9,7 +9,7 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
-import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.ui.UIActionKey;
 
 public class StatusDialog extends R3NDialog {
 

@@ -7,8 +7,8 @@ import javax.swing.JPanel;
 import sk.r3n.sw.component.ButtonPanel;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIActionKey;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.UIActionKey;
+import sk.r3n.ui.R3NAction;
 
 public abstract class OkCancelDialog extends R3NDialog {
 
@@ -29,8 +29,8 @@ public abstract class OkCancelDialog extends R3NDialog {
     @Override
     public void execute(UIActionKey actionKey, Object source) {
         lastActionKey = actionKey;
-        if (lastActionKey instanceof UISWAction) {
-            switch ((UISWAction) actionKey) {
+        if (lastActionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
                 case OK:
                     if (!isInputValid()) {
                         break;
@@ -46,14 +46,14 @@ public abstract class OkCancelDialog extends R3NDialog {
     }
 
     private void init() {
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.OK, this);
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.CANCEL, this);
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.CLOSE, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.OK, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.CANCEL, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.CLOSE, this);
 
         ButtonPanel buttonPanel = new ButtonPanel(2, true);
-        okButton = new R3NButton(UISWAction.OK, this);
+        okButton = new R3NButton(R3NAction.OK, this);
         buttonPanel.addButton(okButton);
-        cancelButton = new R3NButton(UISWAction.CANCEL, this);
+        cancelButton = new R3NButton(R3NAction.CANCEL, this);
         buttonPanel.addButton(cancelButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }

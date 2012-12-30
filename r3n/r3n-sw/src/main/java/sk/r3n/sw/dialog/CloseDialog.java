@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 import sk.r3n.sw.component.ButtonPanel;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.R3NAction;
 
 public abstract class CloseDialog extends R3NDialog {
 
@@ -24,9 +24,9 @@ public abstract class CloseDialog extends R3NDialog {
     }
 
     private void init() {
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, UISWAction.CLOSE, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.CLOSE, this);
         ButtonPanel buttonPanel = new ButtonPanel(1, true);
-        closeButton = new R3NButton(UISWAction.CLOSE, this);
+        closeButton = new R3NButton(R3NAction.CLOSE, this);
         buttonPanel.addButton(closeButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }
