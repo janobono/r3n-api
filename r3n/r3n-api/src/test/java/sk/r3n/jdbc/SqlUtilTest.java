@@ -17,7 +17,7 @@ public class SqlUtilTest {
     @Before
     public void tearUp() {
         connectionService = ConnectionServiceFactory.createConnectionService(DbType.H2);
-        connectionService.setParameter(ConnectionParameter.NAME.code(), "testDb");
+        connectionService.setProperty(DbProperty.NAME.code(), "testDb");
     }
 
     @After

@@ -1,6 +1,6 @@
 package sk.r3n.jdbc;
 
-public enum ConnectionParameter {
+public enum DbProperty {
 
     DRIVER,
     HOST,

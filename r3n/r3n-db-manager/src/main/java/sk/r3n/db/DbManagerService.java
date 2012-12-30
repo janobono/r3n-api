@@ -1,291 +1,190 @@
 package sk.r3n.db;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.util.Properties;
-import java.util.ResourceBundle;
-import org.osgi.service.component.ComponentContext;
-import sk.r3n.db.ConnectionCreator;
-import sk.r3n.db.DbManagerService;
-import sk.r3n.db.DbManagerServiceIO;
-import sk.r3n.db.DbManagerServiceUI;
-import sk.r3n.db.SQLGenerator;
-import sk.r3n.properties.R3NProperties;
+import sk.r3n.app.AppHelp;
+import sk.r3n.app.AppProperties;
+import sk.r3n.jdbc.ConnectionService;
+import sk.r3n.jdbc.ConnectionServiceFactory;
+import sk.r3n.jdbc.DbStatus;
+import sk.r3n.jdbc.DbType;
+import sk.r3n.sw.util.Answer;
+import sk.r3n.sw.util.MessageType;
+import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.sw.util.UIActionExecutor;
+import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UISWAction;
 import sk.r3n.util.R3NException;
 
-public class DbManagerService implements DbManagerService {
+public class DbManagerService implements UIActionExecutor {
 
-    public static final String POSTGRES_DRIVER = org.postgresql.Driver.class.getCanonicalName();
-    public static final String MS_SQL_DRIVER = net.sourceforge.jtds.jdbc.Driver.class.getCanonicalName();
-    private ComponentContext context;
-    private R3NProperties r3nProperties;
+    public static ConnectionService getConnectionService(Properties properties) {
+        ConnectionService result = null;
+        String driver = properties.getProperty(DbManagerProperties.DRIVER.connCode(), "");
+        DbType dbType = DbType.get(driver);
+        if (dbType != null) {
+            result = ConnectionServiceFactory.createConnectionService(dbType);
+            result.setProperties(properties);
+        }
+        return result;
+    }
+
+    private AppProperties appProperties;
+
     private DbManagerServiceUI dbManagerServiceUI;
+
     private DbManagerServiceIO dbManagerServiceIO;
-    private ConnectionCreator connectionCreator;
-    private SQLGenerator sqlGenerator;
 
-    public DbManagerService() {
+    private AppHelp appHelp;
+
+    public DbManagerService(DbManagerServiceUI dbManagerServiceUI, DbManagerServiceIO dbManagerServiceIO,
+            AppProperties appProperties, AppHelp appHelp) {
         super();
+        this.appProperties = appProperties;
+        this.appHelp = appHelp;
+        this.dbManagerServiceIO = dbManagerServiceIO;
+        this.dbManagerServiceUI = dbManagerServiceUI;
     }
 
-    protected void activate(ComponentContext context) {
-        this.context = context;
-        r3nProperties = (R3NProperties) context.locateService("R3NProperties");
-        dbManagerServiceUI = (DbManagerServiceUI) context.locateService("DbManagerServiceUI");
-        dbManagerServiceIO = (DbManagerServiceIO) context.locateService("DbManagerServiceIO");
+    private Properties getProperties() {
+        Properties properties = new Properties();
+        properties.put(DbManagerProperties.DRIVER.connCode(),
+                appProperties.get(DbManagerProperties.DRIVER.appCode(), ""));
+        properties.put(DbManagerProperties.HOST.connCode(), appProperties.get(DbManagerProperties.HOST.appCode(), ""));
+        properties.put(DbManagerProperties.PORT.connCode(), appProperties.get(DbManagerProperties.PORT.appCode(), ""));
+        properties.put(DbManagerProperties.NAME.connCode(), appProperties.get(DbManagerProperties.NAME.appCode(), ""));
+        properties.put(DbManagerProperties.USER.connCode(), appProperties.get(DbManagerProperties.USER.appCode(), ""));
+        properties.put(DbManagerProperties.PASSWORD.connCode(), appProperties.decrypt(
+                appProperties.get(DbManagerProperties.PASSWORD.appCode(), "")));
+        properties.put(DbManagerProperties.ADMIN_NAME.connCode(), "");
+        properties.put(DbManagerProperties.ADMIN_USER.connCode(), "");
+        properties.put(DbManagerProperties.ADMIN_PASSWORD.connCode(), "");
+        return properties;
     }
 
-    private void createDB(ConnectionCreator connectionCreator,
-            Properties properties) throws R3NException {
-        // Existence check ------------------------------------------------
-        Connection connection = null;
-        try {
-            connection = connectionCreator.getConnection(
-                    properties.getProperty(ConnectionCreator.NAME),
-                    properties.getProperty(ConnectionCreator.ADMIN_USER),
-                    properties.getProperty(ConnectionCreator.ADMIN_PASSWORD));
-        } catch (Exception e) {
-        }
-        if (connection != null) {
-            connectionCreator.close(connection);
-            throw new R3NException(ResourceBundle.getBundle(
-                    DbManagerService.class.getCanonicalName()).getString(
-                    Integer.toString(ERR_CREATE_DB)), ERR_CREATE_DB);
-        }
-        // DB create ------------------------------------------------------
-        if (properties.getProperty(ConnectionCreator.DRIVER).equals(
-                POSTGRES_DRIVER)) {
-            Statement statement = null;
-            try {
-                connection = connectionCreator.getConnection(properties.getProperty(ConnectionCreator.ADMIN_DB), properties.getProperty(ConnectionCreator.ADMIN_USER), properties.getProperty(ConnectionCreator.ADMIN_PASSWORD));
-                connection.setAutoCommit(true);
-                statement = connection.createStatement();
-                statement.executeUpdate("CREATE DATABASE "
-                        + properties.getProperty(ConnectionCreator.NAME)
-                        + " WITH OWNER = "
-                        + properties.getProperty(ConnectionCreator.USER));
-            } catch (R3NException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new R3NException(ResourceBundle.getBundle(
-                        DbManagerService.class.getCanonicalName()).getString(
-                        Integer.toString(ERR_CREATE_DB)), ERR_CREATE_DB, e);
-            } finally {
-                connectionCreator.close(statement);
-                connectionCreator.close(connection);
-            }
-        } else {
-            Statement statement = null;
-            CallableStatement cs = null;
-            try {
-                // DB
-                connection = connectionCreator.getConnection(properties.getProperty(ConnectionCreator.ADMIN_DB), properties.getProperty(ConnectionCreator.ADMIN_USER), properties.getProperty(ConnectionCreator.ADMIN_PASSWORD));
-                connection.setAutoCommit(true);
-                statement = connection.createStatement();
-                statement.executeUpdate("CREATE DATABASE ["
-                        + properties.getProperty(ConnectionCreator.NAME)
-                        + "] COLLATE Slovak_CS_AS");
-                statement.executeUpdate("ALTER DATABASE ["
-                        + properties.getProperty(ConnectionCreator.NAME)
-                        + "] SET READ_COMMITTED_SNAPSHOT ON");
-                connectionCreator.close(statement);
-                connectionCreator.close(connection);
-                // User
-                connection = connectionCreator.getConnection(properties.getProperty(ConnectionCreator.NAME), properties.getProperty(ConnectionCreator.ADMIN_USER), properties.getProperty(ConnectionCreator.ADMIN_PASSWORD));
-                connection.setAutoCommit(true);
-                statement = connection.createStatement();
-                statement.executeUpdate("CREATE USER ["
-                        + properties.getProperty(ConnectionCreator.USER)
-                        + "] FOR LOGIN ["
-                        + properties.getProperty(ConnectionCreator.USER) + "]");
-                cs = connection.prepareCall("{call sp_addrolemember(?,?)}");
-                cs.setString(1, "db_owner");
-                cs.setString(2, properties.getProperty(ConnectionCreator.USER));
-                cs.execute();
-                cs.setString(1, "db_datawriter");
-                cs.setString(2, properties.getProperty(ConnectionCreator.USER));
-                cs.execute();
-                cs.setString(1, "db_datareader");
-                cs.setString(2, properties.getProperty(ConnectionCreator.USER));
-                cs.execute();
-            } catch (Exception e) {
-                throw new R3NException(ResourceBundle.getBundle(
-                        DbManagerService.class.getCanonicalName()).getString(
-                        Integer.toString(ERR_CREATE_DB)), ERR_CREATE_DB, e);
-            } finally {
-                connectionCreator.close(cs);
-                connectionCreator.close(statement);
-                connectionCreator.close(connection);
-            }
-        }
-        // STRUCTURE
-        try {
-            dbManagerServiceIO.createStructure(connectionCreator, properties);
-        } catch (Exception e) {
-            throw new R3NException(ResourceBundle.getBundle(
-                    DbManagerService.class.getCanonicalName()).getString(
-                    Integer.toString(ERR_STRUCTURE)), ERR_STRUCTURE, e);
-        }
+    private void setProperties(Properties properties) {
+        appProperties.set(DbManagerProperties.DRIVER.appCode(),
+                properties.getProperty(DbManagerProperties.DRIVER.connCode()));
+        appProperties.set(DbManagerProperties.HOST.appCode(),
+                properties.getProperty(DbManagerProperties.HOST.connCode()));
+        appProperties.set(DbManagerProperties.PORT.appCode(),
+                properties.getProperty(DbManagerProperties.PORT.connCode()));
+        appProperties.set(DbManagerProperties.NAME.appCode(),
+                properties.getProperty(DbManagerProperties.NAME.connCode()));
+        appProperties.set(DbManagerProperties.USER.appCode(),
+                properties.getProperty(DbManagerProperties.USER.connCode()));
+        appProperties.set(DbManagerProperties.PASSWORD.appCode(),
+                appProperties.encrypt(properties.getProperty(DbManagerProperties.PASSWORD.connCode())));
     }
 
-    private void createUser(ConnectionCreator connectionCreator,
-            Properties properties) throws R3NException {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = connectionCreator.getConnection(
-                    properties.getProperty(ConnectionCreator.ADMIN_DB),
-                    properties.getProperty(ConnectionCreator.ADMIN_USER),
-                    properties.getProperty(ConnectionCreator.ADMIN_PASSWORD));
-            connection.setAutoCommit(true);
-            statement = connection.createStatement();
-            if (properties.getProperty(ConnectionCreator.DRIVER).equals(
-                    POSTGRES_DRIVER)) {
-                try {
-                    statement.executeUpdate("ALTER USER "
-                            + properties.getProperty(ConnectionCreator.USER)
-                            + " PASSWORD '"
-                            + properties.getProperty(ConnectionCreator.PASSWORD)
-                            + "'");
-                } catch (Exception ex) {
-                    statement.executeUpdate("CREATE USER "
-                            + properties.getProperty(ConnectionCreator.USER)
-                            + " PASSWORD '"
-                            + properties.getProperty(ConnectionCreator.PASSWORD)
-                            + "'");
-                }
-            } else {
-                try {
-                    statement.executeUpdate("ALTER LOGIN ["
-                            + properties.getProperty(ConnectionCreator.USER)
-                            + "] WITH PASSWORD=N'"
-                            + properties.getProperty(ConnectionCreator.PASSWORD)
-                            + "', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON");
-                } catch (Exception e) {
-                    statement.executeUpdate("CREATE LOGIN ["
-                            + properties.getProperty(ConnectionCreator.USER)
-                            + "] WITH PASSWORD=N'"
-                            + properties.getProperty(ConnectionCreator.PASSWORD)
-                            + "', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON");
-                }
-            }
-        } catch (R3NException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new R3NException(ResourceBundle.getBundle(
-                    DbManagerService.class.getCanonicalName()).getString(
-                    Integer.toString(ERR_CREATE_USER)), ERR_CREATE_USER, e);
-        } finally {
-            connectionCreator.close(statement);
-            connectionCreator.close(connection);
-        }
+    private boolean isNotSet(Properties properties) {
+        return properties.getProperty(DbManagerProperties.DRIVER.connCode(), "").equals("")
+                || properties.getProperty(DbManagerProperties.HOST.connCode(), "").equals("")
+                || properties.getProperty(DbManagerProperties.PORT.connCode(), "").equals("")
+                || properties.getProperty(DbManagerProperties.NAME.connCode(), "").equals("")
+                || properties.getProperty(DbManagerProperties.USER.connCode(), "").equals("")
+                || properties.getProperty(DbManagerProperties.PASSWORD.connCode(), "").equals("");
     }
 
-    protected void deactivate(ComponentContext context) {
-        try {
-            if (connectionCreator != null) {
-                connectionCreator.close();
-            }
-        } catch (Exception e) {
-        }
-        connectionCreator = null;
-
-        r3nProperties = null;
-        dbManagerServiceUI = null;
-        dbManagerServiceIO = null;
-        context = null;
-    }
-
-    private Properties editProperties(Properties properties) throws Exception {
+    private Properties editProperties(Properties properties) throws R3NException {
         Properties result = dbManagerServiceUI.edit(properties);
         if (result == null) {
-            throw new R3NException(ResourceBundle.getBundle(
-                    DbManagerService.class.getCanonicalName()).getString(
-                    Integer.toString(ERR_CANCEL)), ERR_CANCEL);
+            DbManagerException.CANCELLED.raise();
         }
         return result;
     }
 
     @Override
-    public ConnectionCreator getConnectionCreator() {
-        return connectionCreator;
-    }
-
-    private ConnectionCreator getConnectionCreator(Properties properties) {
-        if (properties.get(ConnectionCreator.DRIVER).equals(MS_SQL_DRIVER)) {
-            return new MSSQLConnectionCreator(properties);
+    public void execute(UIActionKey actionKey, Object source) {
+        if (actionKey instanceof UISWAction) {
+            switch ((UISWAction) actionKey) {
+                case HELP:
+                    appHelp.showHelp(ConnectionPropertiesDialog.class.getCanonicalName());
+                    return;
+                case DEFAULT:
+                    //TODO
+                    return;
+            }
         }
-        if (properties.get(ConnectionCreator.DRIVER).equals(POSTGRES_DRIVER)) {
-            return new PostgreSQLConnectionCreator(properties);
+        if (actionKey.equals(DbManagerAction.TEST)) {
+            testProperties(getProperties(), false);
         }
-        return null;
     }
 
-    private Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(ConnectionCreator.DRIVER, r3nProperties.get(DRIVER, ""));
-        properties.put(ConnectionCreator.HOST, r3nProperties.get(HOST, ""));
-        properties.put(ConnectionCreator.PORT, r3nProperties.get(PORT, ""));
-        properties.put(ConnectionCreator.NAME, r3nProperties.get(NAME, ""));
-        properties.put(ConnectionCreator.USER, r3nProperties.get(USER, ""));
-        properties.put(ConnectionCreator.PASSWORD,
-                r3nProperties.decrypt(r3nProperties.get(PASSWORD, "")));
-        properties.put(ConnectionCreator.ADMIN_DB, "");
-        properties.put(ConnectionCreator.ADMIN_USER, "");
-        properties.put(ConnectionCreator.ADMIN_PASSWORD, "");
-        return properties;
-    }
-
-    @Override
-    public SQLGenerator getSQLGenerator() {
-        return sqlGenerator;
-    }
-
-    private SQLGenerator getSQLGenerator(Properties properties) {
-        if (properties.get(ConnectionCreator.DRIVER).equals(MS_SQL_DRIVER)) {
-            return new MSSQLGenerator();
+    private boolean testProperties(Properties properties, boolean silent) {
+        boolean result = false;
+        ConnectionService connectionService = getConnectionService(properties);
+        if (connectionService == null) {
+            if (!silent) {
+                SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(), DbManagerBundle.UNSUPPORTED.value(),
+                        MessageType.ERROR);
+            }
+            return result;
         }
-        if (properties.get(ConnectionCreator.DRIVER).equals(POSTGRES_DRIVER)) {
-            return new PostgreSQLGenerator();
+        switch (connectionService.getConnectionStatus()) {
+            case UNKNOWN:
+                if (!silent) {
+                    SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(), DbStatus.UNKNOWN.value(),
+                            MessageType.ERROR);
+                }
+                return result;
+            case SERVER_ERR:
+                if (!silent) {
+                    SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(), DbStatus.SERVER_ERR.value(),
+                            MessageType.ERROR);
+                }
+                return result;
+            case DB_ERR:
+                if (!silent) {
+                    SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(), DbStatus.DB_ERR.value(),
+                            MessageType.ERROR);
+                }
+                return result;
+            case AUTH_ERR:
+                if (!silent) {
+                    SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(), DbStatus.AUTH_ERR.value(),
+                            MessageType.ERROR);
+                }
+                return result;
+            case OK:
+                if (!silent) {
+                    SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(), DbStatus.OK.value(),
+                            MessageType.ERROR);
+                }
+                result = true;
+                return result;
         }
-        return null;
+        connectionService.close();
+        return result;
     }
 
-    @Override
-    public void init() throws R3NException {
+    public void checkDB() throws R3NException {
         Properties properties = getProperties();
         try {
             if (isNotSet(properties)) {
-                // Databaza nie je nastavena
-                ConnectionCreator connectionCreator = null;
-                // editacia parametrov
+                ConnectionService connectionService = null;
                 do {
-                    // Ak nie je tvorca pripojeni opakovanie procesu
                     do {
                         properties = editProperties(properties);
-                        // Vytvorenie tvorcu pripojeni
-                        connectionCreator = getConnectionCreator(properties);
-                        if (connectionCreator == null) {
-                            ResourceBundle bundle = ResourceBundle.getBundle(DbManagerService.class.getCanonicalName());
-                            dbManagerServiceUI.showError(bundle.getString("TITLE"), bundle.getString("UNSUPPORTED"));
+                        connectionService = getConnectionService(properties);
+                        if (connectionService == null) {
+                            SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(),
+                                    DbManagerBundle.UNSUPPORTED.value(), MessageType.ERROR);
                         }
-                    } while (connectionCreator == null);
+                    } while (connectionService == null);
                     try {
-                        // Vytvorenie databazy
-                        switch (connectionCreator.getConnStatus()) {
-                            case 0:
+                        switch (connectionService.getConnectionStatus()) {
+                            case OK:
                                 break;
-                            case ERR_NOT_EXIST:
-                                createDB(connectionCreator, properties);
-                                if (connectionCreator.getConnStatus() == DbManagerService.ERR_AUTHENTICATION) {
-                                    createUser(connectionCreator, properties);
+                            case DB_ERR:
+                                dbManagerServiceIO.createDB(connectionService, properties);
+                                if (connectionService.getConnectionStatus() == DbStatus.AUTH_ERR) {
+                                    dbManagerServiceIO.createUser(connectionService, properties);
                                 }
                                 break;
-                            case ERR_AUTHENTICATION:
-                                createUser(connectionCreator, properties);
-                                if (connectionCreator.getConnStatus() == DbManagerService.ERR_NOT_EXIST) {
-                                    createDB(connectionCreator, properties);
+                            case AUTH_ERR:
+                                dbManagerServiceIO.createUser(connectionService, properties);
+                                if (connectionService.getConnectionStatus() == DbStatus.DB_ERR) {
+                                    dbManagerServiceIO.createDB(connectionService, properties);
                                 }
                                 break;
                             default:
@@ -293,27 +192,27 @@ public class DbManagerService implements DbManagerService {
                                 break;
                         }
                     } catch (R3NException e) {
-                        ResourceBundle bundle = ResourceBundle.getBundle(DbManagerService.class.getCanonicalName());
-                        dbManagerServiceUI.showError(bundle.getString("TITLE"), e.getLocalizedMessage());
+                        SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(), e.getLocalizedMessage(),
+                                MessageType.ERROR);
                     } finally {
-                        connectionCreator.close();
+                        connectionService.close();
                     }
                 } while (!testProperties(properties, true));
                 setProperties(properties);
             } else {
-                // Databaza je nastavena
                 while (!testProperties(properties, true)) {
                     testProperties(properties, false);
                     boolean edit;
-                    ConnectionCreator connectionCreator = getConnectionCreator(properties);
-                    if (connectionCreator == null) {
+                    ConnectionService connectionService = getConnectionService(properties);
+                    if (connectionService == null) {
                         edit = true;
                     } else {
-                        connectionCreator.close();
-                        switch (connectionCreator.getConnStatus()) {
-                            case ERR_NOT_RUN:
-                                ResourceBundle bundle = ResourceBundle.getBundle(DbManagerService.class.getCanonicalName());
-                                edit = dbManagerServiceUI.askWarning(bundle.getString("TITLE"), bundle.getString("NOT_RUN_QUESTION"));
+                        connectionService.close();
+                        switch (connectionService.getConnectionStatus()) {
+                            case SERVER_ERR:
+                                edit = SwingUtil.showYesNoDialog(DbManagerBundle.TITLE.value(),
+                                        DbManagerBundle.NOT_RUN_QUESTION.value(),
+                                        MessageType.WARNING).equals(Answer.YES);
                                 if (!edit) {
                                     continue;
                                 } else {
@@ -324,40 +223,33 @@ public class DbManagerService implements DbManagerService {
                                 break;
                         }
                     }
-                    // Vyhodnotene ze je nutny zasah do konfiguracie
                     if (edit) {
-                        ResourceBundle bundle = ResourceBundle.getBundle(DbManagerService.class.getCanonicalName());
-                        if (dbManagerServiceUI.askWarning(bundle.getString("TITLE"), bundle.getString("SET_PROP_QUESTION"))) {
-                            // editacia parametrov
+                        if (SwingUtil.showYesNoDialog(DbManagerBundle.TITLE.value(),
+                                DbManagerBundle.SET_PROP_QUESTION.value(),
+                                MessageType.WARNING).equals(Answer.YES)) {
                             do {
-                                // Ak nie je tvorca pripojeni opakovanie procesu
                                 do {
                                     properties = editProperties(properties);
-                                    // Vytvorenie tvorcu pripojeni
-                                    connectionCreator = getConnectionCreator(properties);
-                                    if (connectionCreator == null) {
-                                        bundle = ResourceBundle.getBundle(DbManagerService.class.getCanonicalName());
-                                        dbManagerServiceUI.showError(bundle.getString("TITLE"), bundle.getString("UNSUPPORTED"));
+                                    connectionService = getConnectionService(properties);
+                                    if (connectionService == null) {
+                                        SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(),
+                                                DbManagerBundle.UNSUPPORTED.value(), MessageType.ERROR);
                                     }
-                                } while (connectionCreator == null);
+                                } while (connectionService == null);
                                 try {
-                                    // Vytvorenie databazy
-                                    switch (connectionCreator.getConnStatus()) {
-                                        case 0:
+                                    switch (connectionService.getConnectionStatus()) {
+                                        case OK:
                                             break;
-                                        case ERR_NOT_EXIST:
-                                            createDB(connectionCreator, properties);
-                                            if (connectionCreator.getConnStatus() == DbManagerService.ERR_AUTHENTICATION) {
-                                                createUser(connectionCreator,
-                                                        properties);
+                                        case DB_ERR:
+                                            dbManagerServiceIO.createDB(connectionService, properties);
+                                            if (connectionService.getConnectionStatus() == DbStatus.AUTH_ERR) {
+                                                dbManagerServiceIO.createUser(connectionService, properties);
                                             }
                                             break;
-                                        case ERR_AUTHENTICATION:
-                                            createUser(connectionCreator,
-                                                    properties);
-                                            if (connectionCreator.getConnStatus() == DbManagerService.ERR_NOT_EXIST) {
-                                                createDB(connectionCreator,
-                                                        properties);
+                                        case AUTH_ERR:
+                                            dbManagerServiceIO.createUser(connectionService, properties);
+                                            if (connectionService.getConnectionStatus() == DbStatus.DB_ERR) {
+                                                dbManagerServiceIO.createDB(connectionService, properties);
                                             }
                                             break;
                                         default:
@@ -365,17 +257,15 @@ public class DbManagerService implements DbManagerService {
                                             break;
                                     }
                                 } catch (R3NException e) {
-                                    bundle = ResourceBundle.getBundle(DbManagerService.class.getCanonicalName());
-                                    dbManagerServiceUI.showError(bundle.getString("TITLE"), e.getLocalizedMessage());
+                                    SwingUtil.showMessageDialog(DbManagerBundle.TITLE.value(), e.getLocalizedMessage(),
+                                            MessageType.ERROR);
                                 } finally {
-                                    connectionCreator.close();
+                                    connectionService.close();
                                 }
                             } while (!testProperties(properties, true));
                             setProperties(properties);
                         } else {
-                            throw new R3NException(ResourceBundle.getBundle(
-                                    DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_CANCEL)),
-                                    ERR_CANCEL);
+                            DbManagerException.CANCELLED.raise();
                         }
                     }
                 }
@@ -383,95 +273,17 @@ public class DbManagerService implements DbManagerService {
         } catch (R3NException e) {
             throw e;
         } catch (Exception e) {
-            throw new R3NException(ResourceBundle.getBundle(
-                    DbManagerService.class.getCanonicalName()).getString(
-                    Integer.toString(DbManagerService.ERR_UNKNOWN)),
-                    DbManagerService.ERR_UNKNOWN, e);
+            DbManagerException.UNKNOWN.raise(e);
         }
-        ConnectionCreator connectionCreator = null;
+        ConnectionService connectionService = null;
         try {
-            connectionCreator = getConnectionCreator(properties);
-            dbManagerServiceIO.init(connectionCreator, getSQLGenerator(properties), properties);
+            connectionService = getConnectionService(properties);
+            dbManagerServiceIO.checkStructure(connectionService, properties);
         } catch (Exception e) {
-            throw new R3NException(ResourceBundle.getBundle(
-                    DbManagerService.class.getCanonicalName()).getString(
-                    Integer.toString(DbManagerService.ERR_IO_INIT)),
-                    DbManagerService.ERR_IO_INIT, e);
+            DbManagerException.CHECK_STRUCTURE_ERR.raise();
         } finally {
-            connectionCreator.close();
+            connectionService.close();
         }
-        this.connectionCreator = getConnectionCreator(getProperties());
-        this.sqlGenerator = getSQLGenerator(getProperties());
     }
 
-    private boolean isNotSet(Properties properties) {
-        return properties.getProperty(ConnectionCreator.DRIVER, "").equals("")
-                || properties.getProperty(ConnectionCreator.HOST, "").equals("")
-                || properties.getProperty(ConnectionCreator.PORT, "").equals("")
-                || properties.getProperty(ConnectionCreator.NAME, "").equals("")
-                || properties.getProperty(ConnectionCreator.USER, "").equals("")
-                || properties.getProperty(ConnectionCreator.PASSWORD, "").equals("");
-    }
-
-    private void setProperties(Properties properties) {
-        ConnectionCreator connectionCreator = getConnectionCreator(properties);
-        r3nProperties.set(DRIVER,
-                properties.getProperty(ConnectionCreator.DRIVER));
-        r3nProperties.set(HOST, properties.getProperty(ConnectionCreator.HOST));
-        r3nProperties.set(PORT, properties.getProperty(ConnectionCreator.PORT));
-        r3nProperties.set(NAME, properties.getProperty(ConnectionCreator.NAME));
-        r3nProperties.set(USER, properties.getProperty(ConnectionCreator.USER));
-        r3nProperties.set(PASSWORD, r3nProperties.encrypt(properties.getProperty(ConnectionCreator.PASSWORD)));
-        connectionCreator.close();
-    }
-
-    @Override
-    public boolean testProperties(Properties properties, boolean silent) {
-        boolean result = false;
-        // Vytvorenie tvorcu pripojeni
-        ConnectionCreator connectionCreator = getConnectionCreator(properties);
-        // Ak nie je tvorca pripojeni opakovanie procesu
-        if (connectionCreator == null) {
-            if (!silent) {
-                ResourceBundle bundle = ResourceBundle.getBundle(DbManagerService.class.getCanonicalName());
-                dbManagerServiceUI.showError(bundle.getString("TITLE"), bundle.getString("UNSUPPORTED"));
-            }
-            return result;
-        }
-        switch (connectionCreator.getConnStatus()) {
-            case ConnectionCreator.CONN_STATUS_UNKNOWN:
-                if (!silent) {
-                    dbManagerServiceUI.showError(ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_UNKNOWN)));
-                }
-                return result;
-            case ConnectionCreator.CONN_STATUS_NOT_RUN:
-                if (!silent) {
-                    dbManagerServiceUI.showWarning(ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_NOT_RUN)));
-                }
-                return result;
-            case ConnectionCreator.CONN_STATUS_NOT_EXIST:
-                if (!silent) {
-                    dbManagerServiceUI.showError(ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_NOT_EXIST)));
-                }
-                return result;
-            case ConnectionCreator.CONN_STATUS_AUTHENTICATION:
-                if (!silent) {
-                    dbManagerServiceUI.showError(ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(ERR_AUTHENTICATION)));
-                }
-                return result;
-            case 0:
-                if (!silent) {
-                    dbManagerServiceUI.showInfo(ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString("TITLE"),
-                            ResourceBundle.getBundle(DbManagerService.class.getCanonicalName()).getString(Integer.toString(0)));
-                }
-                result = true;
-                return result;
-        }
-        connectionCreator.close();
-        return result;
-    }
 }
