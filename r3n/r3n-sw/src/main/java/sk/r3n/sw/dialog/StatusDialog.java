@@ -9,9 +9,10 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
+import sk.r3n.ui.LongTermJobListener;
 import sk.r3n.ui.UIActionKey;
 
-public class StatusDialog extends R3NDialog {
+public abstract class StatusDialog extends R3NDialog implements LongTermJobListener {
 
     private JProgressBar progressBar;
 
@@ -47,15 +48,26 @@ public class StatusDialog extends R3NDialog {
         lastActionKey = actionKey;
     }
 
-    public void finishProgress() {
-        progressBar.setValue(100);
+    @Override
+    public boolean isInputValid() {
+        return true;
     }
 
-    public void incrementProgress() {
-        incProgress();
+    @Override
+    public void jobStarted() {
+        asc = true;
+        progressBar.setValue(0);
+        progressBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
     }
 
-    private void incProgress() {
+    @Override
+    public void jobStarted(String title) {
+        setTitle(title);
+        jobStarted();
+    }
+
+    @Override
+    public void jobInProgress() {
         int value = progressBar.getValue();
         if (asc) {
             if (value < 100) {
@@ -63,7 +75,7 @@ public class StatusDialog extends R3NDialog {
             } else {
                 asc = false;
                 progressBar.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-                incProgress();
+                jobInProgress();
             }
         } else {
             if (value > 0) {
@@ -71,35 +83,39 @@ public class StatusDialog extends R3NDialog {
             } else {
                 asc = true;
                 progressBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-                incProgress();
+                jobInProgress();
             }
         }
     }
 
-    public void setText(String text) {
-        if (text != null) {
-            statusLabel.setText(text);
+    @Override
+    public void jobInProgress(int value) {
+        for (int i = 0; i < value; i++) {
+            jobInProgress();
         }
     }
 
-    public void startProgress() {
-        asc = true;
-        progressBar.setValue(0);
-        progressBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-    }
-
-    public void statusHide() {
-        dispose();
-    }
-
-    public void statusShow() {
-        asc = true;
-        setVisible(true);
+    @Override
+    public void jobInProgress(String message) {
+        statusLabel.setText(message);
     }
 
     @Override
-    public boolean isInputValid() {
-        return true;
+    public void jobInProgress(String message, int value) {
+        jobInProgress(message);
+        jobInProgress(value);
     }
+
+    @Override
+    public void jobFinished() {
+        dispose();
+    }
+
+    public void init() {
+        executeLongTermJob();
+        setVisible(true);
+    }
+
+    protected abstract void executeLongTermJob();
 
 }
