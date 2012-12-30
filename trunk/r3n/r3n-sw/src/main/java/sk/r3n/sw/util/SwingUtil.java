@@ -334,7 +334,7 @@ public class SwingUtil {
         if (filters != null && filters.length > 0) {
             fileChooser.setAcceptAllFileFilterUsed(false);
             for (R3NFileFilter fl : filters) {
-                fileChooser.addChoosableFileFilter(new SWFileFilter(fl));
+                fileChooser.addChoosableFileFilter(new SwingUtilFileFilter(fl));
             }
         }
         if (fileName != null) {
@@ -363,7 +363,7 @@ public class SwingUtil {
         if (filters != null && filters.length > 0) {
             fileChooser.setAcceptAllFileFilterUsed(false);
             for (R3NFileFilter fl : filters) {
-                fileChooser.addChoosableFileFilter(new SWFileFilter(fl));
+                fileChooser.addChoosableFileFilter(new SwingUtilFileFilter(fl));
             }
         }
         if (fileName != null) {
@@ -372,8 +372,8 @@ public class SwingUtil {
         if (fileChooser.showSaveDialog(getRootFrame()) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             FileFilter fileFilter = fileChooser.getFileFilter();
-            if (fileFilter instanceof SWFileFilter) {
-                String ext = ((SWFileFilter) fileFilter).getFileFilter().getExtension();
+            if (fileFilter instanceof SwingUtilFileFilter) {
+                String ext = ((SwingUtilFileFilter) fileFilter).getFileFilter().getExtension();
                 if (!file.getName().toLowerCase().endsWith(ext.toLowerCase())) {
                     file = new File(file.getPath() + ext);
                 }

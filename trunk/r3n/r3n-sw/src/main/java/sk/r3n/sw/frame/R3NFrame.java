@@ -1,10 +1,11 @@
-package sk.r3n.sw.util;
+package sk.r3n.sw.frame;
 
-import sk.r3n.ui.R3NAction;
 import java.awt.BorderLayout;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
+import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionExecutor;
 
 public abstract class R3NFrame extends JFrame implements UIActionExecutor, WindowListener {

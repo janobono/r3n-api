@@ -1,4 +1,4 @@
-package sk.r3n.sw.util;
+package sk.r3n.sw.frame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,25 +11,26 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import sk.r3n.sw.component.ImagePanel;
+import sk.r3n.ui.LongTermJobListener;
 import sk.r3n.ui.UIActionKey;
 
-public class StartupFrame extends R3NFrame {
-
+public class StartupFrame extends R3NFrame implements LongTermJobListener {
+    
     protected ImagePanel imagePanel;
-
+    
     protected JProgressBar progressBar;
-
+    
     protected JLabel statusLabel;
-
+    
     protected boolean asc;
-
+    
     public StartupFrame() {
         super();
         setUndecorated(true);
-
+        
         JTextField textField = new JTextField();
         textField.setColumns(25);
-
+        
         imagePanel = new ImagePanel();
         statusLabel = new JLabel("", JLabel.CENTER);
         statusLabel.setOpaque(true);
@@ -42,15 +43,15 @@ public class StartupFrame extends R3NFrame {
         add(progressBar, BorderLayout.SOUTH);
         ((JComponent) getContentPane()).setBorder(BorderFactory.createRaisedBevelBorder());
     }
-
+    
     @Override
     public void execute(UIActionKey actionKey, Object source) {
     }
-
+    
     public void finishProgress() {
         progressBar.setValue(100);
     }
-
+    
     public void incrementProgress() {
         if (asc) {
             if (progressBar.getValue() < 100) {
@@ -70,11 +71,11 @@ public class StartupFrame extends R3NFrame {
             }
         }
     }
-
+    
     @Override
     public void refreshUI() {
     }
-
+    
     public void setAppIcon(String url) {
         BufferedImage image = null;
         if (url != null) {
@@ -85,26 +86,66 @@ public class StartupFrame extends R3NFrame {
         }
         setIconImage(image);
     }
-
+    
     public void setAppImage(URL url, boolean stretch) {
         imagePanel.setImage(url);
         imagePanel.setStretch(stretch);
     }
-
+    
     public void setAppName(String appName) {
         setTitle(appName);
     }
-
+    
     public void setInfoText(String infoText) {
         statusLabel.setText(infoText);
     }
-
+    
     public void setInfoTextForegroun(Color color) {
         statusLabel.setForeground(color);
     }
-
+    
     @Override
     public void windowClosing(WindowEvent windowEvent) {
     }
-
+    
+    @Override
+    public void jobStarted() {
+        setVisible(true);
+    }
+    
+    @Override
+    public void jobStarted(String title) {
+        setTitle(title);
+        jobStarted();
+    }
+    
+    @Override
+    public void jobInProgress() {
+        incrementProgress();
+    }
+    
+    @Override
+    public void jobInProgress(int value) {
+        for (int i = 0; i < value; i++) {
+            incrementProgress();
+        }
+    }
+    
+    @Override
+    public void jobInProgress(String message) {
+        setInfoText(message);
+    }
+    
+    @Override
+    public void jobInProgress(String message, int value) {
+        jobInProgress(message);
+        jobInProgress(value);
+    }
+    
+    @Override
+    public void jobFinished() {
+        finishProgress();
+        dispose();
+    }
+    
 }

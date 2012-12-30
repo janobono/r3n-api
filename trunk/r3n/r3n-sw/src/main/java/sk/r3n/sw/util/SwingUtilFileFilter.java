@@ -4,11 +4,11 @@ import java.io.File;
 import javax.swing.filechooser.FileFilter;
 import sk.r3n.ui.R3NFileFilter;
 
-public class SWFileFilter extends FileFilter {
+public class SwingUtilFileFilter extends FileFilter {
 
     private R3NFileFilter fileFilter;
 
-    public SWFileFilter(R3NFileFilter fileFilter) {
+    public SwingUtilFileFilter(R3NFileFilter fileFilter) {
         this.fileFilter = fileFilter;
     }
 
