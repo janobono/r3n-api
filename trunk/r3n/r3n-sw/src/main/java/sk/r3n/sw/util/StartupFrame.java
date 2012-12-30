@@ -14,23 +14,6 @@ import sk.r3n.sw.component.ImagePanel;
 
 public class StartupFrame extends R3NFrame {
 
-    private class AutoIncrementThread implements Runnable {
-
-        @Override
-        public void run() {
-            while (auto) {
-                incrementProgress();
-                try {
-                    Thread.sleep(25);
-                } catch (Exception e) {
-                    auto = false;
-                }
-            }
-
-        }
-
-    }
-
     protected ImagePanel imagePanel;
 
     protected JProgressBar progressBar;
@@ -38,8 +21,6 @@ public class StartupFrame extends R3NFrame {
     protected JLabel statusLabel;
 
     protected boolean asc;
-
-    protected boolean auto;
 
     public StartupFrame() {
         super();
@@ -66,7 +47,6 @@ public class StartupFrame extends R3NFrame {
     }
 
     public void finishProgress() {
-        auto = false;
         progressBar.setValue(100);
     }
 
@@ -124,19 +104,6 @@ public class StartupFrame extends R3NFrame {
 
     @Override
     public void windowClosing(WindowEvent windowEvent) {
-        auto = false;
-    }
-
-    public void autoIncrementProgress() {
-        if (auto) {
-            return;
-        }
-        auto = true;
-        new Thread(new AutoIncrementThread(), "StartupService").start();
-    }
-
-    public void manualIncrementProgress() {
-        auto = false;
     }
 
 }

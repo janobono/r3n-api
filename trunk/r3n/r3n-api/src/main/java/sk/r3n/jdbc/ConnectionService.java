@@ -1,13 +1,16 @@
 package sk.r3n.jdbc;
 
 import java.sql.Connection;
+import java.util.Properties;
 import sk.r3n.util.R3NException;
 
 public interface ConnectionService {
 
-    public String getParameter(String key);
+    public String getProperty(String key);
 
-    public void setParameter(String key, String value);
+    public void setProperty(String key, String value);
+
+    public void setProperties(Properties properties);
 
     public boolean isInitialized();
 

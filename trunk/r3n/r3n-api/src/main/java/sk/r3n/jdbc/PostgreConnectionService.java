@@ -21,8 +21,8 @@ public class PostgreConnectionService extends DataSourceConnectionService {
             if (ds == null) {
                 ds = new BasicDataSource();
                 ds.setDriverClassName(DbType.POSTGRE.driver());
-                ds.setUsername(getParameter(ConnectionParameter.USER.code()));
-                ds.setPassword(getParameter(ConnectionParameter.PASSWORD.code()));
+                ds.setUsername(getProperty(DbProperty.USER.code()));
+                ds.setPassword(getProperty(DbProperty.PASSWORD.code()));
                 ds.setUrl(getConnectionURL());
                 ds.setMinIdle(5);
             }
@@ -57,11 +57,11 @@ public class PostgreConnectionService extends DataSourceConnectionService {
     public String getConnectionURL() {
         StringBuilder buff = new StringBuilder();
         buff.append("jdbc:postgresql://");
-        buff.append(getParameter(ConnectionParameter.HOST.code()));
+        buff.append(getProperty(DbProperty.HOST.code()));
         buff.append(":");
-        buff.append(getParameter(ConnectionParameter.PORT.code()));
+        buff.append(getProperty(DbProperty.PORT.code()));
         buff.append("/");
-        buff.append(getParameter(ConnectionParameter.NAME.code()));
+        buff.append(getProperty(DbProperty.NAME.code()));
         return buff.toString();
     }
 

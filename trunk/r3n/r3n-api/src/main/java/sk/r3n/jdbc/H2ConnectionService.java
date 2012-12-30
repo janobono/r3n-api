@@ -3,6 +3,8 @@ package sk.r3n.jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.EnumSet;
+import java.util.Properties;
 import java.util.logging.Logger;
 import sk.r3n.util.R3NException;
 
@@ -20,17 +22,26 @@ public class H2ConnectionService implements ConnectionService {
     }
 
     @Override
-    public String getParameter(String key) {
-        if (key.equals(ConnectionParameter.NAME.code())) {
+    public String getProperty(String key) {
+        if (key.equals(DbProperty.NAME.code())) {
             return name;
         }
         return null;
     }
 
     @Override
-    public void setParameter(String key, String value) {
-        if (key.equals(ConnectionParameter.NAME.code())) {
+    public void setProperty(String key, String value) {
+        if (key.equals(DbProperty.NAME.code())) {
             name = value;
+        }
+    }
+
+    @Override
+    public void setProperties(Properties properties) {
+        for (DbProperty dbProperty : EnumSet.allOf(DbProperty.class)) {
+            if (properties.containsKey(dbProperty.code())) {
+                setProperty(dbProperty.code(), properties.getProperty(dbProperty.code(), ""));
+            }
         }
     }
 
