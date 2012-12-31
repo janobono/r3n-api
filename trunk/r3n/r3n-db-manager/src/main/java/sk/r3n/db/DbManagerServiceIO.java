@@ -9,6 +9,4 @@ public interface DbManagerServiceIO {
 
     public void createUser(ConnectionService connectionService, Properties properties) throws Exception;
 
-    public void checkStructure(ConnectionService connectionService, Properties properties) throws Exception;
-
 }

@@ -17,12 +17,11 @@ import sk.r3n.sw.component.field.VarcharField;
 import sk.r3n.sw.component.list.R3NListCellRenderer;
 import sk.r3n.sw.dialog.R3NDialog;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.UIActionExecutor;
-import sk.r3n.sw.util.UIActionKey;
-import sk.r3n.sw.util.UISWAction;
+import sk.r3n.ui.R3NAction;
+import sk.r3n.ui.UIActionKey;
 import sk.r3n.util.PasswordGenerator;
 
-public class ConnectionPropertiesDialog extends R3NDialog {
+public class DbManagerSWDialog extends R3NDialog {
 
     protected JComboBox<DbType> driverBox;
 
@@ -42,7 +41,7 @@ public class ConnectionPropertiesDialog extends R3NDialog {
 
     protected R3NPasswordField adminPasswordField;
 
-    public ConnectionPropertiesDialog(Frame owner, UIActionExecutor dbActionExecutor) {
+    public DbManagerSWDialog(Frame owner) {
         super(owner);
         setModal(true);
         setTitle(DbManagerBundle.TITLE.value());
@@ -137,20 +136,20 @@ public class ConnectionPropertiesDialog extends R3NDialog {
         add(form, BorderLayout.CENTER);
 
         ButtonPanel buttonPanel = new ButtonPanel(4, true);
-        buttonPanel.addButton(new R3NButton(UISWAction.DEFAULT, dbActionExecutor));
-        buttonPanel.addButton(new R3NButton(DbManagerAction.TEST, dbActionExecutor));
-        buttonPanel.addButton(new R3NButton(UISWAction.OK, this));
-        buttonPanel.addButton(new R3NButton(UISWAction.CANCEL, this));
+        buttonPanel.addButton(new R3NButton(R3NAction.DEFAULT, this));
+        buttonPanel.addButton(new R3NButton(DbManagerAction.TEST, this));
+        buttonPanel.addButton(new R3NButton(R3NAction.OK, this));
+        buttonPanel.addButton(new R3NButton(R3NAction.CANCEL, this));
         add(buttonPanel, BorderLayout.SOUTH);
 
         SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
-                UISWAction.HELP, dbActionExecutor);
+                R3NAction.HELP, this);
         SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
-                UISWAction.OK, this);
+                R3NAction.OK, this);
         SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
-                UISWAction.CANCEL, this);
+                R3NAction.CANCEL, this);
         SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
-                UISWAction.CLOSE, this);
+                R3NAction.CLOSE, this);
     }
 
     public boolean init(Properties properties) {
@@ -165,14 +164,20 @@ public class ConnectionPropertiesDialog extends R3NDialog {
         adminPasswordField.setValue(properties.getProperty(DbManagerProperties.ADMIN_PASSWORD.connCode(), "").getBytes());
         pack();
         setVisible(true);
-        return lastActionKey.equals(UISWAction.OK);
+        return lastActionKey.equals(R3NAction.OK);
     }
 
     @Override
     public void execute(UIActionKey actionKey, Object source) {
         lastActionKey = actionKey;
-        if (actionKey instanceof UISWAction) {
-            switch ((UISWAction) actionKey) {
+        if (actionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
+                case HELP:
+                    //TODO appHelp.showHelp(ConnectionPropertiesDialog.class.getCanonicalName());
+                    break;
+                case DEFAULT:
+                    //TODO
+                    break;
                 case OK:
                     if (!isInputValid()) {
                         break;
