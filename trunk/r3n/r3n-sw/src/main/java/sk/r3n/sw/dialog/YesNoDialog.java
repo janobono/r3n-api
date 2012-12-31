@@ -7,8 +7,8 @@ import javax.swing.JPanel;
 import sk.r3n.sw.component.ButtonPanel;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.ui.UIActionKey;
 import sk.r3n.ui.R3NAction;
+import sk.r3n.ui.UIActionKey;
 
 public abstract class YesNoDialog extends R3NDialog {
 
@@ -46,9 +46,12 @@ public abstract class YesNoDialog extends R3NDialog {
     }
 
     private void init() {
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.YES, this);
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.NO, this);
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.CLOSE, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.YES,
+                this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.NO,
+                this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
+                R3NAction.CLOSE, this);
 
         ButtonPanel buttonPanel = new ButtonPanel(2, true);
         yesButton = new R3NButton(R3NAction.YES, this);

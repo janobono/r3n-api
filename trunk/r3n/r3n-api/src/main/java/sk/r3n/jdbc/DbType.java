@@ -1,6 +1,5 @@
 package sk.r3n.jdbc;
 
-import java.util.EnumSet;
 import sk.r3n.util.BundleResolver;
 
 public enum DbType {
@@ -13,7 +12,7 @@ public enum DbType {
 
     public static DbType get(String driver) {
         DbType result = null;
-        for (DbType type : EnumSet.allOf(DbType.class)) {
+        for (DbType type : DbType.values()) {
             if (type.driver().equals(driver)) {
                 result = type;
                 break;

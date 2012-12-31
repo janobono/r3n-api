@@ -33,7 +33,7 @@ public abstract class R3NTable<T> extends JTable {
             try {
                 return getValue(columnIndex, rows.get(rowIndex));
             } catch (Exception e) {
-                return null;
+                return e;
             }
         }
 

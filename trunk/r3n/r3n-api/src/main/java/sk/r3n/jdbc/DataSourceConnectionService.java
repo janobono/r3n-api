@@ -1,7 +1,6 @@
 package sk.r3n.jdbc;
 
 import java.sql.Connection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -38,7 +37,7 @@ public abstract class DataSourceConnectionService implements ConnectionService {
 
     @Override
     public void setProperties(Properties properties) {
-        for (DbProperty dbProperty : EnumSet.allOf(DbProperty.class)) {
+        for (DbProperty dbProperty : DbProperty.values()) {
             if (properties.containsKey(dbProperty.code())) {
                 setProperty(dbProperty.code(), properties.getProperty(dbProperty.code(), ""));
             }

@@ -1,6 +1,5 @@
 package sk.r3n.sw.util;
 
-import sk.r3n.ui.IconType;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.net.URL;
@@ -9,6 +8,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import sk.r3n.ui.IconType;
 import sk.r3n.ui.UIActionKey;
 import sk.r3n.util.ConfigUtil;
 

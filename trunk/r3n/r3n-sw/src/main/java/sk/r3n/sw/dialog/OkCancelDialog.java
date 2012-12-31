@@ -7,8 +7,8 @@ import javax.swing.JPanel;
 import sk.r3n.sw.component.ButtonPanel;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.ui.UIActionKey;
 import sk.r3n.ui.R3NAction;
+import sk.r3n.ui.UIActionKey;
 
 public abstract class OkCancelDialog extends R3NDialog {
 

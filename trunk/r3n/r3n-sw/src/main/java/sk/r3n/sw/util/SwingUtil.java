@@ -43,9 +43,13 @@ import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.R3NFileFilter;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;
+import sk.r3n.util.BundleResolver;
 import sk.r3n.util.ConfigUtil;
 
 public class SwingUtil {
+    
+    private static final String OPEN = "OPEN";
+    private static final String SAVE = "SAVE";
 
     private static Frame frame;
 
@@ -324,7 +328,7 @@ public class SwingUtil {
         if (title != null) {
             fileChooser.setDialogTitle(title);
         } else {
-            fileChooser.setDialogTitle(UtilBundle.OPEN.value());
+            fileChooser.setDialogTitle(BundleResolver.resolve(SwingUtil.class.getCanonicalName(), OPEN));
         }
         if (defaultDir != null && defaultDir.exists()) {
             fileChooser.setCurrentDirectory(defaultDir);
@@ -353,7 +357,7 @@ public class SwingUtil {
         if (title != null) {
             fileChooser.setDialogTitle(title);
         } else {
-            fileChooser.setDialogTitle(UtilBundle.SAVE.value());
+            fileChooser.setDialogTitle(BundleResolver.resolve(SwingUtil.class.getCanonicalName(), SAVE));
         }
         if (defaultDir != null && defaultDir.exists()) {
             fileChooser.setCurrentDirectory(defaultDir);

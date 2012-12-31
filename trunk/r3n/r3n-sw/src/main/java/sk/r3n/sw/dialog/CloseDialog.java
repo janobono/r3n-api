@@ -24,7 +24,8 @@ public abstract class CloseDialog extends R3NDialog {
     }
 
     private void init() {
-        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, R3NAction.CLOSE, this);
+        SwingUtil.setKeyStroke((JPanel) getContentPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
+                R3NAction.CLOSE, this);
         ButtonPanel buttonPanel = new ButtonPanel(1, true);
         closeButton = new R3NButton(R3NAction.CLOSE, this);
         buttonPanel.addButton(closeButton);
