@@ -12,9 +12,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import sk.r3n.sw.component.field.VarcharField;
+import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;
-import sk.r3n.ui.R3NAction;
 
 public final class DatePicker extends JPanel implements UIActionExecutor, MouseListener {
 

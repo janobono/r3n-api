@@ -9,9 +9,7 @@ public abstract class R3NRadioButton<T> extends JRadioButton {
     public R3NRadioButton(T value) {
         super();
         this.value = value;
-        if (value != null) {
-            setNameFromValue(value);
-        }
+        setNameFromValue(value);
     }
 
     public T getValue() {

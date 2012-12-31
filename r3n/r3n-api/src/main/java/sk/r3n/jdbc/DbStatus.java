@@ -1,6 +1,5 @@
 package sk.r3n.jdbc;
 
-import java.util.EnumSet;
 import sk.r3n.util.BundleEnum;
 import sk.r3n.util.BundleResolver;
 
@@ -14,13 +13,14 @@ public enum DbStatus implements BundleEnum {
     AUTH_ERR(50);
 
     public static DbStatus byCode(int code) {
-        EnumSet<DbStatus> allStatuses = EnumSet.allOf(DbStatus.class);
-        for (DbStatus dbStatus : allStatuses) {
+        DbStatus result = null;
+        for (DbStatus dbStatus : DbStatus.values()) {
             if (dbStatus.code() == code) {
-                return dbStatus;
+                result = dbStatus;
+                break;
             }
         }
-        return null;
+        return result;
     }
 
     private final int code;

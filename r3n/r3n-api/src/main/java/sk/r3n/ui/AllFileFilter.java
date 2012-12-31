@@ -5,7 +5,7 @@ import sk.r3n.util.BundleResolver;
 
 public class AllFileFilter extends R3NFileFilter {
     
-    private static final String DESCRIPTION = "DESCRIPTION";
+    protected static final String DESCRIPTION = "DESCRIPTION";
 
     public AllFileFilter() {
         super(true, false);

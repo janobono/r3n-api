@@ -7,9 +7,9 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;
-import sk.r3n.ui.R3NAction;
 
 public class ButtonPanel extends JPanel implements UIActionExecutor {
 
