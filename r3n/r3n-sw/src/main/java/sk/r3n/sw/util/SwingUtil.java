@@ -47,8 +47,9 @@ import sk.r3n.util.BundleResolver;
 import sk.r3n.util.ConfigUtil;
 
 public class SwingUtil {
-    
+
     private static final String OPEN = "OPEN";
+
     private static final String SAVE = "SAVE";
 
     private static Frame frame;
@@ -263,9 +264,7 @@ public class SwingUtil {
             }
         }
 
-        if (!(UIManager.getLookAndFeel().getClass().getCanonicalName().endsWith("NimbusLookAndFeel"))) {
-            result.setSize(getConfig().getCoefficient() * result.width, getConfig().getCoefficient() * result.height);
-        }
+        result.setSize(getConfig().getCoefficient() * result.width, getConfig().getCoefficient() * result.height);
 
         Dimension maxDimension = getConfig().getMaxDimension();
         if (maxDimension.width < result.width) {
@@ -378,7 +377,7 @@ public class SwingUtil {
             FileFilter fileFilter = fileChooser.getFileFilter();
             if (fileFilter instanceof SwingUtilFileFilter) {
                 String ext = ((SwingUtilFileFilter) fileFilter).getFileFilter().getExtension();
-                if (!file.getName().toLowerCase().endsWith(ext.toLowerCase())) {
+                if (ext != null && !file.getName().toLowerCase().endsWith(ext.toLowerCase())) {
                     file = new File(file.getPath() + ext);
                 }
             }
@@ -405,15 +404,13 @@ public class SwingUtil {
         JLabel icon = new JLabel();
         icon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         icon.setVerticalAlignment(JLabel.TOP);
-        icon.setIcon(getDialogIcon(messageType));
+        icon.setIcon(getMessageIcon(messageType));
         form.add(icon, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-                5, 5, 5, 0), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 0), 0, 0));
         MessagePanel messagePanel = new MessagePanel();
         messagePanel.setMessage(message);
         form.add(messagePanel, new GridBagConstraints(1, 0, 2, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-                5, 0, 5, 5), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 0, 5, 5), 0, 0));
         dialog.add(form, BorderLayout.CENTER);
         dialog.pack();
         dialog.setVisible(true);
@@ -437,15 +434,13 @@ public class SwingUtil {
         JLabel icon = new JLabel();
         icon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         icon.setVerticalAlignment(JLabel.TOP);
-        icon.setIcon(getDialogIcon(messageType));
+        icon.setIcon(getMessageIcon(messageType));
         form.add(icon, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-                5, 5, 5, 0), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 0), 0, 0));
         MessagePanel messagePanel = new MessagePanel();
         messagePanel.setMessage(message);
         form.add(messagePanel, new GridBagConstraints(1, 0, 2, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-                5, 0, 5, 5), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 0, 5, 5), 0, 0));
         dialog.add(form, BorderLayout.CENTER);
         dialog.pack();
         dialog.setVisible(true);
@@ -482,15 +477,13 @@ public class SwingUtil {
         JLabel icon = new JLabel();
         icon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         icon.setVerticalAlignment(JLabel.TOP);
-        icon.setIcon(getDialogIcon(messageType));
+        icon.setIcon(getMessageIcon(messageType));
         form.add(icon, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-                5, 5, 5, 0), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 0), 0, 0));
         MessagePanel messagePanel = new MessagePanel();
         messagePanel.setMessage(message);
         form.add(messagePanel, new GridBagConstraints(1, 0, 2, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-                5, 0, 5, 5), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 0, 5, 5), 0, 0));
         dialog.add(form, BorderLayout.CENTER);
         dialog.pack();
         dialog.setVisible(true);
@@ -506,8 +499,13 @@ public class SwingUtil {
         return result;
     }
 
-    private static Icon getDialogIcon(MessageType messageType) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private static Icon getMessageIcon(MessageType messageType) {
+        Icon icon = null;
+        URL url = getConfig().getMessageIcon(messageType);
+        if (url != null) {
+            icon = getIcon(url);
+        }
+        return icon;
     }
 
 }

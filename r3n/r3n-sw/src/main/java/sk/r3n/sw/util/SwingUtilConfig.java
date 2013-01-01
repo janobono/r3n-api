@@ -9,6 +9,7 @@ import java.util.ResourceBundle;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import sk.r3n.ui.IconType;
+import sk.r3n.ui.MessageType;
 import sk.r3n.ui.UIActionKey;
 import sk.r3n.util.ConfigUtil;
 
@@ -155,6 +156,18 @@ public class SwingUtilConfig {
             keyStrokeMap.put(key, keyStroke);
         } else {
             keyStrokeMap.remove(key);
+        }
+    }
+
+    public URL getMessageIcon(MessageType messageType) {
+        return urlMap.get(messageType.name());
+    }
+
+    public void setMessageIcon(MessageType messageType, URL url) {
+        if (url != null) {
+            urlMap.put(messageType.name(), url);
+        } else {
+            urlMap.remove(messageType.name());
         }
     }
 

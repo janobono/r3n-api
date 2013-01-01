@@ -17,12 +17,10 @@ public abstract class R3NFrame extends JFrame implements UIActionExecutor, Windo
         setLayout(new BorderLayout());
     }
 
-    public abstract void refreshUI();
-
     @Override
     public void setVisible(boolean visible) {
         if (visible) {
-            SwingUtil.positionCenterWindow(getOwner(), this);
+            SwingUtil.positionCenterScreen(this);
         }
         super.setVisible(visible);
     }

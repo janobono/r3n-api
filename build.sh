@@ -1,5 +1,5 @@
 #!/bin/sh
-JAVA_HOME="$HOME/opt/jdk1.7.0_09/bin"
+JAVA_HOME="$HOME/opt/jdk1.7.0_10/bin"
 MAVEN_HOME="$HOME/opt/netbeans-7.2.1/java/maven/bin"
 PATH=$JAVA_HOME:$MAVEN_HOME:$PATH
 
