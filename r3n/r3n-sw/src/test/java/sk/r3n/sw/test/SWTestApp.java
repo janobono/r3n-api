@@ -53,6 +53,10 @@ public class SWTestApp {
             tabbedPane.addTab(SWTestBundle.CONFIG_TAB.value(), configPanel);
             tabbedPane.addTab(SWTestBundle.FILE_OPEN_TAB.value(), new FileOpenPanel());
             tabbedPane.addTab(SWTestBundle.FILE_SAVE_TAB.value(), new FileSavePanel());
+            tabbedPane.addTab(SWTestBundle.MESSAGE_TAB.value(), new MessagePanel());
+            tabbedPane.addTab(SWTestBundle.QUESTION_TAB.value(), new QuestionPanel());
+            tabbedPane.addTab(SWTestBundle.ACTION_TAB.value(), new R3NActionPanel());
+            tabbedPane.addTab(SWTestBundle.TABLE_TAB.value(), new TablePanel());
 
             add(tabbedPane, BorderLayout.CENTER);
 
