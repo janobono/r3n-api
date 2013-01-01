@@ -22,7 +22,20 @@ public enum SWTestBundle implements BundleEnum {
     DEFAULT_DIRECTORY,
     TITLE,
     FILE_NAME,
-    RESULT;
+    RESULT,
+    
+    MESSAGE_TAB,
+    TYPE,
+    MESSAGE,
+    
+    QUESTION_TAB,
+    YES_NO_CANCEL,
+    QUESTION,
+    
+    ACTION_TAB,
+    
+    TABLE_TAB;
+    
         
     @Override
     public String value() {
