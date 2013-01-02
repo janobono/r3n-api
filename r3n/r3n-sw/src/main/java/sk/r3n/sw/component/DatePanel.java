@@ -10,6 +10,8 @@ import javax.swing.JPanel;
 import sk.r3n.sw.component.field.DateField;
 import sk.r3n.sw.dialog.OkCancelDialog;
 import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.ui.InputComponent;
+import sk.r3n.ui.InputStatus;
 import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;

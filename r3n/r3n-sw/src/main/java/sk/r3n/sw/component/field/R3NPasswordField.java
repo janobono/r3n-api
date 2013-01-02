@@ -2,7 +2,7 @@ package sk.r3n.sw.component.field;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import sk.r3n.sw.component.InputStatus;
+import sk.r3n.ui.InputStatus;
 
 public class R3NPasswordField extends R3NField<byte[]> {
 

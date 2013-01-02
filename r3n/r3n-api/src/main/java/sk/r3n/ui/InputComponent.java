@@ -1,4 +1,4 @@
-package sk.r3n.sw.component;
+package sk.r3n.ui;
 
 public interface InputComponent<T> {
 
@@ -9,4 +9,5 @@ public interface InputComponent<T> {
     public InputStatus inputStatus();
 
     public void setValue(T value);
+    
 }

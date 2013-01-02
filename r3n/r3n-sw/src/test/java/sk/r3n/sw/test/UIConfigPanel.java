@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import sk.r3n.sw.component.InputStatus;
+import sk.r3n.ui.InputStatus;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.component.field.BigDecimalField;
 import sk.r3n.sw.util.SwingUtil;

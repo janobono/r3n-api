@@ -1,4 +1,4 @@
-package sk.r3n.sw.component;
+package sk.r3n.ui;
 
 public enum InputStatus {
 

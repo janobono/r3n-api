@@ -5,7 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import sk.r3n.sw.component.InputStatus;
+import sk.r3n.ui.InputStatus;
 
 public class TimestampField extends MaskField<Date> {
 
