@@ -9,7 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import sk.r3n.jdbc.DbType;
 import sk.r3n.sw.component.ButtonPanel;
-import sk.r3n.sw.component.InputStatusValidator;
+import sk.r3n.sw.util.SWInputStatusValidator;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.component.field.IntegerField;
 import sk.r3n.sw.component.field.R3NPasswordField;
@@ -238,7 +238,7 @@ public class DbManagerSWDialog extends R3NDialog {
 
     @Override
     public boolean isInputValid() {
-        InputStatusValidator inputStatusValidator = new InputStatusValidator();
+        SWInputStatusValidator inputStatusValidator = new SWInputStatusValidator();
         inputStatusValidator.add(hostField);
         inputStatusValidator.add(portField);
         inputStatusValidator.add(nameField);

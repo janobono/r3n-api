@@ -4,7 +4,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import sk.r3n.sw.component.InputStatus;
+import sk.r3n.ui.InputStatus;
 
 public abstract class NumericField<T> extends R3NField<T> {
 

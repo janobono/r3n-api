@@ -4,7 +4,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
-import sk.r3n.sw.component.InputComponent;
+import sk.r3n.ui.InputComponent;
 
 public abstract class R3NField<T> extends JTextField implements InputComponent<T> {
 

@@ -1,32 +1,18 @@
-package sk.r3n.sw.component;
+package sk.r3n.sw.util;
 
 import java.awt.Toolkit;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JComponent;
-import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.ui.InputComponent;
+import sk.r3n.ui.InputStatus;
+import sk.r3n.ui.InputStatusValidator;
 import sk.r3n.ui.MessageType;
 import sk.r3n.util.BundleResolver;
 
-public class InputStatusValidator {
+public class SWInputStatusValidator extends InputStatusValidator {
 
     private static final String NOT_VALID = "NOT_VALID";
 
-    private List<InputComponent> components;
-
-    public InputStatusValidator() {
-        super();
-        components = new ArrayList<>();
-    }
-
-    public void add(InputComponent inputComponent) {
-        components.add(inputComponent);
-    }
-
-    public void remove(InputComponent inputComponent) {
-        components.remove(inputComponent);
-    }
-
+    @Override
     public boolean isInputValid() {
         for (InputComponent inputComponent : components) {
             InputStatus inputStatus = inputComponent.inputStatus();
@@ -39,7 +25,7 @@ public class InputStatusValidator {
                         }
                         Toolkit.getDefaultToolkit().beep();
                         SwingUtil.showMessageDialog(null,
-                                BundleResolver.resolve(InputStatusValidator.class.getCanonicalName(), NOT_VALID),
+                                BundleResolver.resolve(SWInputStatusValidator.class.getCanonicalName(), NOT_VALID),
                                 MessageType.WARNING);
                         return false;
                     }

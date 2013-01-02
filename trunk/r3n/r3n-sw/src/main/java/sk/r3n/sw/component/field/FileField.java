@@ -1,7 +1,7 @@
 package sk.r3n.sw.component.field;
 
 import java.io.File;
-import sk.r3n.sw.component.InputStatus;
+import sk.r3n.ui.InputStatus;
 
 public class FileField extends VarcharField {
 

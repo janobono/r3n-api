@@ -34,7 +34,9 @@ public enum SWTestBundle implements BundleEnum {
     
     ACTION_TAB,
     
-    TABLE_TAB;
+    TABLE_TAB,
+    
+    TREE_TAB;
     
         
     @Override
