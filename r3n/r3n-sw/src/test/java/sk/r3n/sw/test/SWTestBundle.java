@@ -36,7 +36,20 @@ public enum SWTestBundle implements BundleEnum {
     
     TABLE_TAB,
     
-    TREE_TAB;
+    TREE_TAB,
+    
+    COMPONENT_TAB,
+    DATE,
+    MONTH,
+    TIME,
+    TIMESTAMP,
+    BIG_DECIMAL,
+    LONG,
+    INTEGER,
+    SHORT,
+    VARCHAR,
+    DIR,
+    FILE;
     
         
     @Override

@@ -25,11 +25,9 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
         public PickerDayField(int day) {
             super(Integer.toString(day), JLabel.CENTER);
             this.day = day;
-            if (size == null) {
-                VarcharField field = new VarcharField(true);
-                field.setColumns(2);
-                size = field.getPreferredSize();
-            }
+            VarcharField field = new VarcharField(true);
+            field.setColumns(3);
+            Dimension size = field.getPreferredSize();
             setPreferredSize(size);
             setMinimumSize(size);
             setSelected(false);
@@ -48,8 +46,6 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
         }
 
     }
-    protected Dimension size;
-
     protected DateFormat monthAndYearFormat;
 
     protected JPanel navigationPanel;
@@ -121,6 +117,7 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
                 new Insets(0, 0, 0, 0), 0, 0));
 
         form = new JPanel(new GridBagLayout());
+        Dimension size = new PickerDayField(0).getMinimumSize();
         form.setPreferredSize(new Dimension(size.width * 7 + 7, size.height * 7 + 7));
         add(form, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
@@ -147,7 +144,7 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
             calendar2.set(Calendar.DAY_OF_MONTH, i);
             PickerDayField pickerDayField = new PickerDayField(i);
             pickerDayField.addMouseListener(this);
-            if (calendar2.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY 
+            if (calendar2.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
                     || calendar2.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 pickerDayField.setForeground(Color.RED);
             }
