@@ -5,7 +5,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.Date;
-import java.util.ResourceBundle;
 import javax.swing.JPanel;
 import sk.r3n.sw.component.field.MonthField;
 import sk.r3n.sw.dialog.OkCancelDialog;
@@ -15,15 +14,18 @@ import sk.r3n.ui.InputStatus;
 import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;
+import sk.r3n.util.BundleResolver;
 
 public final class MonthPanel extends JPanel implements InputComponent<Date>, UIActionExecutor {
+
+    private static final String TITLE = "TITLE";
 
     private class MonthPickerDialog extends OkCancelDialog {
 
         public MonthPickerDialog() {
             super(SwingUtil.getFrameForComponent(MonthPanel.this));
             setModal(true);
-            setTitle(ResourceBundle.getBundle(MonthPanel.class.getCanonicalName()).getString("TITLE"));
+            setTitle(BundleResolver.resolve(MonthPanel.class.getCanonicalName(), TITLE));
         }
 
         public boolean initDialog(MonthPicker monthPicker) {

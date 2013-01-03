@@ -34,13 +34,13 @@ public class TablePanel extends JPanel {
         R3NTable table = new R3NTable(tableConfig) {
             @Override
             protected Object getValue(int index, Object row) {
-                return "C" + index;
+                return "R" + row + "C" + index;
             }
 
         };
-        
+
         List<Object> list = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             list.add(i);
         }
         table.setValues(list);

@@ -58,6 +58,7 @@ public class SWTestApp {
             tabbedPane.addTab(SWTestBundle.ACTION_TAB.value(), new R3NActionPanel());
             tabbedPane.addTab(SWTestBundle.TABLE_TAB.value(), new TablePanel());
             tabbedPane.addTab(SWTestBundle.TREE_TAB.value(), new TreePanel());
+            tabbedPane.addTab(SWTestBundle.COMPONENT_TAB.value(), new ComponentPanel());
 
             add(tabbedPane, BorderLayout.CENTER);
 
