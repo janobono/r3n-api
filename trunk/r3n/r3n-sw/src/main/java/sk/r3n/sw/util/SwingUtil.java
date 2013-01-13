@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,7 +15,6 @@ import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
-import java.util.Enumeration;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -27,8 +25,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import org.apache.batik.transcoder.TranscoderInput;
 import sk.r3n.sw.component.MessagePanel;
@@ -214,27 +210,6 @@ public class SwingUtil {
         window.toFront();
     }
 
-    public static void modifyFontSize(float coefficient) {
-        if (coefficient <= 0) {
-            throw new IllegalArgumentException();
-        }
-        try {
-            UIDefaults uidefs = UIManager.getLookAndFeelDefaults();
-            Enumeration<Object> enum1 = uidefs.keys();
-            while (enum1.hasMoreElements()) {
-                Object item = enum1.nextElement();
-                Object value = uidefs.get(item);
-                if (value instanceof Font) {
-                    Font font = (Font) value;
-                    font = font.deriveFont(font.getSize() * coefficient);
-                    UIManager.put(item, font);
-                }
-            }
-            getConfig().setCoefficient(coefficient);
-        } catch (Exception e) {
-        }
-    }
-
     public static void modifyDimensions(Window window) {
         if (window instanceof JFrame) {
             if (((JFrame) window).getExtendedState() == JFrame.MAXIMIZED_BOTH) {
@@ -242,44 +217,12 @@ public class SwingUtil {
             }
         }
         Dimension result = window.getSize();
-        Dimension dim = getConfig().getDimension(window.getClass().getCanonicalName());
-        if (dim != null) {
-            if (result.width < dim.width) {
-                result.width = dim.width;
-            }
-            if (result.height < dim.height) {
-                result.height = dim.height;
-            }
-        }
-
-        Window owner = window.getOwner();
-        Boolean rec = getConfig().getRecount(window.getClass().getCanonicalName());
-        if (owner != null && rec != null && rec) {
-            dim = owner.getSize();
-            if (result.width < dim.width) {
-                result.width = dim.width - 20;
-            }
-            if (result.height < dim.height) {
-                result.height = dim.height - 20;
-            }
-        }
-
-        result.setSize(getConfig().getCoefficient() * result.width, getConfig().getCoefficient() * result.height);
-
         Dimension maxDimension = getConfig().getMaxDimension();
         if (maxDimension.width < result.width) {
-            result.width = maxDimension.width - 20;
+            result.width = maxDimension.width;
         }
         if (maxDimension.height < result.height) {
-            result.height = maxDimension.height - 20;
-        }
-
-        Dimension scr = Toolkit.getDefaultToolkit().getScreenSize();
-        if (scr.width < result.width) {
-            result.width = scr.width;
-        }
-        if (scr.height < result.height) {
-            result.height = scr.height;
+            result.height = maxDimension.height;
         }
         window.setSize(result);
     }

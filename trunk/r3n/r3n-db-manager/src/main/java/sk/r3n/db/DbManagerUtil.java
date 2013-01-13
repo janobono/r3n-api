@@ -71,18 +71,33 @@ public class DbManagerUtil {
                 result = true;
                 return result;
         }
-        connectionService.close();
         return result;
     }
 
     public static DbStatus getConnectionStatus(Properties properties) {
         ConnectionService connectionService = getConnectionService(properties);
         if (connectionService == null) {
-            return DbStatus.UNKNOWN;
+            return DbStatus.NOT_INIT;
         }
         DbStatus result = connectionService.getConnectionStatus();
-        connectionService.close();
         return result;
+    }
+
+    public static DbManagerServiceIO getDbManagerServiceIO(Properties properties) {
+        DbManagerServiceIO dbManagerServiceIO = null;
+        String driver = properties.getProperty(DbManagerProperties.DRIVER.connCode(), "");
+        DbType dbType = DbType.get(driver);
+        if (dbType != null) {
+            switch (dbType) {
+                case POSTGRE:
+                    dbManagerServiceIO = new PostgreDbManagerServiceIO();
+                    break;
+                case SQL_SERVER:
+                    dbManagerServiceIO = new SQLServerDbManagerServiceIO();
+                    break;
+            }
+        }
+        return dbManagerServiceIO;
     }
 
 }

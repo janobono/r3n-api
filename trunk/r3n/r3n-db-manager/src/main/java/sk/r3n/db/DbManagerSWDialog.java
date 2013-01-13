@@ -7,16 +7,19 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import sk.r3n.app.AppHelp;
+import sk.r3n.jdbc.DbStatus;
 import sk.r3n.jdbc.DbType;
 import sk.r3n.sw.component.ButtonPanel;
-import sk.r3n.sw.util.SWInputStatusValidator;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.component.field.IntegerField;
 import sk.r3n.sw.component.field.R3NPasswordField;
 import sk.r3n.sw.component.field.VarcharField;
 import sk.r3n.sw.component.list.R3NListCellRenderer;
 import sk.r3n.sw.dialog.R3NDialog;
+import sk.r3n.sw.util.SWInputStatusValidator;
 import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.ui.MessageType;
 import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionKey;
 import sk.r3n.util.PasswordGenerator;
@@ -41,8 +44,17 @@ public class DbManagerSWDialog extends R3NDialog {
 
     protected R3NPasswordField adminPasswordField;
 
-    public DbManagerSWDialog(Frame owner) {
+    protected AppHelp appHelp;
+
+    protected final String HELP_KEY;
+
+    protected final String DEFAULT_NAME;
+
+    public DbManagerSWDialog(Frame owner, AppHelp appHelp, String helpKey, String defaultName) {
         super(owner);
+        this.appHelp = appHelp;
+        HELP_KEY = helpKey;
+        DEFAULT_NAME = defaultName;
         setModal(true);
         setTitle(DbManagerBundle.TITLE.value());
 
@@ -153,7 +165,11 @@ public class DbManagerSWDialog extends R3NDialog {
     }
 
     public boolean init(Properties properties) {
-        driverBox.setSelectedItem(properties.getProperty(DbManagerProperties.DRIVER.connCode(), DbType.POSTGRE.driver()));
+        DbType dbType = DbType.get(
+                properties.getProperty(DbManagerProperties.DRIVER.connCode(), DbType.POSTGRE.driver()));
+        if (dbType != null) {
+            driverBox.setSelectedItem(dbType);
+        }
         hostField.setText(properties.getProperty(DbManagerProperties.HOST.connCode(), ""));
         portField.setText(properties.getProperty(DbManagerProperties.PORT.connCode(), ""));
         nameField.setText(properties.getProperty(DbManagerProperties.NAME.connCode(), ""));
@@ -173,10 +189,10 @@ public class DbManagerSWDialog extends R3NDialog {
         if (actionKey instanceof R3NAction) {
             switch ((R3NAction) actionKey) {
                 case HELP:
-                    //TODO appHelp.showHelp(ConnectionPropertiesDialog.class.getCanonicalName());
+                    appHelp.showHelp(HELP_KEY);
                     break;
                 case DEFAULT:
-                    //TODO
+                    setDefault(DEFAULT_NAME);
                     break;
                 case OK:
                     if (!isInputValid()) {
@@ -187,6 +203,14 @@ public class DbManagerSWDialog extends R3NDialog {
                 case CLOSE:
                 case CANCEL:
                     dispose();
+                    break;
+            }
+        }
+        if (actionKey instanceof DbManagerAction) {
+            switch ((DbManagerAction) actionKey) {
+                case TEST:
+                    DbStatus dbStatus = DbManagerUtil.getConnectionStatus(getProperties());
+                    SwingUtil.showMessageDialog(actionKey.actionName(), dbStatus.value(), MessageType.INFO);
                     break;
             }
         }

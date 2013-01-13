@@ -17,13 +17,7 @@ public class SwingUtilConfig {
 
     private Dimension max;
 
-    private float coefficient;
-
     private Dimension defaultIconDimension;
-
-    private Map<String, Dimension> dimensionMap;
-
-    private Map<String, Boolean> recountMap;
 
     private Map<String, KeyStroke> keyStrokeMap;
 
@@ -31,9 +25,6 @@ public class SwingUtilConfig {
 
     public SwingUtilConfig() {
         super();
-        coefficient = 1.0f;
-        dimensionMap = new HashMap<>();
-        recountMap = new HashMap<>();
         keyStrokeMap = new HashMap<>();
         urlMap = new HashMap<>();
 
@@ -65,14 +56,6 @@ public class SwingUtilConfig {
         }
     }
 
-    public float getCoefficient() {
-        return coefficient;
-    }
-
-    public void setCoefficient(float coefficient) {
-        this.coefficient = coefficient;
-    }
-
     public Dimension getDefaultIconDimension() {
         if (defaultIconDimension == null) {
             defaultIconDimension = new Dimension(20, 20);
@@ -82,34 +65,6 @@ public class SwingUtilConfig {
 
     public void setDefaultIconDimension(Dimension defaultDimension) {
         this.defaultIconDimension = defaultDimension;
-    }
-
-    public Dimension getDimension(String key) {
-        return dimensionMap.get(key);
-    }
-
-    public void setDimension(String key, Dimension dimension) {
-        if (dimension == null) {
-            dimensionMap.remove(key);
-        } else {
-            dimensionMap.put(key, dimension);
-        }
-    }
-
-    public boolean getRecount(String key) {
-        Boolean result = recountMap.get(key);
-        if (result == null) {
-            result = false;
-        }
-        return result;
-    }
-
-    public void setRecount(String key, Boolean recount) {
-        if (recount == null) {
-            recountMap.remove(key);
-        } else {
-            recountMap.put(key, recount);
-        }
     }
 
     public URL getURL(UIActionKey actionKey, IconType iconType) {

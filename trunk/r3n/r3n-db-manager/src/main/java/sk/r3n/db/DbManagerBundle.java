@@ -17,7 +17,7 @@ public enum DbManagerBundle implements BundleEnum {
     MESSAGE_TITLE,
     UNSUPPORTED,
     NOT_RUN_QUESTION,
-    SET_PROP_QUESTION;
+    AGAIN_QUESTION;
 
     @Override
     public String value() {

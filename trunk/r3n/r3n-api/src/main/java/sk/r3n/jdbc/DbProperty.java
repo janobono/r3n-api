@@ -9,8 +9,4 @@ public enum DbProperty {
     USER,
     PASSWORD;
 
-    public String code() {
-        return name().toLowerCase();
-    }
-
 }

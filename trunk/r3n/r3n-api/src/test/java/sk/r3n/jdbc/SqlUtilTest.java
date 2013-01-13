@@ -17,12 +17,11 @@ public class SqlUtilTest {
     @Before
     public void tearUp() {
         connectionService = ConnectionServiceFactory.createConnectionService(DbType.H2);
-        connectionService.setProperty(DbProperty.NAME.code(), "testDb");
+        connectionService.setProperty(DbProperty.NAME.name(), "testDb");
     }
 
     @After
     public void tearDown() {
-        connectionService.close();
     }
 
     @Test

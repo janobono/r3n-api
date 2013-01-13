@@ -1,143 +1,111 @@
 package sk.r3n.db;
 
 import java.util.Properties;
+import sk.r3n.app.AppHelp;
 import sk.r3n.app.AppProperties;
 import sk.r3n.jdbc.ConnectionService;
 import sk.r3n.jdbc.DbStatus;
+import sk.r3n.sw.util.SwingUtil;
 import sk.r3n.ui.Answer;
 import sk.r3n.ui.MessageType;
 import sk.r3n.util.R3NException;
 
-public class DbManagerService {
+public abstract class DbManagerService {
 
-//    private AppProperties appProperties;
-//
-//    public DbManagerService(AppProperties appProperties) {
-//        super();
-//        this.appProperties = appProperties;
-//    }
-//
-//    public void createDB(DbManagerServiceIO dbManagerServiceIO, Properties properties) throws R3NException {
-//        ConnectionService connectionService = getConnectionService(properties);
-//        try {
-//            switch (connectionService.getConnectionStatus()) {
-//                case DB_ERR:
-//                    dbManagerServiceIO.createDB(connectionService, properties);
-//                    if (connectionService.getConnectionStatus() == DbStatus.AUTH_ERR) {
-//                        dbManagerServiceIO.createUser(connectionService, properties);
-//                    }
-//                    break;
-//                case AUTH_ERR:
-//                    dbManagerServiceIO.createUser(connectionService, properties);
-//                    if (connectionService.getConnectionStatus() == DbStatus.DB_ERR) {
-//                        dbManagerServiceIO.createDB(connectionService, properties);
-//                    }
-//                    break;
-//            }
-//        } catch (Exception e) {
-//            DbManagerException.CREATE_DB_ERR.raise(e);
-//        } finally {
-//            connectionService.close();
-//        }
-//    }
-//
-//    public void checkDB() throws R3NException {
-//        getProperties();
-//        try {
-//            if (isNotSet()) {
-//                testAndSet();
-//            } else {
-//                testAndEdit();
-//            }
-//        } catch (R3NException e) {
-//            throw e;
-//        } catch (Exception e) {
-//            DbManagerException.UNKNOWN.raise(e);
-//        }
-//        ConnectionService connectionService = null;
-//        try {
-//            connectionService = getConnectionService(properties);
-//            checkStructure(connectionService, properties);
-//        } catch (Exception e) {
-//            DbManagerException.CHECK_STRUCTURE_ERR.raise(e);
-//        } finally {
-//            if (connectionService != null) {
-//                connectionService.close();
-//            }
-//        }
-//    }
-//
-//    private void testAndEdit() throws Exception {
-//        while (!testProperties(false)) {
-//            boolean edit;
-//            ConnectionService connectionService = getConnectionService(properties);
-//            if (connectionService == null) {
-//                edit = true;
-//            } else {
-//                connectionService.close();
-//                switch (connectionService.getConnectionStatus()) {
-//                    case SERVER_ERR:
-//                        edit = dialogUI.showYesNoDialog(DbManagerBundle.TITLE.value(),
-//                                DbManagerBundle.NOT_RUN_QUESTION.value(),
-//                                MessageType.WARNING).equals(Answer.YES);
-//                        if (!edit) {
-//                            continue;
-//                        } else {
-//                            break;
-//                        }
-//                    default:
-//                        edit = true;
-//                        break;
-//                }
-//            }
-//            if (edit) {
-//                if (dialogUI.showYesNoDialog(DbManagerBundle.TITLE.value(),
-//                        DbManagerBundle.SET_PROP_QUESTION.value(),
-//                        MessageType.WARNING).equals(Answer.YES)) {
-//                    testAndSet();
-//                } else {
-//                    DbManagerException.CANCELLED.raise();
-//                }
-//            }
-//        }
-//    }
-//
-//    private void testAndSet() throws Exception {
-//        ConnectionService connectionService;
-//        do {
-//            connectionService = prepare();
-//            create(connectionService);
-//        } while (!testProperties(true));
-//        setProperties();
-//    }
-//
-//    private ConnectionService prepare() throws R3NException {
-//        ConnectionService connectionService = null;
-//        do {
-//            properties = editProperties(properties);
-//            connectionService = getConnectionService(properties);
-//            if (connectionService == null) {
-//                dialogUI.showMessageDialog(DbManagerBundle.TITLE.value(),
-//                        DbManagerBundle.UNSUPPORTED.value(), MessageType.ERROR);
-//            }
-//        } while (connectionService == null);
-//        return connectionService;
-//    }
-//
-//    private Properties editProperties(Properties properties) throws R3NException {
-//        Properties result = edit(properties);
-//        if (result == null) {
-//            DbManagerException.CANCELLED.raise();
-//        }
-//        return result;
-//    }
-//
-//    protected abstract Properties edit(Properties properties);
-//
-//    protected abstract void createDB(Properties properties) throws Exception;
-//
-//    protected abstract void createUser(Properties properties) throws Exception;
-//
-//    protected abstract void checkStructure(Properties properties) throws Exception;
+    private AppProperties appProperties;
+
+    private AppHelp appHelp;
+
+    private String helpKey;
+
+    private String defaultName;
+
+    public DbManagerService(AppProperties appProperties, AppHelp appHelp, String helpKey, String defaultName) {
+        super();
+        this.appProperties = appProperties;
+        this.appHelp = appHelp;
+        this.helpKey = helpKey;
+        this.defaultName = defaultName;
+    }
+
+    public void checkDB() throws R3NException {
+        Properties properties = DbManagerUtil.getProperties(appProperties);
+        DbStatus dbStatus = DbManagerUtil.getConnectionStatus(properties);
+        int count = 0;
+        while (!dbStatus.equals(DbStatus.OK)) {
+            switch (dbStatus) {
+                case DB_ERR:
+                    createDB(properties);
+                    if (DbManagerUtil.getConnectionStatus(properties).equals(DbStatus.AUTH_ERR)) {
+                        createUser(properties);
+                    }
+                    break;
+                case AUTH_ERR:
+                    createUser(properties);
+                    if (DbManagerUtil.getConnectionStatus(properties).equals(DbStatus.DB_ERR)) {
+                        createDB(properties);
+                    }
+                    break;
+                case SERVER_ERR:
+                    if (showYesNoDialog(DbManagerBundle.MESSAGE_TITLE.value(),
+                            DbManagerBundle.NOT_RUN_QUESTION.value(),
+                            MessageType.WARNING).equals(Answer.YES)) {
+                        break;
+                    }
+                    properties = edit(properties);
+                    if (properties == null) {
+                        DbManagerException.CANCELLED.raise();
+                    }
+                    break;
+                default:
+                    properties = edit(properties);
+                    if (properties == null) {
+                        DbManagerException.CANCELLED.raise();
+                    }
+                    break;
+            }
+            dbStatus = DbManagerUtil.getConnectionStatus(properties);
+            count++;
+            if (!dbStatus.equals(DbStatus.OK) && count > 2) {
+                if (showYesNoDialog(DbManagerBundle.MESSAGE_TITLE.value(),
+                        DbManagerBundle.AGAIN_QUESTION.value(new Object[]{dbStatus.value()}),
+                        MessageType.WARNING).equals(Answer.NO)) {
+                    DbManagerException.CANCELLED.raise();
+                }
+            }
+        }
+        try {
+            checkStructure(properties);
+        } catch (Exception e) {
+            DbManagerException.CHECK_STRUCTURE_ERR.raise(e);
+        }
+        DbManagerUtil.setProperties(appProperties, properties);
+    }
+
+    protected abstract void checkStructure(Properties properties) throws R3NException;
+
+    protected Answer showYesNoDialog(String title, String message, MessageType messageType) {
+        return SwingUtil.showYesNoDialog(title, message, messageType);
+    }
+
+    protected void createDB(Properties properties) throws R3NException {
+        ConnectionService cs = DbManagerUtil.getConnectionService(properties);
+        DbManagerUtil.getDbManagerServiceIO(properties).createDB(cs, properties);
+    }
+
+    protected void createUser(Properties properties) throws R3NException {
+        ConnectionService cs = DbManagerUtil.getConnectionService(properties);
+        DbManagerUtil.getDbManagerServiceIO(properties).createUser(cs, properties);
+    }
+
+    protected Properties edit(Properties properties) {
+        Properties result = null;
+        DbManagerSWDialog dbManagerSWDialog = new DbManagerSWDialog(
+                SwingUtil.getRootFrame(), appHelp, helpKey, defaultName);
+        if (dbManagerSWDialog.init(properties)) {
+            result = dbManagerSWDialog.getProperties();
+        }
+        return result;
+    }
 
 }
