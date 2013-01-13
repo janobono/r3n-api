@@ -4,12 +4,12 @@ import sk.r3n.jdbc.DbProperty;
 
 public enum DbManagerProperties {
 
-    DRIVER(DbProperty.DRIVER.code()),
-    HOST(DbProperty.HOST.code()),
-    PORT(DbProperty.PORT.code()),
-    NAME(DbProperty.NAME.code()),
-    USER(DbProperty.USER.code()),
-    PASSWORD(DbProperty.PASSWORD.code()),
+    DRIVER(DbProperty.DRIVER.name()),
+    HOST(DbProperty.HOST.name()),
+    PORT(DbProperty.PORT.name()),
+    NAME(DbProperty.NAME.name()),
+    USER(DbProperty.USER.name()),
+    PASSWORD(DbProperty.PASSWORD.name()),
     ADMIN_NAME("1"),
     ADMIN_USER("2"),
     ADMIN_PASSWORD("3");

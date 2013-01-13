@@ -5,22 +5,19 @@ import sk.r3n.util.BundleResolver;
 
 public enum DbManagerAction implements UIActionKey {
 
-    TEST(DbManagerAction.class.getCanonicalName(), 10);
-    
-    private static final String BUNDLE = DbManagerAction.class.getCanonicalName();
+    TEST(10);
 
-    private final String group;
+    private static final String BUNDLE = DbManagerAction.class.getCanonicalName();
 
     private final int code;
 
-    private DbManagerAction(String group, int code) {
-        this.group = group;
+    private DbManagerAction(int code) {
         this.code = code;
     }
 
     @Override
     public String group() {
-        return group;
+        return DbManagerAction.class.getCanonicalName();
     }
 
     @Override
@@ -32,5 +29,5 @@ public enum DbManagerAction implements UIActionKey {
     public String actionName() {
         return BundleResolver.resolve(BUNDLE, name());
     }
-    
+
 }

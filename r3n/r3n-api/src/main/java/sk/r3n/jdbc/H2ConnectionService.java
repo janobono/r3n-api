@@ -22,7 +22,7 @@ public class H2ConnectionService implements ConnectionService {
 
     @Override
     public String getProperty(String key) {
-        if (key.equals(DbProperty.NAME.code())) {
+        if (key.equals(DbProperty.NAME.name())) {
             return name;
         }
         return null;
@@ -30,7 +30,7 @@ public class H2ConnectionService implements ConnectionService {
 
     @Override
     public void setProperty(String key, String value) {
-        if (key.equals(DbProperty.NAME.code())) {
+        if (key.equals(DbProperty.NAME.name())) {
             name = value;
         }
     }
@@ -38,8 +38,8 @@ public class H2ConnectionService implements ConnectionService {
     @Override
     public void setProperties(Properties properties) {
         for (DbProperty dbProperty : DbProperty.values()) {
-            if (properties.containsKey(dbProperty.code())) {
-                setProperty(dbProperty.code(), properties.getProperty(dbProperty.code(), ""));
+            if (properties.containsKey(dbProperty.name())) {
+                setProperty(dbProperty.name(), properties.getProperty(dbProperty.name(), ""));
             }
         }
     }
@@ -72,10 +72,6 @@ public class H2ConnectionService implements ConnectionService {
         } finally {
             SqlUtil.close(connection);
         }
-    }
-
-    @Override
-    public void close() {
     }
 
     @Override

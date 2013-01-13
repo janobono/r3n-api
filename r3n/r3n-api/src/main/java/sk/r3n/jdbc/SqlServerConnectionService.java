@@ -1,11 +1,9 @@
 package sk.r3n.jdbc;
 
 import java.sql.*;
-import java.util.logging.Level;
-import org.apache.commons.dbcp.BasicDataSource;
 import sk.r3n.util.R3NException;
 
-public class SqlServerConnectionService extends DataSourceConnectionService {
+public class SqlServerConnectionService extends BaseConnectionService {
 
     public SqlServerConnectionService() {
         super();
@@ -18,22 +16,13 @@ public class SqlServerConnectionService extends DataSourceConnectionService {
         }
         Connection connection = null;
         try {
-            if (ds == null) {
-                ds = new BasicDataSource();
-                ds.setDriverClassName(DbType.SQL_SERVER.driver());
-                ds.setUsername(getProperty(DbProperty.USER.code()));
-                ds.setPassword(getProperty(DbProperty.PASSWORD.code()));
-                ds.setUrl(getConnectionURL());
-                ds.setMinIdle(5);
-            }
-            LOGGER.log(Level.FINER, "NumActive: {0}", ds.getNumActive());
-            LOGGER.log(Level.FINER, "NumIdle: {0}", ds.getNumIdle());
-            connection = ds.getConnection();
+            Class.forName(DbType.SQL_SERVER.driver());
+            connection = DriverManager.getConnection(getConnectionURL(),
+                    getProperty(DbProperty.USER.name()), getProperty(DbProperty.PASSWORD.name()));
             connection.setAutoCommit(false);
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
         } catch (Exception exception) {
             SqlUtil.close(connection);
-            close();
             if (exception instanceof SQLException) {
                 SQLException sqlException = (SQLException) exception;
                 String sqlState = sqlException.getSQLState();
@@ -55,11 +44,11 @@ public class SqlServerConnectionService extends DataSourceConnectionService {
     public String getConnectionURL() {
         StringBuilder buff = new StringBuilder();
         buff.append("jdbc:jtds:sqlserver://");
-        buff.append(getProperty(DbProperty.HOST.code()));
+        buff.append(getProperty(DbProperty.HOST.name()));
         buff.append(":");
-        buff.append(getProperty(DbProperty.PORT.code()));
+        buff.append(getProperty(DbProperty.PORT.name()));
         buff.append("/");
-        buff.append(getProperty(DbProperty.NAME.code()));
+        buff.append(getProperty(DbProperty.NAME.name()));
         return buff.toString();
     }
 

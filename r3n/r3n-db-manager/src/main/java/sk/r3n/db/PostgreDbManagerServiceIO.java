@@ -4,11 +4,12 @@ import java.sql.Connection;
 import java.util.Properties;
 import sk.r3n.jdbc.ConnectionService;
 import sk.r3n.jdbc.SqlUtil;
+import sk.r3n.util.R3NException;
 
 public class PostgreDbManagerServiceIO implements DbManagerServiceIO {
     
     @Override
-    public void createDB(ConnectionService connectionService, Properties properties) throws Exception {
+    public void createDB(ConnectionService connectionService, Properties properties) throws R3NException {
         Connection connection = null;
         try {
             connectionService.setProperty(DbManagerProperties.NAME.connCode(),
@@ -47,7 +48,7 @@ public class PostgreDbManagerServiceIO implements DbManagerServiceIO {
     }
     
     @Override
-    public void createUser(ConnectionService connectionService, Properties properties) throws Exception {
+    public void createUser(ConnectionService connectionService, Properties properties) throws R3NException {
         Connection connection = null;
         try {
             connectionService.setProperty(DbManagerProperties.NAME.connCode(),

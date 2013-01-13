@@ -13,7 +13,6 @@ public enum SWTestBundle implements BundleEnum {
     LOCALE,
     LOOK_AND_FEEL,
     LOOK_AND_FEEL_DECORATED,
-    COEFICIENT,
     CONFIG_INFO,
     
     FILE_OPEN_TAB,

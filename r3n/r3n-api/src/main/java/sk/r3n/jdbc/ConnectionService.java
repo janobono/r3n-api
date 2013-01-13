@@ -18,8 +18,6 @@ public interface ConnectionService {
 
     public DbStatus getConnectionStatus();
 
-    public void close();
-
     public String getConnectionURL();
 
 }

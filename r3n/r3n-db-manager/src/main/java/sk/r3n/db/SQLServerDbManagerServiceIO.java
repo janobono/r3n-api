@@ -5,11 +5,12 @@ import java.sql.Connection;
 import java.util.Properties;
 import sk.r3n.jdbc.ConnectionService;
 import sk.r3n.jdbc.SqlUtil;
+import sk.r3n.util.R3NException;
 
 public class SQLServerDbManagerServiceIO implements DbManagerServiceIO {
 
     @Override
-    public void createDB(ConnectionService connectionService, Properties properties) throws Exception {
+    public void createDB(ConnectionService connectionService, Properties properties) throws R3NException {
         Connection connection = null;
         try {
             connectionService.setProperty(DbManagerProperties.NAME.connCode(),
@@ -55,13 +56,13 @@ public class SQLServerDbManagerServiceIO implements DbManagerServiceIO {
                     properties.getProperty(DbManagerProperties.ADMIN_PASSWORD.connCode()));
             connection = connectionService.getConnection();
             connection.setAutoCommit(true);
-            
+
             sql = new StringBuilder();
             sql.append("CREATE USER [").append(properties.getProperty(DbManagerProperties.USER.connCode()));
             sql.append("] FOR LOGIN [").append(properties.getProperty(DbManagerProperties.USER.connCode()));
             sql.append("]");
             SqlUtil.execute(connection, sql.toString());
-            
+
             cs = connection.prepareCall("{call sp_addrolemember(?,?)}");
             cs.setString(1, "db_owner");
             cs.setString(2, properties.getProperty(DbManagerProperties.USER.connCode()));
@@ -81,7 +82,7 @@ public class SQLServerDbManagerServiceIO implements DbManagerServiceIO {
     }
 
     @Override
-    public void createUser(ConnectionService connectionService, Properties properties) throws Exception {
+    public void createUser(ConnectionService connectionService, Properties properties) throws R3NException {
         Connection connection = null;
         try {
             connectionService.setProperty(DbManagerProperties.NAME.connCode(),

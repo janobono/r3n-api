@@ -5,18 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
-import org.apache.commons.dbcp.BasicDataSource;
 import sk.r3n.util.R3NException;
 
-public abstract class DataSourceConnectionService implements ConnectionService {
+public abstract class BaseConnectionService implements ConnectionService {
 
     protected static final Logger LOGGER = Logger.getLogger(ConnectionService.class.getCanonicalName());
 
     private Map<DbProperty, String> dbProperties;
 
-    protected BasicDataSource ds;
-
-    public DataSourceConnectionService() {
+    public BaseConnectionService() {
         super();
         dbProperties = new HashMap<>();
     }
@@ -38,8 +35,8 @@ public abstract class DataSourceConnectionService implements ConnectionService {
     @Override
     public void setProperties(Properties properties) {
         for (DbProperty dbProperty : DbProperty.values()) {
-            if (properties.containsKey(dbProperty.code())) {
-                setProperty(dbProperty.code(), properties.getProperty(dbProperty.code(), ""));
+            if (properties.containsKey(dbProperty.name())) {
+                setProperty(dbProperty.name(), properties.getProperty(dbProperty.name(), ""));
             }
         }
     }
@@ -64,17 +61,6 @@ public abstract class DataSourceConnectionService implements ConnectionService {
         } finally {
             SqlUtil.close(connection);
         }
-    }
-
-    @Override
-    public void close() {
-        try {
-            if (ds != null) {
-                ds.close();
-            }
-        } catch (Exception e) {
-        }
-        ds = null;
     }
 
 }
