@@ -1,7 +1,6 @@
 package sk.r3n.sw.util;
 
 import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +13,6 @@ import sk.r3n.ui.UIActionKey;
 import sk.r3n.util.ConfigUtil;
 
 public class SwingUtilConfig {
-
-    private Dimension max;
 
     private Dimension defaultIconDimension;
 
@@ -79,25 +76,6 @@ public class SwingUtilConfig {
         } else {
             urlMap.remove(key);
         }
-    }
-
-    public Dimension getMaxDimension() {
-        if (max == null) {
-            max = Toolkit.getDefaultToolkit().getScreenSize();
-        } else {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            if (screenSize.height < max.height) {
-                max.height = screenSize.height;
-            }
-            if (screenSize.width < max.width) {
-                max.width = screenSize.width;
-            }
-        }
-        return max;
-    }
-
-    public void setMaxDimension(Dimension max) {
-        this.max = max;
     }
 
     public KeyStroke getKeyStroke(UIActionKey actionKey) {

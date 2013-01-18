@@ -114,7 +114,7 @@ public class SwingUtil {
     public static Frame getRootFrame() {
         if (frame == null) {
             frame = new Frame();
-            frame.setSize(getConfig().getMaxDimension());
+            frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
             positionCenterScreen(frame);
         }
         return frame;
@@ -145,10 +145,10 @@ public class SwingUtil {
     }
 
     public static void positionCenterScreen(Window window) {
-        Dimension sSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension maxDimension = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension wSize = window.getSize();
-        int maxWidth = sSize.width;
-        int maxHeight = sSize.height;
+        int maxWidth = maxDimension.width;
+        int maxHeight = maxDimension.height;
         // fit on window
         if (wSize.height > maxHeight) {
             wSize.height = maxHeight;
@@ -157,9 +157,9 @@ public class SwingUtil {
             wSize.width = maxWidth;
         }
         window.setSize(wSize);
-        if (sSize.width != wSize.width && sSize.height != wSize.height) {
-            int x = (sSize.width - wSize.width) / 2;
-            int y = (sSize.height - wSize.height) / 2;
+        if (maxDimension.width != wSize.width && maxDimension.height != wSize.height) {
+            int x = (maxDimension.width - wSize.width) / 2;
+            int y = (maxDimension.height - wSize.height) / 2;
             window.setLocation(x, y);
         } else {
             if (window instanceof JFrame) {
@@ -217,7 +217,7 @@ public class SwingUtil {
             }
         }
         Dimension result = window.getSize();
-        Dimension maxDimension = getConfig().getMaxDimension();
+        Dimension maxDimension = Toolkit.getDefaultToolkit().getScreenSize();
         if (maxDimension.width < result.width) {
             result.width = maxDimension.width;
         }
