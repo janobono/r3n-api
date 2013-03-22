@@ -16,9 +16,9 @@ public class PasswordDialog extends OkCancelDialog {
         setModal(true);
         ResourceBundle bundle = ResourceBundle.getBundle(this.getClass().getCanonicalName());
         this.setTitle(bundle.getString("TITLE"));
-        // Formular -------------------------------------------------------
+
         JPanel form = new JPanel(new GridBagLayout());
-        // PASSWORD
+
         passwordField = new R3NPasswordField();
         passwordField.setColumns(7);
         form.add(new JLabel(label, JLabel.RIGHT), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
