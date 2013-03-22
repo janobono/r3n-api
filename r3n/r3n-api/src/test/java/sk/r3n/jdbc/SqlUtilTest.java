@@ -3,12 +3,10 @@ package sk.r3n.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import sk.r3n.util.R3NException;
 
 public class SqlUtilTest {
 
@@ -25,7 +23,7 @@ public class SqlUtilTest {
     }
 
     @Test
-    public void dbTest() throws R3NException, SQLException {
+    public void dbTest() throws Exception {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;

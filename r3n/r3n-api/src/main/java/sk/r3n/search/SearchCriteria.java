@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DaoSearchCriteria {
+public class SearchCriteria {
 
     private int pageSize;
 
@@ -14,7 +14,7 @@ public class DaoSearchCriteria {
 
     private Map<SearchAttribute, SortOrder> sortAttributes;
 
-    public DaoSearchCriteria() {
+    public SearchCriteria() {
         super();
         searchAttributes = new HashMap<>();
         sortAttributes = new HashMap<>();

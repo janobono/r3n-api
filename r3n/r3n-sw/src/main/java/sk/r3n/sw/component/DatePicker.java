@@ -15,6 +15,7 @@ import sk.r3n.sw.component.field.VarcharField;
 import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;
+import sk.r3n.util.DateUtil;
 
 public final class DatePicker extends JPanel implements UIActionExecutor, MouseListener {
 
@@ -68,11 +69,7 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
             date = new Date();
         }
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.setTime(DateUtil.getDateOnly(date));
         this.date = calendar.getTime();
         monthAndYearFormat = new SimpleDateFormat("MMMMMMMMM yyyy");
         setLayout(new GridBagLayout());
@@ -211,13 +208,7 @@ public final class DatePicker extends JPanel implements UIActionExecutor, MouseL
     }
 
     public Date getDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
+        return DateUtil.getDateOnly(date);
     }
 
     protected int getWeekIndex(int weekDay, Calendar calendar) {

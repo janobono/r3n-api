@@ -3,9 +3,9 @@ package sk.r3n.sw.component.field;
 import java.awt.event.FocusEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import sk.r3n.ui.InputStatus;
+import sk.r3n.util.DateUtil;
 
 public class DateField extends MaskField<Date> {
 
@@ -94,7 +94,7 @@ public class DateField extends MaskField<Date> {
         }
         try {
             reFormatInput();
-            return modifyDate(dateFormat.parse(getText()));
+            return DateUtil.getDateOnly(dateFormat.parse(getText()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -118,19 +118,6 @@ public class DateField extends MaskField<Date> {
     @Override
     protected boolean isMask(int offs) {
         return offs == 2 || offs == 5;
-    }
-
-    public Date modifyDate(Date date) {
-        if (date == null) {
-            return null;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
     }
 
     private void reFormatInput() {
@@ -171,11 +158,11 @@ public class DateField extends MaskField<Date> {
     }
 
     public void setMaxValue(Date maxValue) {
-        this.maxValue = modifyDate(maxValue);
+        this.maxValue = DateUtil.getDateOnly(maxValue);
     }
 
     public void setMinValue(Date minValue) {
-        this.minValue = modifyDate(minValue);
+        this.minValue = DateUtil.getDateOnly(minValue);
     }
 
     @Override
