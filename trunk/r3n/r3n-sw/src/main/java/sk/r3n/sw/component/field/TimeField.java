@@ -4,9 +4,9 @@ import java.awt.event.FocusEvent;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import sk.r3n.ui.InputStatus;
+import sk.r3n.util.DateUtil;
 
 public class TimeField extends MaskField<Date> {
 
@@ -82,21 +82,10 @@ public class TimeField extends MaskField<Date> {
         }
         try {
             reFormatInput();
-            return modifyDate(timeFormat.parse(getText()));
+            return DateUtil.getTimeOnly(timeFormat.parse(getText()));
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public Date modifyDate(Date date) {
-        if (date == null) {
-            return null;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.YEAR, 1970);
-        calendar.set(Calendar.DAY_OF_YEAR, 1);
-        return calendar.getTime();
     }
 
     @Override
@@ -181,11 +170,11 @@ public class TimeField extends MaskField<Date> {
     }
 
     public void setMaxValue(Date maxValue) {
-        this.maxValue = modifyDate(maxValue);
+        this.maxValue = DateUtil.getTimeOnly(maxValue);
     }
 
     public void setMinValue(Date minValue) {
-        this.minValue = modifyDate(minValue);
+        this.minValue = DateUtil.getTimeOnly(minValue);
     }
 
     @Override
@@ -204,5 +193,4 @@ public class TimeField extends MaskField<Date> {
     @Override
     public void focusGained(FocusEvent e) {
     }
-
 }
