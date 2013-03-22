@@ -23,7 +23,7 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
     public StatusDialog(Frame frame) {
         super(frame);
         setModal(true);
-        // Formular -------------------------------------------------------
+
         JTextField textField = new JTextField();
         textField.setColumns(25);
 
