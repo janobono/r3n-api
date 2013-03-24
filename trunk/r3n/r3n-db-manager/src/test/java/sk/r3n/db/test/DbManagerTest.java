@@ -9,13 +9,14 @@ public class DbManagerTest {
 
     public static void main(String[] args) {
         try {
-            DbManagerService dbManagerService = new DbManagerService(new TestAppProperties(), new TestAppHelp(),
-                    "helpKey", "testdb") {
+            DbManagerService dbManagerService = new DbManagerService(new TestAppProperties()) {
                 @Override
                 protected void checkStructure(Properties properties) throws R3NException {
                 }
-
             };
+            dbManagerService.setAppHelp(new TestAppHelp());
+            dbManagerService.setHelpKey("helpKey");
+            dbManagerService.setDefaultName("testdb");
             dbManagerService.checkDB();
         } catch (R3NException ex) {
             ex.printStackTrace();
@@ -23,5 +24,4 @@ public class DbManagerTest {
         System.out.println("OK");
         SwingUtil.getRootFrame().dispose();
     }
-
 }

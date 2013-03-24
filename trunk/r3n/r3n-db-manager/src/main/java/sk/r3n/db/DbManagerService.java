@@ -1,10 +1,12 @@
 package sk.r3n.db;
 
+import java.util.List;
 import java.util.Properties;
 import sk.r3n.app.AppHelp;
 import sk.r3n.app.AppProperties;
 import sk.r3n.jdbc.ConnectionService;
 import sk.r3n.jdbc.DbStatus;
+import sk.r3n.jdbc.DbType;
 import sk.r3n.sw.util.SwingUtil;
 import sk.r3n.ui.Answer;
 import sk.r3n.ui.MessageType;
@@ -20,12 +22,11 @@ public abstract class DbManagerService {
 
     private String defaultName;
 
-    public DbManagerService(AppProperties appProperties, AppHelp appHelp, String helpKey, String defaultName) {
+    private List<DbType> supportedDbs;
+
+    public DbManagerService(AppProperties appProperties) {
         super();
         this.appProperties = appProperties;
-        this.appHelp = appHelp;
-        this.helpKey = helpKey;
-        this.defaultName = defaultName;
     }
 
     public void checkDB() throws R3NException {
@@ -100,12 +101,29 @@ public abstract class DbManagerService {
 
     protected Properties edit(Properties properties) {
         Properties result = null;
-        DbManagerSWDialog dbManagerSWDialog = new DbManagerSWDialog(
-                SwingUtil.getRootFrame(), appHelp, helpKey, defaultName);
+        DbManagerSWDialog dbManagerSWDialog = new DbManagerSWDialog(SwingUtil.getRootFrame(), supportedDbs);
+        dbManagerSWDialog.setAppHelp(appHelp);
+        dbManagerSWDialog.setHelpKey(helpKey);
+        dbManagerSWDialog.setDefaultName(defaultName);
         if (dbManagerSWDialog.init(properties)) {
             result = dbManagerSWDialog.getProperties();
         }
         return result;
     }
 
+    public void setAppHelp(AppHelp appHelp) {
+        this.appHelp = appHelp;
+    }
+
+    public void setHelpKey(String helpKey) {
+        this.helpKey = helpKey;
+    }
+
+    public void setDefaultName(String defaultName) {
+        this.defaultName = defaultName;
+    }
+
+    public void setSupportedDbs(List<DbType> supportedDbs) {
+        this.supportedDbs = supportedDbs;
+    }
 }
