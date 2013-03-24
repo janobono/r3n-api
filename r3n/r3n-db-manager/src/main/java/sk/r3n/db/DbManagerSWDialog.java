@@ -1,6 +1,11 @@
 package sk.r3n.db;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.List;
 import java.util.Properties;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -46,15 +51,12 @@ public class DbManagerSWDialog extends R3NDialog {
 
     protected AppHelp appHelp;
 
-    protected final String HELP_KEY;
+    protected String helpKey;
 
-    protected final String DEFAULT_NAME;
+    protected String defaultName;
 
-    public DbManagerSWDialog(Frame owner, AppHelp appHelp, String helpKey, String defaultName) {
+    public DbManagerSWDialog(Frame owner, List<DbType> supportedDbs) {
         super(owner);
-        this.appHelp = appHelp;
-        HELP_KEY = helpKey;
-        DEFAULT_NAME = defaultName;
         setModal(true);
         setTitle(DbManagerBundle.TITLE.value());
 
@@ -70,11 +72,16 @@ public class DbManagerSWDialog extends R3NDialog {
             public String getText(DbType value) {
                 return value.value();
             }
-
         });
 
-        driverBox.addItem(DbType.POSTGRE);
-        driverBox.addItem(DbType.SQL_SERVER);
+        if (supportedDbs != null) {
+            for (DbType dbType : supportedDbs) {
+                driverBox.addItem(dbType);
+            }
+        } else {
+            driverBox.addItem(DbType.POSTGRE);
+            driverBox.addItem(DbType.SQL_SERVER);
+        }
         panel.add(new JLabel(DbManagerBundle.DRIVER.value()), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(2, 5, 2, 5), 0, 0));
         panel.add(driverBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
@@ -189,10 +196,12 @@ public class DbManagerSWDialog extends R3NDialog {
         if (actionKey instanceof R3NAction) {
             switch ((R3NAction) actionKey) {
                 case HELP:
-                    appHelp.showHelp(HELP_KEY);
+                    if (appHelp != null && helpKey != null) {
+                        appHelp.showHelp(helpKey);
+                    }
                     break;
                 case DEFAULT:
-                    setDefault(DEFAULT_NAME);
+                    setDefault(defaultName);
                     break;
                 case OK:
                     if (!isInputValid()) {
@@ -240,7 +249,7 @@ public class DbManagerSWDialog extends R3NDialog {
 
     public void setDefault(String dbName) {
         hostField.setText("127.0.0.1");
-        nameField.setText(dbName);
+        nameField.setValue(dbName);
         userField.setText(nameField.getText());
         try {
             passwordField.setValue(new PasswordGenerator().generatePassword(
@@ -272,4 +281,15 @@ public class DbManagerSWDialog extends R3NDialog {
         return inputStatusValidator.isInputValid();
     }
 
+    public void setAppHelp(AppHelp appHelp) {
+        this.appHelp = appHelp;
+    }
+
+    public void setHelpKey(String helpKey) {
+        this.helpKey = helpKey;
+    }
+
+    public void setDefaultName(String defaultName) {
+        this.defaultName = defaultName;
+    }
 }

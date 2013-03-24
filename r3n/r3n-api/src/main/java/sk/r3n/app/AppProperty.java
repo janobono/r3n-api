@@ -7,9 +7,9 @@ public enum AppProperty {
     APP_ICON("sk.r3n.app.ICON"),
     APP_LOGO("sk.r3n.app.LOGO"),
     APP_DATA_DIR("sk.r3n.app.DATA_DIR"),
-    PROPERTIES_FILE("sk.r3n.app.propertiesFile"),
-    HELP_DIR("sk.r3n.app.helpDir"),
-    HELP_MAP("sk.r3n.app.helpMap");
+    PROPERTIES_FILE("sk.r3n.app.PROPERTIES_FILE"),
+    HELP_DIR("sk.r3n.app.HELP_DIR"),
+    HELP_MAP("sk.r3n.app.HELP_MAP");
 
     private final String code;
 
