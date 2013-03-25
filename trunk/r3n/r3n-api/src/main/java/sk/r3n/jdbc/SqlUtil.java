@@ -1,5 +1,6 @@
 package sk.r3n.jdbc;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
@@ -10,22 +11,22 @@ import java.util.Map;
 
 public class SqlUtil {
 
-    private static final String defaultDelimiter = ";";
+    private static final String DEFAULT_DELIMITER = ";";
 
-    private static final String defaultEncoding = "UTF-8";
+    private static final String DEFAULT_ENCODING = "UTF-8";
 
-    public static void runSqlScript(Connection connection, String fileUri) throws Exception {
-        runSqlScript(connection, fileUri, null, defaultDelimiter, null);
+    public static void runSqlScript(Connection connection, InputStream is) throws Exception {
+        runSqlScript(connection, is, null, DEFAULT_DELIMITER, null);
     }
 
-    public static void runSqlScript(Connection connection, String fileUri, String fileEncoding, String commandsDelimiter)
+    public static void runSqlScript(Connection connection, InputStream is, String fileEncoding, String commandsDelimiter)
             throws Exception {
-        runSqlScript(connection, fileUri, fileEncoding, commandsDelimiter, null);
+        runSqlScript(connection, is, fileEncoding, commandsDelimiter, null);
     }
 
-    public static void runSqlScript(Connection connection, String fileUri, String fileEncoding, String commandsDelimiter,
+    public static void runSqlScript(Connection connection, InputStream is, String fileEncoding, String commandsDelimiter,
             Map<String, String> replacementParametersMap) throws Exception {
-        final Reader reader = getScriptReader(fileUri, fileEncoding);
+        final Reader reader = getScriptReader(is, fileEncoding);
         final List<String> commands = getSqlCommands(reader, commandsDelimiter);
         final List<String> adaptedCommands = (replacementParametersMap == null)
                 ? commands
@@ -34,20 +35,11 @@ public class SqlUtil {
         runSqlCommands(connection, adaptedCommands);
     }
 
-    private static Reader getScriptReader(String fileUri, String fileEncoding) throws Exception {
-
+    private static Reader getScriptReader(InputStream is, String fileEncoding) throws Exception {
         if (fileEncoding == null) {
-            fileEncoding = defaultEncoding;
+            fileEncoding = DEFAULT_ENCODING;
         }
-
-        Reader reader = null;
-
-        if (fileUri.contains("classpath:")) {
-            String classPathFile = fileUri.split(":")[1];
-            reader = new InputStreamReader(SqlUtil.class.getResourceAsStream(classPathFile), fileEncoding);
-        }
-
-        return reader;
+        return new InputStreamReader(is, fileEncoding);
     }
 
     private static List<String> getSqlCommands(Reader reader, String commandsDelimiter) throws Exception {

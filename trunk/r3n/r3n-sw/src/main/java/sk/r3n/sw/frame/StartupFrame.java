@@ -80,7 +80,6 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
     public void windowClosing(WindowEvent windowEvent) {
     }
 
-    @Override
     public void jobStarted() {
         asc = true;
         progressBar.setValue(0);
@@ -88,7 +87,6 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
         setVisible(true);
     }
 
-    @Override
     public void jobStarted(String title) {
         setTitle(title);
         jobStarted();
@@ -133,7 +131,6 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
         jobInProgress(value);
     }
 
-    @Override
     public void jobFinished() {
         progressBar.setValue(100);
         dispose();
