@@ -36,15 +36,15 @@ public abstract class DbManagerService {
         while (!dbStatus.equals(DbStatus.OK)) {
             switch (dbStatus) {
                 case DB_ERR:
-                    createDB(properties);
+                    properties = createDB(properties);
                     if (DbManagerUtil.getConnectionStatus(properties).equals(DbStatus.AUTH_ERR)) {
-                        createUser(properties);
+                        properties = createUser(properties);
                     }
                     break;
                 case AUTH_ERR:
-                    createUser(properties);
+                    properties = createUser(properties);
                     if (DbManagerUtil.getConnectionStatus(properties).equals(DbStatus.DB_ERR)) {
-                        createDB(properties);
+                        properties = createDB(properties);
                     }
                     break;
                 case SERVER_ERR:
@@ -54,15 +54,9 @@ public abstract class DbManagerService {
                         break;
                     }
                     properties = edit(properties);
-                    if (properties == null) {
-                        DbManagerException.CANCELLED.raise();
-                    }
                     break;
                 default:
                     properties = edit(properties);
-                    if (properties == null) {
-                        DbManagerException.CANCELLED.raise();
-                    }
                     break;
             }
             dbStatus = DbManagerUtil.getConnectionStatus(properties);
@@ -89,17 +83,25 @@ public abstract class DbManagerService {
         return SwingUtil.showYesNoDialog(title, message, messageType);
     }
 
-    protected void createDB(Properties properties) throws R3NException {
+    protected Properties createDB(Properties properties) throws R3NException {
+        if (properties.getProperty(DbManagerProperties.ADMIN_NAME.connCode()).equals("")) {
+            properties = edit(properties);
+        }
         ConnectionService cs = DbManagerUtil.getConnectionService(properties);
         DbManagerUtil.getDbManagerServiceIO(properties).createDB(cs, properties);
+        return properties;
     }
 
-    protected void createUser(Properties properties) throws R3NException {
+    protected Properties createUser(Properties properties) throws R3NException {
+        if (properties.getProperty(DbManagerProperties.ADMIN_NAME.connCode()).equals("")) {
+            properties = edit(properties);
+        }
         ConnectionService cs = DbManagerUtil.getConnectionService(properties);
         DbManagerUtil.getDbManagerServiceIO(properties).createUser(cs, properties);
+        return properties;
     }
 
-    protected Properties edit(Properties properties) {
+    protected Properties edit(Properties properties) throws R3NException {
         Properties result = null;
         DbManagerSWDialog dbManagerSWDialog = new DbManagerSWDialog(SwingUtil.getRootFrame(), supportedDbs);
         dbManagerSWDialog.setAppHelp(appHelp);
@@ -107,6 +109,9 @@ public abstract class DbManagerService {
         dbManagerSWDialog.setDefaultName(defaultName);
         if (dbManagerSWDialog.init(properties)) {
             result = dbManagerSWDialog.getProperties();
+        }
+        if (properties == null) {
+            DbManagerException.CANCELLED.raise();
         }
         return result;
     }
