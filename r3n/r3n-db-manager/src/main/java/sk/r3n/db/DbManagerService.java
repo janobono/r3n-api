@@ -77,7 +77,7 @@ public abstract class DbManagerService {
         DbManagerUtil.setProperties(appProperties, properties);
     }
 
-    protected abstract void checkStructure(Properties properties) throws R3NException;
+    protected abstract void checkStructure(Properties properties) throws Exception;
 
     protected Answer showYesNoDialog(String title, String message, MessageType messageType) {
         return SwingUtil.showYesNoDialog(title, message, messageType);

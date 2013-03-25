@@ -2,6 +2,8 @@ package sk.r3n.sw.test;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingWorker;
 import sk.r3n.sw.component.ButtonPanel;
@@ -26,16 +28,14 @@ public class SWTestApp {
         @Override
         protected Void doInBackground() throws Exception {
             Thread.sleep(300);
-            jobListener.jobStarted(SWTestBundle.STARTUP_TEST.value());
             for (int i = 0; i < 40; i++) {
                 jobListener.jobInProgress(SWTestBundle.STARTUP_TEST_P.value(new Object[]{i + 1}), 10);
                 Thread.sleep(200);
             }
-            jobListener.jobFinished();
+            ((StartupFrame) jobListener).jobFinished();
             new TestFrame();
             return Void.TYPE.newInstance();
         }
-
     }
 
     protected class TestFrame extends R3NFrame {
@@ -85,7 +85,6 @@ public class SWTestApp {
                 }
             }
         }
-
     }
 
     public static void main(String[] args) {
@@ -95,8 +94,8 @@ public class SWTestApp {
         startupFrame.setAppIcon(SWTestApp.class.getResource("/sk/r3n/sw/test/tux.png"));
         startupFrame.setAppImage(SWTestApp.class.getResource("/sk/r3n/sw/test/tux.svg"), true);
         startupFrame.setInfoTextForegroun(Color.ORANGE);
-        (new SWTestApp()).new TestWorker(startupFrame).execute();
-        startupFrame.setVisible(true);
+        TestWorker testWorker = (new SWTestApp()).new TestWorker(startupFrame);
+        testWorker.execute();
+        startupFrame.jobStarted(SWTestBundle.STARTUP_TEST.value());
     }
-
 }

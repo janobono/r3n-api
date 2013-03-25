@@ -53,14 +53,12 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
         return true;
     }
 
-    @Override
     public void jobStarted() {
         asc = true;
         progressBar.setValue(0);
         progressBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
     }
 
-    @Override
     public void jobStarted(String title) {
         setTitle(title);
         jobStarted();
@@ -106,7 +104,6 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
         jobInProgress(value);
     }
 
-    @Override
     public void jobFinished() {
         dispose();
     }
