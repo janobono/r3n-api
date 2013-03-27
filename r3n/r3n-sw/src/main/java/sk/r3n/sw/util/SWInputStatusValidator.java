@@ -1,12 +1,12 @@
 package sk.r3n.sw.util;
 
 import java.awt.Toolkit;
+import java.util.ResourceBundle;
 import javax.swing.JComponent;
 import sk.r3n.ui.InputComponent;
 import sk.r3n.ui.InputStatus;
 import sk.r3n.ui.InputStatusValidator;
 import sk.r3n.ui.MessageType;
-import sk.r3n.util.BundleResolver;
 
 public class SWInputStatusValidator extends InputStatusValidator {
 
@@ -25,7 +25,8 @@ public class SWInputStatusValidator extends InputStatusValidator {
                         }
                         Toolkit.getDefaultToolkit().beep();
                         SwingUtil.showMessageDialog(null,
-                                BundleResolver.resolve(SWInputStatusValidator.class.getCanonicalName(), NOT_VALID),
+                                ResourceBundle.getBundle(SWInputStatusValidator.class.getCanonicalName())
+                                .getString(NOT_VALID),
                                 MessageType.WARNING);
                         return false;
                     }
@@ -34,5 +35,4 @@ public class SWInputStatusValidator extends InputStatusValidator {
         }
         return true;
     }
-
 }

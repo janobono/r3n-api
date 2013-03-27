@@ -1,6 +1,6 @@
 package sk.r3n.db;
 
-import sk.r3n.util.BundleResolver;
+import java.util.ResourceBundle;
 import sk.r3n.util.R3NException;
 
 public enum DbManagerException {
@@ -24,7 +24,7 @@ public enum DbManagerException {
     }
 
     public String message() {
-        return BundleResolver.resolve(BUNDLE, name());
+        return ResourceBundle.getBundle(BUNDLE).getString(name());
     }
 
     public void raise() throws R3NException {
@@ -34,5 +34,4 @@ public enum DbManagerException {
     public void raise(Throwable throwable) throws R3NException {
         throw new R3NException(message(), code(), throwable);
     }
-
 }

@@ -1,42 +1,39 @@
 package sk.r3n.app.impl;
 
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import org.osgi.service.component.ComponentContext;
 import sk.r3n.app.AppProperties;
 import sk.r3n.app.AppProperty;
-import sk.r3n.util.BundleEnum;
-import sk.r3n.util.BundleResolver;
 import sk.r3n.util.Encrypter;
 
 public class AppPropertiesImpl implements AppProperties {
-
-    private enum PropertiesBundle implements BundleEnum {
-
+    
+    private enum PropertiesBundle {
+        
         LOAD,
         SAVE,
         SET;
-
-        @Override
+        
         public String value() {
-            return BundleResolver.resolve(AppPropertiesImpl.class.getCanonicalName(), name());
+            return ResourceBundle.getBundle(AppPropertiesImpl.class.getCanonicalName()).getString(name());
         }
-
-        @Override
+        
         public String value(Object[] parameters) {
-            return BundleResolver.resolve(AppPropertiesImpl.class.getCanonicalName(), name(), parameters);
+            return MessageFormat.format(value(), parameters);
         }
-
     }
     private static final Logger LOGGER = Logger.getLogger(AppProperties.class.getCanonicalName());
-
+    
     private Properties properties;
-
+    
     private ComponentContext context;
-
+    
     protected void activate(ComponentContext context) {
         this.context = context;
         properties = new Properties();
@@ -57,7 +54,7 @@ public class AppPropertiesImpl implements AppProperties {
             }
         }
     }
-
+    
     protected void deactivate(ComponentContext context) {
         OutputStream out = null;
         try {
@@ -79,7 +76,7 @@ public class AppPropertiesImpl implements AppProperties {
             }
         }
     }
-
+    
     @Override
     public String decrypt(String string) {
         if (string.equals("")) {
@@ -92,7 +89,7 @@ public class AppPropertiesImpl implements AppProperties {
             throw new RuntimeException(e);
         }
     }
-
+    
     @Override
     public String encrypt(String string) {
         if (string.equals("")) {
@@ -105,12 +102,12 @@ public class AppPropertiesImpl implements AppProperties {
             throw new RuntimeException(e);
         }
     }
-
+    
     @Override
     public String get(AppProperty appProperty) {
         return context.getBundleContext().getProperty(appProperty.code());
     }
-
+    
     @Override
     public String get(String key, String defaultValue) {
         if (!properties.containsKey(key)) {
@@ -118,11 +115,11 @@ public class AppPropertiesImpl implements AppProperties {
         }
         return properties.getProperty(key);
     }
-
+    
     public void print() {
         System.out.println(properties);
     }
-
+    
     @Override
     public void set(String key, String value) {
         if (value != null) {
@@ -132,5 +129,4 @@ public class AppPropertiesImpl implements AppProperties {
         }
         LOGGER.log(Level.INFO, PropertiesBundle.SET.value(new Object[]{key, value}));
     }
-
 }

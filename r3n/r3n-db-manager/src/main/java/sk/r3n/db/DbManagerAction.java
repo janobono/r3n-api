@@ -1,7 +1,7 @@
 package sk.r3n.db;
 
+import java.util.ResourceBundle;
 import sk.r3n.ui.UIActionKey;
-import sk.r3n.util.BundleResolver;
 
 public enum DbManagerAction implements UIActionKey {
 
@@ -27,7 +27,6 @@ public enum DbManagerAction implements UIActionKey {
 
     @Override
     public String actionName() {
-        return BundleResolver.resolve(BUNDLE, name());
+        return ResourceBundle.getBundle(BUNDLE).getString(name());
     }
-
 }

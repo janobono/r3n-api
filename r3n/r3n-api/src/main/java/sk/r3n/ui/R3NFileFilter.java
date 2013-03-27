@@ -2,10 +2,10 @@ package sk.r3n.ui;
 
 import java.io.File;
 import java.io.FileFilter;
-import sk.r3n.util.BundleResolver;
+import java.util.ResourceBundle;
 
 public abstract class R3NFileFilter implements FileFilter {
-    
+
     private static final String NEW = "NEW";
 
     protected boolean dir;
@@ -29,12 +29,12 @@ public abstract class R3NFileFilter implements FileFilter {
     protected abstract boolean accept(File parentFile, String name);
 
     public abstract String getExtension();
-    
+
     public abstract String getDescription();
 
     public String getName(String name) {
         if (name == null || name.equals("")) {
-            name = BundleResolver.resolve(R3NFileFilter.class.getCanonicalName(), NEW);
+            name = ResourceBundle.getBundle(R3NFileFilter.class.getCanonicalName()).getString(NEW);
         }
 
         if (!ext) {
@@ -42,7 +42,7 @@ public abstract class R3NFileFilter implements FileFilter {
         }
 
         if (name.equalsIgnoreCase(getExtension())) {
-            return BundleResolver.resolve(R3NFileFilter.class.getCanonicalName(), NEW) + getExtension();
+            return ResourceBundle.getBundle(R3NFileFilter.class.getCanonicalName()).getString(NEW) + getExtension();
         }
 
         if (name.lastIndexOf('.') == -1) {
@@ -51,5 +51,4 @@ public abstract class R3NFileFilter implements FileFilter {
 
         return name;
     }
-
 }

@@ -1,10 +1,10 @@
 package sk.r3n.ui;
 
 import java.io.File;
-import sk.r3n.util.BundleResolver;
+import java.util.ResourceBundle;
 
 public class AllFileFilter extends R3NFileFilter {
-    
+
     protected static final String DESCRIPTION = "DESCRIPTION";
 
     public AllFileFilter() {
@@ -13,7 +13,7 @@ public class AllFileFilter extends R3NFileFilter {
 
     @Override
     public String getDescription() {
-        return BundleResolver.resolve(AllFileFilter.class.getCanonicalName(), DESCRIPTION);
+        return ResourceBundle.getBundle(AllFileFilter.class.getCanonicalName()).getString(DESCRIPTION);
     }
 
     @Override
@@ -25,5 +25,4 @@ public class AllFileFilter extends R3NFileFilter {
     public String getExtension() {
         return null;
     }
-
 }

@@ -1,6 +1,6 @@
 package sk.r3n.ui;
 
-import sk.r3n.util.BundleResolver;
+import java.util.ResourceBundle;
 
 public enum R3NAction implements UIActionKey {
 
@@ -66,7 +66,6 @@ public enum R3NAction implements UIActionKey {
 
     @Override
     public String actionName() {
-        return BundleResolver.resolve(BUNDLE, name());
+        return ResourceBundle.getBundle(BUNDLE).getString(name());
     }
-
 }
