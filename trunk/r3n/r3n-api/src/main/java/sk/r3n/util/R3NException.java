@@ -18,11 +18,11 @@ public class R3NException extends Exception {
         }
         return result.toString();
     }
-
     private int errorCode;
 
     public R3NException(String message, int errorCode) {
-        this(message, errorCode, null);
+        super(message);
+        this.errorCode = errorCode;
     }
 
     public R3NException(String message, int errorCode, Throwable throwable) {
@@ -33,5 +33,4 @@ public class R3NException extends Exception {
     public int getErrorCode() {
         return errorCode;
     }
-
 }

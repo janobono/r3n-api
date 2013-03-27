@@ -1,15 +1,16 @@
 package sk.r3n.ui;
 
+import java.util.ResourceBundle;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import sk.r3n.util.BundleResolver;
 
 public class BaseUITest {
 
     @Test
     public void fileFilterTest() {
         R3NFileFilter fileFilter = new AllFileFilter();
-        assertEquals(BundleResolver.resolve(AllFileFilter.class.getCanonicalName(), AllFileFilter.DESCRIPTION),
+        assertEquals(
+                ResourceBundle.getBundle(AllFileFilter.class.getCanonicalName()).getString(AllFileFilter.DESCRIPTION),
                 fileFilter.getDescription());
         assertNull(fileFilter.getExtension());
     }
@@ -27,5 +28,4 @@ public class BaseUITest {
             assertNotNull(action.actionName());
         }
     }
-
 }

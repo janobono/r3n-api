@@ -1,9 +1,8 @@
 package sk.r3n.ui;
 
-import sk.r3n.util.BundleEnum;
-import sk.r3n.util.BundleResolver;
+import java.util.ResourceBundle;
 
-public enum MessageType implements BundleEnum {
+public enum MessageType {
 
     INFO,
     WARNING,
@@ -12,14 +11,7 @@ public enum MessageType implements BundleEnum {
 
     private final String BUNDLE = MessageType.class.getCanonicalName();
 
-    @Override
     public String value() {
-        return BundleResolver.resolve(BUNDLE, name());
+        return ResourceBundle.getBundle(BUNDLE).getString(name());
     }
-
-    @Override
-    public String value(Object[] parameters) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
 }

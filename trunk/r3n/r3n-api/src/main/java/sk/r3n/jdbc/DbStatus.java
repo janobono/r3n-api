@@ -1,9 +1,8 @@
 package sk.r3n.jdbc;
 
-import sk.r3n.util.BundleEnum;
-import sk.r3n.util.BundleResolver;
+import java.util.ResourceBundle;
 
-public enum DbStatus implements BundleEnum {
+public enum DbStatus {
 
     OK(0),
     UNKNOWN(10),
@@ -22,7 +21,6 @@ public enum DbStatus implements BundleEnum {
         }
         return result;
     }
-
     private final int code;
 
     DbStatus(int code) {
@@ -33,14 +31,7 @@ public enum DbStatus implements BundleEnum {
         return code;
     }
 
-    @Override
     public String value() {
-        return BundleResolver.resolve(DbStatus.class.getCanonicalName(), name());
+        return ResourceBundle.getBundle(DbStatus.class.getCanonicalName()).getString(name());
     }
-
-    @Override
-    public String value(Object[] parameters) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
 }

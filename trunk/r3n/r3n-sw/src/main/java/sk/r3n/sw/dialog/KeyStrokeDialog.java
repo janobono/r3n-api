@@ -5,8 +5,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -20,7 +22,6 @@ import sk.r3n.ui.MessageType;
 import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;
-import sk.r3n.util.BundleResolver;
 
 public class KeyStrokeDialog extends JDialog implements UIActionExecutor, WindowListener, KeyListener {
 
@@ -47,7 +48,7 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
     }
 
     private void init() {
-        setTitle(BundleResolver.resolve(KeyStrokeDialog.class.getCanonicalName(), TITLE));
+        setTitle(ResourceBundle.getBundle(KeyStrokeDialog.class.getCanonicalName()).getString(TITLE));
         setModal(true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(this);
@@ -116,8 +117,8 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
             for (KeyStroke exStroke : keyStrokes) {
                 if (keyStroke.getKeyCode() == exStroke.getKeyCode()
                         && keyStroke.getModifiers() == exStroke.getModifiers()
-                        && SwingUtil.showYesNoDialog(null, BundleResolver.resolve(
-                        KeyStrokeDialog.class.getCanonicalName(), EXISTS, new Object[]{keyStroke}),
+                        && SwingUtil.showYesNoDialog(null, MessageFormat.format(ResourceBundle.getBundle(
+                        KeyStrokeDialog.class.getCanonicalName()).getString(EXISTS), new Object[]{keyStroke}),
                         MessageType.WARNING) != Answer.YES) {
                     keyStroke = null;
                     break;
@@ -176,5 +177,4 @@ public class KeyStrokeDialog extends JDialog implements UIActionExecutor, Window
     @Override
     public void windowOpened(WindowEvent e) {
     }
-
 }

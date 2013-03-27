@@ -1,9 +1,9 @@
 package sk.r3n.db;
 
-import sk.r3n.util.BundleEnum;
-import sk.r3n.util.BundleResolver;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
-public enum DbManagerBundle implements BundleEnum {
+public enum DbManagerBundle {
 
     TITLE,
     BASE,
@@ -19,14 +19,11 @@ public enum DbManagerBundle implements BundleEnum {
     NOT_RUN_QUESTION,
     AGAIN_QUESTION;
 
-    @Override
     public String value() {
-        return BundleResolver.resolve(DbManagerBundle.class.getCanonicalName(), name());
+        return ResourceBundle.getBundle(DbManagerBundle.class.getCanonicalName()).getString(name());
     }
 
-    @Override
     public String value(Object[] parameters) {
-        return BundleResolver.resolve(DbManagerBundle.class.getCanonicalName(), name(), parameters);
+        return MessageFormat.format(value(), parameters);
     }
-
 }

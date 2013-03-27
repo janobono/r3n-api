@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.Date;
+import java.util.ResourceBundle;
 import javax.swing.JPanel;
 import sk.r3n.sw.component.field.DateField;
 import sk.r3n.sw.dialog.OkCancelDialog;
@@ -14,7 +15,6 @@ import sk.r3n.ui.InputStatus;
 import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;
-import sk.r3n.util.BundleResolver;
 
 public final class DatePanel extends JPanel implements InputComponent<Date>, UIActionExecutor {
 
@@ -25,7 +25,7 @@ public final class DatePanel extends JPanel implements InputComponent<Date>, UIA
         public DatePickerDialog() {
             super(SwingUtil.getFrameForComponent(DatePanel.this));
             setModal(true);
-            setTitle(BundleResolver.resolve(DatePanel.class.getCanonicalName(), TITLE));
+            setTitle(ResourceBundle.getBundle(DatePanel.class.getCanonicalName()).getString(TITLE));
         }
 
         public boolean initDialog(DatePicker datePicker) {
@@ -39,7 +39,6 @@ public final class DatePanel extends JPanel implements InputComponent<Date>, UIA
         public boolean isInputValid() {
             return true;
         }
-
     }
     public DateField dateField;
 
@@ -109,5 +108,4 @@ public final class DatePanel extends JPanel implements InputComponent<Date>, UIA
     public void setValue(Date value) {
         dateField.setValue(value);
     }
-
 }

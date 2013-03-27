@@ -1,6 +1,6 @@
 package sk.r3n.jdbc;
 
-import sk.r3n.util.BundleResolver;
+import java.util.ResourceBundle;
 
 public enum DbType {
 
@@ -30,7 +30,6 @@ public enum DbType {
     }
 
     public String value() {
-        return BundleResolver.resolve(DbType.class.getCanonicalName(), name());
+        return ResourceBundle.getBundle(DbType.class.getCanonicalName()).getString(name());
     }
-
 }

@@ -14,15 +14,15 @@ import sk.r3n.util.R3NException;
 
 public abstract class DbManagerService {
 
-    private AppProperties appProperties;
+    protected AppProperties appProperties;
 
-    private AppHelp appHelp;
+    protected AppHelp appHelp;
 
-    private String helpKey;
+    protected String helpKey;
 
-    private String defaultName;
+    protected String defaultName;
 
-    private List<DbType> supportedDbs;
+    protected List<DbType> supportedDbs;
 
     public DbManagerService(AppProperties appProperties) {
         super();
@@ -110,7 +110,7 @@ public abstract class DbManagerService {
         if (dbManagerSWDialog.init(properties)) {
             result = dbManagerSWDialog.getProperties();
         }
-        if (properties == null) {
+        if (result == null) {
             DbManagerException.CANCELLED.raise();
         }
         return result;

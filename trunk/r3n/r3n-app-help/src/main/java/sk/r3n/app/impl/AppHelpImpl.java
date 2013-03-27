@@ -3,34 +3,31 @@ package sk.r3n.app.impl;
 import java.awt.Desktop;
 import java.io.*;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.osgi.service.component.ComponentContext;
 import sk.r3n.app.AppHelp;
 import sk.r3n.app.AppProperty;
-import sk.r3n.util.BundleEnum;
-import sk.r3n.util.BundleResolver;
 
 public class AppHelpImpl implements AppHelp {
 
-    private enum HelpBundle implements BundleEnum {
+    private enum HelpBundle {
 
         LOAD,
         SAVE,
         SHOW_PAGE_ERR,
         SHOW_PAGE_WARNING;
 
-        @Override
         public String value() {
-            return BundleResolver.resolve(AppHelpImpl.class.getCanonicalName(), name());
+            return ResourceBundle.getBundle(AppHelpImpl.class.getCanonicalName()).getString(name());
         }
 
-        @Override
         public String value(Object[] parameters) {
-            return BundleResolver.resolve(AppHelpImpl.class.getCanonicalName(), name(), parameters);
+            return MessageFormat.format(value(), parameters);
         }
-
     }
     private static final Logger LOGGER = Logger.getLogger(AppHelp.class.getCanonicalName());
 
@@ -109,5 +106,4 @@ public class AppHelpImpl implements AppHelp {
         }
         LOGGER.log(Level.WARNING, HelpBundle.SHOW_PAGE_WARNING.value(new Object[]{DIR, name}));
     }
-
 }

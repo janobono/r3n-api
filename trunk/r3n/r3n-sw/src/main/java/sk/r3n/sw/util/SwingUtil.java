@@ -15,6 +15,7 @@ import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
+import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -39,7 +40,6 @@ import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.R3NFileFilter;
 import sk.r3n.ui.UIActionExecutor;
 import sk.r3n.ui.UIActionKey;
-import sk.r3n.util.BundleResolver;
 import sk.r3n.util.ConfigUtil;
 
 public class SwingUtil {
@@ -270,7 +270,7 @@ public class SwingUtil {
         if (title != null) {
             fileChooser.setDialogTitle(title);
         } else {
-            fileChooser.setDialogTitle(BundleResolver.resolve(SwingUtil.class.getCanonicalName(), OPEN));
+            fileChooser.setDialogTitle(ResourceBundle.getBundle(SwingUtil.class.getCanonicalName()).getString(OPEN));
         }
         if (defaultDir != null && defaultDir.exists()) {
             fileChooser.setCurrentDirectory(defaultDir);
@@ -299,7 +299,7 @@ public class SwingUtil {
         if (title != null) {
             fileChooser.setDialogTitle(title);
         } else {
-            fileChooser.setDialogTitle(BundleResolver.resolve(SwingUtil.class.getCanonicalName(), SAVE));
+            fileChooser.setDialogTitle(ResourceBundle.getBundle(SwingUtil.class.getCanonicalName()).getString(SAVE));
         }
         if (defaultDir != null && defaultDir.exists()) {
             fileChooser.setCurrentDirectory(defaultDir);
@@ -335,7 +335,6 @@ public class SwingUtil {
             public boolean isInputValid() {
                 return true;
             }
-
         };
         dialog.setModal(true);
         JPanel form = new JPanel(new GridBagLayout());
@@ -365,7 +364,6 @@ public class SwingUtil {
             public boolean isInputValid() {
                 return true;
             }
-
         };
         dialog.setModal(true);
         JPanel form = new JPanel(new GridBagLayout());
@@ -408,7 +406,6 @@ public class SwingUtil {
             public boolean isInputValid() {
                 return true;
             }
-
         };
         dialog.setModal(true);
         JPanel form = new JPanel(new GridBagLayout());
@@ -450,5 +447,4 @@ public class SwingUtil {
         }
         return icon;
     }
-
 }
