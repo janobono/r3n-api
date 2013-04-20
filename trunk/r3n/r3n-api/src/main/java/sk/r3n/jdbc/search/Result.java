@@ -1,9 +1,9 @@
-package sk.r3n.search;
+package sk.r3n.jdbc.search;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class SearchResult<T> implements Serializable {
+public class Result<T> implements Serializable {
 
     private final List<T> results;
 
@@ -11,7 +11,7 @@ public class SearchResult<T> implements Serializable {
 
     private final int totalRowsCount;
 
-    private SearchResult(Builder builder) {
+    private Result(Builder builder) {
         if (builder.results == null) {
             throw new NullPointerException("Search result is null.");
         }
@@ -78,8 +78,8 @@ public class SearchResult<T> implements Serializable {
             return this;
         }
 
-        public SearchResult build() {
-            return new SearchResult(this);
+        public Result build() {
+            return new Result(this);
         }
     }
 }
