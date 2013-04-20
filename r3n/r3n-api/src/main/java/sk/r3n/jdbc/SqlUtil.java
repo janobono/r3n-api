@@ -121,7 +121,11 @@ public class SqlUtil {
         if (params != null) {
             int i = 1;
             for (Object o : params) {
-                statement.setObject(i, o);
+                if (o != null) {
+                    statement.setObject(i, o);
+                } else {
+                    statement.setNull(i, Types.NULL);
+                }
                 i++;
             }
         }
@@ -165,13 +169,16 @@ public class SqlUtil {
     }
 
     public static String arrayToString(Object[] array) {
-        if (array == null) {
-            return "NULL";
-        }
         StringBuilder sb = new StringBuilder();
         sb.append('(');
         for (int i = 0; i < array.length; i++) {
+            if (array[i] instanceof String) {
+                sb.append('\'');
+            }
             sb.append(array[i]);
+            if (array[i] instanceof String) {
+                sb.append('\'');
+            }
             if (i < array.length - 1) {
                 sb.append(',');
             }
