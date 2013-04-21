@@ -19,7 +19,7 @@ public class Result<T> implements Serializable {
         this.results = builder.results;
         this.totalRowsCount = builder.totalRowsCount;
 
-        int numOfAllPages = builder.totalPages;
+        Integer numOfAllPages = builder.totalPages;
 
         if (builder.pageSize != null) {
             if (builder.totalRowsCount <= builder.pageSize
