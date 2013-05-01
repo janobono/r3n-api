@@ -1,4 +1,4 @@
-package sk.r3n.jdbc.search;
+package sk.r3n.jdbc.query;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,11 +22,9 @@ public class Result<T> implements Serializable {
         Integer numOfAllPages = builder.totalPages;
 
         if (builder.pageSize != null) {
-            if (builder.totalRowsCount <= builder.pageSize
-                    && builder.totalRowsCount > 0) {
+            if (builder.totalRowsCount <= builder.pageSize && builder.totalRowsCount > 0) {
                 numOfAllPages = 1;
             }
-
             if (builder.totalRowsCount > builder.pageSize) {
                 int pageOfset = builder.totalRowsCount % builder.pageSize == 0 ? 0 : 1;
                 numOfAllPages = builder.totalRowsCount / builder.pageSize + pageOfset;

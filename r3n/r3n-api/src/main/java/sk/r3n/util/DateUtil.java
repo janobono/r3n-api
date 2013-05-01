@@ -28,4 +28,13 @@ public class DateUtil {
         calendar.set(Calendar.DAY_OF_YEAR, 1);
         return calendar.getTime();
     }
+
+    public static Date getDateOnlyFirstDayOfMonth(Date date) {
+        date = DateUtil.getDateOnly(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        date = calendar.getTime();
+        return date;
+    }
 }
