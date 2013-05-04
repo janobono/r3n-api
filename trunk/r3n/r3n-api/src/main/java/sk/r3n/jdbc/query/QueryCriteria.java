@@ -1,8 +1,10 @@
 package sk.r3n.jdbc.query;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class QueryCriteria implements Serializable {
@@ -11,27 +13,52 @@ public class QueryCriteria implements Serializable {
 
     private int lastRow;
 
-    private Map<QueryAttribute, Object[]> attributeMap;
+    private QueryCriteriaGroup criteriaGroup;
+
+    private List<QueryCriteriaGroup> criteriaGroups;
 
     private Map<QueryAttribute, QueryOrder> orderMap;
 
     public QueryCriteria() {
         super();
-        attributeMap = new HashMap<>();
+        criteriaGroups = new ArrayList<>();
         orderMap = new HashMap<>();
+        nextGroup();
+    }
+
+    public final void nextGroup() {
+        criteriaGroup = new QueryCriteriaGroup();
+        criteriaGroups.add(criteriaGroup);
+    }
+
+    public QueryCriteriaGroup getCriteriaGroup() {
+        return criteriaGroup;
     }
 
     public void addCriterium(QueryAttribute attribute, QueryCondition condition) {
-        addCriterium(attribute, condition, null);
+        criteriaGroup.addCriterium(attribute, condition, null, null, QueryOperator.AND);
+    }
+
+    public void addCriterium(QueryAttribute attribute, QueryCondition condition, QueryOperator operator) {
+        criteriaGroup.addCriterium(attribute, condition, null, null, operator);
     }
 
     public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value) {
-        attributeMap.put(attribute, new Object[]{condition, value, null});
+        criteriaGroup.addCriterium(attribute, condition, value, null, QueryOperator.AND);
+    }
+
+    public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value, QueryOperator operator) {
+        criteriaGroup.addCriterium(attribute, condition, value, null, operator);
     }
 
     public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value,
             QueryAttributeDateType dateType) {
-        attributeMap.put(attribute, new Object[]{condition, value, dateType});
+        criteriaGroup.addCriterium(attribute, condition, value, dateType, QueryOperator.AND);
+    }
+
+    public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value,
+            QueryAttributeDateType dateType, QueryOperator operator) {
+        criteriaGroup.addCriterium(attribute, condition, value, dateType, operator);
     }
 
     public void addOrder(QueryAttribute attribute, QueryOrder order) {
@@ -39,27 +66,22 @@ public class QueryCriteria implements Serializable {
     }
 
     public boolean isCriteria() {
-        return !attributeMap.isEmpty();
+        boolean criteria = false;
+        for (QueryCriteriaGroup queryCriteriaGroup : criteriaGroups) {
+            criteria = queryCriteriaGroup.isCriteria();
+            if (criteria) {
+                break;
+            }
+        }
+        return criteria;
     }
 
     public boolean isOrder() {
         return !orderMap.isEmpty();
     }
 
-    public Collection<QueryAttribute> getCriteriaAttributes() {
-        return attributeMap.keySet();
-    }
-
-    public QueryCondition getCondition(QueryAttribute attribute) {
-        return (QueryCondition) attributeMap.get(attribute)[0];
-    }
-
-    public Object getValue(QueryAttribute attribute) {
-        return attributeMap.get(attribute)[1];
-    }
-
-    public QueryAttributeDateType getDateType(QueryAttribute attribute) {
-        return (QueryAttributeDateType) attributeMap.get(attribute)[2];
+    public Collection<QueryCriteriaGroup> getQueryCriteriaGroups() {
+        return criteriaGroups;
     }
 
     public Collection<QueryAttribute> getOrderAttributes() {
@@ -112,17 +134,13 @@ public class QueryCriteria implements Serializable {
         return getLastRow() - getFirstRow();
     }
 
-    public Map<QueryAttribute, Object[]> getAttributeMap() {
-        return attributeMap;
-    }
-
     public Map<QueryAttribute, QueryOrder> getOrderMap() {
         return orderMap;
     }
 
     @Override
     public String toString() {
-        return "QueryCriteria{" + "firstRow=" + firstRow + ", lastRow=" + lastRow + ", attributeMap=" + attributeMap
-                + ", orderMap=" + orderMap + '}';
+        return "QueryCriteria{" + "firstRow=" + firstRow + ", lastRow=" + lastRow + ", criteriaGroup=" + criteriaGroup
+                + ", criteriaGroups=" + criteriaGroups + ", orderMap=" + orderMap + '}';
     }
 }

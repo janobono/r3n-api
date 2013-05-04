@@ -13,7 +13,8 @@ public enum QueryCondition {
     IS_NULL(" IS NULL "),
     IS_NOT_NULL(" IS NOT NULL "),
     IN(" IN "),
-    NOT_IN(" NOT IN ");
+    NOT_IN(" NOT IN "),
+    DIRECT("");
 
     private final String condition;
 
