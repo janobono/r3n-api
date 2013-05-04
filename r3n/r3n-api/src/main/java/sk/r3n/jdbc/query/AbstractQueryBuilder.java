@@ -26,10 +26,6 @@ import static sk.r3n.jdbc.query.QueryCondition.NOT_IN;
 import sk.r3n.util.DateUtil;
 import sk.r3n.util.ScDf;
 
-/**
- *
- * @author jan
- */
 public abstract class AbstractQueryBuilder {
 
     public static String criteriaToWhere(QueryCriteria criteria, List<Object> params) {
