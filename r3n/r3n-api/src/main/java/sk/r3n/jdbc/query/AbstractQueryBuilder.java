@@ -31,47 +31,20 @@ public abstract class AbstractQueryBuilder {
     public static String criteriaToWhere(QueryCriteria criteria, List<Object> params) {
         StringBuilder where = new StringBuilder();
         where.append(" WHERE ");
-        QueryAttribute[] attribs =
-                criteria.getCriteriaAttributes().toArray(new QueryAttribute[criteria.getCriteriaAttributes().size()]);
-        for (int i = 0; i < attribs.length; i++) {
-            QueryAttribute attribute = attribs[i];
-            QueryCondition condition = criteria.getCondition(attribute);
-            Object value = criteria.getValue(attribute);
-            switch (condition) {
-                case EQUALS:
-                case EQUALS_MORE:
-                case EQUALS_LESS:
-                case EQUALS_NOT:
-                case MORE:
-                case LESS:
-                    appendStandardValue(criteria, where, params, attribute, condition, value);
-                    break;
-                case LIKE:
-                    appendLikeValue(where, params, attribute, condition, value, false);
-                    break;
-                case LIKE_SCDF:
-                    appendLikeValue(where, params, attribute, condition, value, true);
-                    break;
-                case IS_NULL:
-                case IS_NOT_NULL:
-                    where.append(attribute.nameWithAlias());
-                    where.append(condition.condition());
-                    break;
-                case IN:
-                case NOT_IN:
-                    String arrayString;
-                    if (value instanceof List<?>) {
-                        arrayString = SqlUtil.arrayToString(((List<?>) value).toArray());
+        QueryCriteriaGroup[] groups = criteria.getQueryCriteriaGroups().toArray(
+                new QueryCriteriaGroup[criteria.getQueryCriteriaGroups().size()]);
+        for (int i = 0; i < groups.length; i++) {
+            QueryCriteriaGroup queryCriteriaGroup = groups[i];
+            QueryOperator operator = queryCriteriaGroup.getGroupOperator();
+            if (queryCriteriaGroup.isCriteria()) {
+                where.append(criteriaToWhere(queryCriteriaGroup, params));
+                if (i < groups.length - 1) {
+                    if (operator == QueryOperator.AND) {
+                        where.append(" AND ");
                     } else {
-                        arrayString = SqlUtil.arrayToString((Object[]) value);
+                        where.append(" OR ");
                     }
-                    where.append(attribute.nameWithAlias());
-                    where.append(condition.condition());
-                    where.append(arrayString);
-                    break;
-            }
-            if (i < attribs.length - 1) {
-                where.append(" AND ");
+                }
             }
         }
         return where.toString();
@@ -106,7 +79,66 @@ public abstract class AbstractQueryBuilder {
         return orderBy.toString();
     }
 
-    protected static void appendStandardValue(QueryCriteria criteria, StringBuilder sql, List<Object> params,
+    protected static String criteriaToWhere(QueryCriteriaGroup criteriaGroup, List<Object> params) {
+        StringBuilder where = new StringBuilder();
+        where.append("(");
+        QueryAttribute[] attribs =
+                criteriaGroup.getCriteriaAttributes().toArray(
+                new QueryAttribute[criteriaGroup.getCriteriaAttributes().size()]);
+        for (int i = 0; i < attribs.length; i++) {
+            QueryAttribute attribute = attribs[i];
+            QueryCondition condition = criteriaGroup.getCondition(attribute);
+            Object value = criteriaGroup.getValue(attribute);
+            QueryOperator operator = criteriaGroup.getOperator(attribute);
+            switch (condition) {
+                case EQUALS:
+                case EQUALS_MORE:
+                case EQUALS_LESS:
+                case EQUALS_NOT:
+                case MORE:
+                case LESS:
+                    appendStandardValue(criteriaGroup, where, params, attribute, condition, value);
+                    break;
+                case LIKE:
+                    appendLikeValue(where, params, attribute, condition, value, false);
+                    break;
+                case LIKE_SCDF:
+                    appendLikeValue(where, params, attribute, condition, value, true);
+                    break;
+                case IS_NULL:
+                case IS_NOT_NULL:
+                    where.append(attribute.nameWithAlias());
+                    where.append(condition.condition());
+                    break;
+                case IN:
+                case NOT_IN:
+                    String arrayString;
+                    if (value instanceof List<?>) {
+                        arrayString = SqlUtil.arrayToString(((List<?>) value).toArray());
+                    } else {
+                        arrayString = SqlUtil.arrayToString((Object[]) value);
+                    }
+                    where.append(attribute.nameWithAlias());
+                    where.append(condition.condition());
+                    where.append(arrayString);
+                    break;
+                case DIRECT:
+                    where.append(value);
+                    break;
+            }
+            if (i < attribs.length - 1) {
+                if (operator == QueryOperator.AND) {
+                    where.append(" AND ");
+                } else {
+                    where.append(" OR ");
+                }
+            }
+        }
+        where.append(")");
+        return where.toString();
+    }
+
+    protected static void appendStandardValue(QueryCriteriaGroup criteria, StringBuilder sql, List<Object> params,
             QueryAttribute attribute, QueryCondition condition, Object value) {
         if (value instanceof Calendar) {
             Calendar calendar = (Calendar) value;
