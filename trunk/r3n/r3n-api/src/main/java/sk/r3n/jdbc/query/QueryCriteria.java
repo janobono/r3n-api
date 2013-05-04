@@ -5,10 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- *
- * @author jan
- */
 public class QueryCriteria implements Serializable {
 
     private int firstRow;
@@ -21,8 +17,8 @@ public class QueryCriteria implements Serializable {
 
     public QueryCriteria() {
         super();
-        attributeMap = new HashMap<QueryAttribute, Object[]>();
-        orderMap = new HashMap<QueryAttribute, QueryOrder>();
+        attributeMap = new HashMap<>();
+        orderMap = new HashMap<>();
     }
 
     public void addCriterium(QueryAttribute attribute, QueryCondition condition) {

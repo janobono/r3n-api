@@ -1,6 +1,7 @@
 package sk.r3n.jdbc.query;
 
 import java.util.List;
+import static sk.r3n.jdbc.query.AbstractQueryBuilder.criteriaToWhere;
 import static sk.r3n.jdbc.query.OraQueryBuilder.criteriaToCountSQL;
 import static sk.r3n.jdbc.query.OraQueryBuilder.criteriaToSQL;
 
@@ -13,17 +14,18 @@ public class PosQueryBuilder extends AbstractQueryBuilder{
 
     public static void criteriaToCountSQL(QueryAttribute[] resultColumns, String fromSQL, boolean distinct,
             QueryCriteria criteria, StringBuilder countSQL, List<Object> countParams) {
-        countSQL.append("SELECT COUNT(*) FROM (SELECT ");
+        countSQL.append("select count(*) from (select ");
         if (distinct) {
-            countSQL.append("DISTINCT ");
+            countSQL.append("distinct ");
         }
         for (int i = 0; i < resultColumns.length; i++) {
-            countSQL.append(resultColumns[i]).append(" col").append(i);
+            QueryAttribute column = resultColumns[i];
+            countSQL.append(column.nameWithAlias()).append(" col").append(i);
             if (i < resultColumns.length - 1) {
                 countSQL.append(", ");
             }
         }
-        countSQL.append(" FROM ").append(fromSQL);
+        countSQL.append(" from ").append(fromSQL);
         if (criteria.isCriteria()) {
             countSQL.append(criteriaToWhere(criteria, countParams));
         }
@@ -46,24 +48,24 @@ public class PosQueryBuilder extends AbstractQueryBuilder{
             orderBy = criteriaToOrderBy(resultColumns, criteria);
         }
 
-        sql.append("SELECT ");
+        sql.append("select ");
         if (distinct) {
-            sql.append("DISTINCT ");
+            sql.append("distinct ");
         }
         for (int i = 0; i < resultColumns.length; i++) {
-            sql.append(resultColumns[i]);
+            sql.append(resultColumns[i].nameWithAlias());
             if (i < resultColumns.length - 1) {
                 sql.append(", ");
             }
         }
-        sql.append(" FROM ").append(fromSQL);
+        sql.append(" from ").append(fromSQL);
         if (where != null) {
             sql.append(where);
         }
         if (orderBy != null) {
             sql.append(orderBy);
         }
-        sql.append(" OFFSET ? LIMIT ?");
+        sql.append(" offset ? limit ?");
         params.add(criteria.getFirstRow());
         params.add(criteria.getPageSize());
     }
