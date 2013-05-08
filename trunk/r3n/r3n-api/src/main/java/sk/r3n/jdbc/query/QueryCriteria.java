@@ -109,23 +109,11 @@ public class QueryCriteria implements Serializable {
     }
 
     public void setInterval(int start, int count) {
-        if (start <= 0) {
-            start = 1;
-        }
-        if (count < 0) {
-            count = 0;
-        }
         this.firstRow = start;
         this.lastRow = firstRow + count;
     }
 
     public void setPage(int page, int size) {
-        if (page < 0) {
-            page = 0;
-        }
-        if (size < 0) {
-            size = 0;
-        }
         this.firstRow = page * size + 1;
         this.lastRow = firstRow + size;
     }
