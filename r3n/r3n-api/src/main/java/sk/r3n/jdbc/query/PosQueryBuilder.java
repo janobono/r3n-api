@@ -5,7 +5,7 @@ import static sk.r3n.jdbc.query.AbstractQueryBuilder.criteriaToWhere;
 import static sk.r3n.jdbc.query.OraQueryBuilder.criteriaToCountSQL;
 import static sk.r3n.jdbc.query.OraQueryBuilder.criteriaToSQL;
 
-public class PosQueryBuilder extends AbstractQueryBuilder{
+public class PosQueryBuilder extends AbstractQueryBuilder {
 
     public static void criteriaToCountSQL(QueryAttribute[] resultColumns, String fromSQL,
             QueryCriteria criteria, StringBuilder countSQL, List<Object> countParams) {
@@ -29,7 +29,7 @@ public class PosQueryBuilder extends AbstractQueryBuilder{
         if (criteria.isCriteria()) {
             countSQL.append(criteriaToWhere(criteria, countParams));
         }
-        countSQL.append(")");
+        countSQL.append(") res");
     }
 
     public static void criteriaToSQL(QueryAttribute[] resultColumns, String fromSQL,
