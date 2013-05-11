@@ -31,20 +31,24 @@ public abstract class AbstractQueryBuilder {
     public static String criteriaToWhere(QueryCriteria criteria, List<Object> params) {
         StringBuilder where = new StringBuilder();
         where.append(" WHERE ");
-        QueryCriteriaGroup[] groups = criteria.getQueryCriteriaGroups().toArray(
-                new QueryCriteriaGroup[criteria.getQueryCriteriaGroups().size()]);
-        for (int i = 0; i < groups.length; i++) {
-            QueryCriteriaGroup queryCriteriaGroup = groups[i];
-            QueryOperator operator = queryCriteriaGroup.getGroupOperator();
+        List<String[]> groups = new ArrayList<>();
+        for (QueryCriteriaGroup queryCriteriaGroup : criteria.getQueryCriteriaGroups()) {
             if (queryCriteriaGroup.isCriteria()) {
-                where.append(criteriaToWhere(queryCriteriaGroup, params));
-                if (i < groups.length - 1) {
-                    if (operator == QueryOperator.AND) {
-                        where.append(" AND ");
-                    } else {
-                        where.append(" OR ");
-                    }
+                String condition = criteriaToWhere(queryCriteriaGroup, params);
+                String operator;
+                if (queryCriteriaGroup.getGroupOperator() == QueryOperator.AND) {
+                    operator = " AND ";
+                } else {
+                    operator = " OR ";
                 }
+                groups.add(new String[]{condition, operator});
+            }
+        }
+        for (int i = 0; i < groups.size(); i++) {
+            String[] group = groups.get(i);
+            where.append(group[0]);
+            if (i < groups.size() - 1) {
+                where.append(group[1]);
             }
         }
         return where.toString();
