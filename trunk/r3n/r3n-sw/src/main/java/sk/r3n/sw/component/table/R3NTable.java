@@ -11,16 +11,12 @@ public abstract class R3NTable<T> extends JTable {
 
         @Override
         public int getColumnCount() {
-            return tableConfig.columnCount();
+            return columns.length;
         }
 
         @Override
         public String getColumnName(int column) {
-            try {
-                return tableConfig.columnName(column);
-            } catch (Exception e) {
-                return null;
-            }
+            return columns[column].columnName();
         }
 
         @Override
@@ -31,7 +27,7 @@ public abstract class R3NTable<T> extends JTable {
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             try {
-                return getValue(columnIndex, rows.get(rowIndex));
+                return getValue(columns[columnIndex], rows.get(rowIndex));
             } catch (Exception e) {
                 return e;
             }
@@ -41,9 +37,8 @@ public abstract class R3NTable<T> extends JTable {
         public boolean isCellEditable(int rowIndex, int columnIndex) {
             return false;
         }
-
     }
-    protected R3NTableConfig tableConfig;
+    protected R3NTableColumn[] columns;
 
     protected boolean focusable;
 
@@ -53,10 +48,9 @@ public abstract class R3NTable<T> extends JTable {
 
     protected int selectedColumn;
 
-    public R3NTable(R3NTableConfig tableConfig) {
+    public R3NTable(R3NTableColumn[] columns) {
         super();
-        this.tableConfig = tableConfig;
-        setAutoResizeMode(tableConfig.autoResizeMode());
+        this.columns = columns;
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         focusable = super.isFocusable();
         rows = new ArrayList<>();
@@ -120,7 +114,7 @@ public abstract class R3NTable<T> extends JTable {
         return list;
     }
 
-    protected abstract Object getValue(int index, T row);
+    protected abstract Object getValue(R3NTableColumn column, T row);
 
     public List<T> getValues() {
         return rows;
@@ -185,5 +179,4 @@ public abstract class R3NTable<T> extends JTable {
         setSelectedValue(selectedRow);
         addColumnSelectionInterval(selectedColumn, selectedColumn);
     }
-
 }
