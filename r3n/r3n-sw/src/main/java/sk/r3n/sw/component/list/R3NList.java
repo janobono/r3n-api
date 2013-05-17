@@ -26,9 +26,7 @@ public class R3NList<T> extends JList<T> {
         public int getSize() {
             return values.size();
         }
-
     }
-
     protected BaseListModel listModel;
 
     private List<T> values;
@@ -65,4 +63,61 @@ public class R3NList<T> extends JList<T> {
         setSelectedValue(selectedValue);
     }
 
+    public void addValue(T value) {
+        if (value == null) {
+            return;
+        }
+        this.values.add(value);
+        listModel.fireContentsChanged();
+        setSelectedValue(value);
+    }
+
+    public void removeValue(T value) {
+        if (value == null) {
+            return;
+        }
+        T selectedValue = getSelectedValue();
+        if (value.equals(selectedValue)) {
+            selectedValue = null;
+        }
+        this.values.remove(value);
+        listModel.fireContentsChanged();
+        if (selectedValue == null && values.size() > 0) {
+            selectedValue = values.get(0);
+        }
+        setSelectedValue(selectedValue);
+    }
+
+    public void up() {
+        if (values.size() > 0) {
+            int lUp = getSelectedIndex();
+            if (lUp == -1) {
+                lUp = 1;
+            }
+            if (lUp > 0) {
+                setSelectedIndex(lUp - 1);
+                getSelectedValue();
+                scrollRectToVisible();
+            }
+        }
+    }
+
+    public void down() {
+        if (values.size() > 0) {
+            int uDown = getSelectedIndex();
+            if (uDown < values.size() - 1) {
+                setSelectedIndex(uDown + 1);
+                getSelectedValue();
+                scrollRectToVisible();
+            }
+        }
+    }
+
+    public void scrollRectToVisible() {
+        int row = getSelectedIndex();
+        if (row == -1) {
+            row = 0;
+        }
+        scrollRectToVisible(getCellBounds(row, row));
+    }
 }

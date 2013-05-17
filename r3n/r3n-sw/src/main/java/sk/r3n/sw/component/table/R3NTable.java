@@ -66,6 +66,35 @@ public abstract class R3NTable<T> extends JTable {
         setSelectedValue(row);
     }
 
+    public void removeValue(T row) {
+        if (row == null) {
+            return;
+        }
+        if (row.equals(selectedRow)) {
+            selectedRow = null;
+        }
+        this.rows.remove(row);
+        getBaseTableModel().fireTableDataChanged();
+        if (selectedRow == null && rows.size() > 0) {
+            selectedRow = rows.get(0);
+        }
+        setSelectedValue(selectedRow);
+    }
+
+    public void up() {
+        if (getRowCount() > 0) {
+            int lUp = getSelectedRow();
+            if (lUp == -1) {
+                lUp = 1;
+            }
+            if (lUp > 0) {
+                setRowSelectionInterval(lUp - 1, lUp - 1);
+                getSelectedValue();
+                scrollRectToVisible();
+            }
+        }
+    }
+
     public void down() {
         if (getRowCount() > 0) {
             int uDown = getSelectedRow();
