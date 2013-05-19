@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
 public abstract class R3NTable<T> extends JTable {
 
@@ -55,6 +56,9 @@ public abstract class R3NTable<T> extends JTable {
         focusable = super.isFocusable();
         rows = new ArrayList<>();
         setModel(new BaseTableModel());
+        for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
+            getColumnModel().getColumn(i).setPreferredWidth(columns[i].width());
+        }
     }
 
     public void addValue(T row) {
