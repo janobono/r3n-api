@@ -71,7 +71,7 @@ public class OraQueryBuilder extends AbstractQueryBuilder {
             sql.append(orderBy);
         }
         sql.append(") WHERE ROWNUM < ? ) WHERE rnm >= ?");
-        params.add(criteria.getLastRow());
-        params.add(criteria.getFirstRow());
+        params.add(criteria.getLastRow() + 1);
+        params.add(criteria.getFirstRow() + 1);
     }
 }

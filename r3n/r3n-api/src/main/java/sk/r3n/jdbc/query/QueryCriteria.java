@@ -114,7 +114,7 @@ public class QueryCriteria implements Serializable {
     }
 
     public void setPage(int page, int size) {
-        this.firstRow = page * size + 1;
+        this.firstRow = page * size;
         this.lastRow = firstRow + size;
     }
 
