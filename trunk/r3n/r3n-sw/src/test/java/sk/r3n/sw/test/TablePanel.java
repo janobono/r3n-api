@@ -20,6 +20,11 @@ public class TablePanel extends JPanel {
         public String columnName() {
             return name();
         }
+
+        @Override
+        public int width() {
+            return 100;
+        }
     }
 
     public TablePanel() {
