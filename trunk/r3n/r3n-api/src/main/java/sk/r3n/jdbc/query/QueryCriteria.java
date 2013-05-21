@@ -122,6 +122,10 @@ public class QueryCriteria implements Serializable {
         return getLastRow() - getFirstRow();
     }
 
+    public int getCurrentPage() {
+        return getFirstRow() / getPageSize();
+    }
+
     public Map<QueryAttribute, QueryOrder> getOrderMap() {
         return orderMap;
     }
