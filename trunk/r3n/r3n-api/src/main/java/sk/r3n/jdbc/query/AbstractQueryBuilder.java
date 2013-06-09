@@ -31,26 +31,14 @@ public abstract class AbstractQueryBuilder {
     public static String criteriaToWhere(QueryCriteria criteria, List<Object> params) {
         StringBuilder where = new StringBuilder();
         where.append(" WHERE ");
-        List<String[]> groups = new ArrayList<>();
-        for (QueryCriteriaGroup queryCriteriaGroup : criteria.getQueryCriteriaGroups()) {
-            if (queryCriteriaGroup.isCriteria()) {
-                String condition = criteriaToWhere(queryCriteriaGroup, params);
-                String operator;
-                if (queryCriteriaGroup.getGroupOperator() == QueryOperator.AND) {
-                    operator = " AND ";
-                } else {
-                    operator = " OR ";
-                }
-                groups.add(new String[]{condition, operator});
+        for (int i = 0; i < criteria.getQueryCriteriaGroups().size(); i++) {
+            QueryCriteriaGroup criteriaGroup = criteria.getQueryCriteriaGroups().get(i);
+            if (criteriaGroup.isCriteria()) {
+                criteriaToWhere(where, criteriaGroup, params);
+                appendGroupOperator(where, criteriaGroup.getGroupOperator(), i, criteria.getQueryCriteriaGroups());
             }
         }
-        for (int i = 0; i < groups.size(); i++) {
-            String[] group = groups.get(i);
-            where.append(group[0]);
-            if (i < groups.size() - 1) {
-                where.append(group[1]);
-            }
-        }
+
         return where.toString();
     }
 
@@ -83,17 +71,25 @@ public abstract class AbstractQueryBuilder {
         return orderBy.toString();
     }
 
-    protected static String criteriaToWhere(QueryCriteriaGroup criteriaGroup, List<Object> params) {
-        StringBuilder where = new StringBuilder();
+    protected static void criteriaToWhere(StringBuilder where, QueryCriteriaGroup criteriaGroup, List<Object> params) {
         where.append("(");
-        QueryAttribute[] attribs =
-                criteriaGroup.getCriteriaAttributes().toArray(
-                new QueryAttribute[criteriaGroup.getCriteriaAttributes().size()]);
-        for (int i = 0; i < attribs.length; i++) {
-            QueryAttribute attribute = attribs[i];
+        attributesToWhere(where, criteriaGroup, params);
+        for (int i = 0; i < criteriaGroup.getChildren().size(); i++) {
+            QueryCriteriaGroup child = criteriaGroup.getChildren().get(i);
+            if (child.isCriteria()) {
+                criteriaToWhere(where, child, params);
+                appendGroupOperator(where, criteriaGroup.getGroupOperator(), i, criteriaGroup.getChildren());
+            }
+        }
+        where.append(")");
+    }
+
+    private static void attributesToWhere(StringBuilder where, QueryCriteriaGroup criteriaGroup, List<Object> params) {
+        int size = criteriaGroup.getCriteriaAttributes().size();
+        int index = 0;
+        for (QueryAttribute attribute : criteriaGroup.getCriteriaAttributes()) {
             QueryCondition condition = criteriaGroup.getCondition(attribute);
             Object value = criteriaGroup.getValue(attribute);
-            QueryOperator operator = criteriaGroup.getOperator(attribute);
             switch (condition) {
                 case EQUALS:
                 case EQUALS_MORE:
@@ -130,16 +126,38 @@ public abstract class AbstractQueryBuilder {
                     where.append(value);
                     break;
             }
-            if (i < attribs.length - 1) {
-                if (operator == QueryOperator.AND) {
-                    where.append(" AND ");
-                } else {
-                    where.append(" OR ");
+            if (index < size - 1) {
+                appendOperator(where, criteriaGroup.getOperator(attribute));
+            } else {
+                for (QueryCriteriaGroup child : criteriaGroup.getChildren()) {
+                    if (child.isCriteria()) {
+                        appendOperator(where, criteriaGroup.getOperator(attribute));
+                        break;
+                    }
+                }
+            }
+            index++;
+        }
+    }
+
+    private static void appendOperator(StringBuilder sb, QueryOperator operator) {
+        if (operator == QueryOperator.AND) {
+            sb.append(" AND ");
+        } else {
+            sb.append(" OR ");
+        }
+    }
+
+    private static void appendGroupOperator(StringBuilder sb, QueryOperator operator, int index,
+            List<QueryCriteriaGroup> list) {
+        if (index < list.size() - 1) {
+            for (int i = index + 1; i < list.size(); i++) {
+                if (list.get(i).isCriteria()) {
+                    appendOperator(sb, operator);
+                    break;
                 }
             }
         }
-        where.append(")");
-        return where.toString();
     }
 
     protected static void appendStandardValue(QueryCriteriaGroup criteria, StringBuilder sql, List<Object> params,
