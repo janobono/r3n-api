@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class QueryCriteria implements Serializable {
 
-    private int firstRow;
+     private int firstRow;
 
     private int lastRow;
 
@@ -76,11 +76,41 @@ public class QueryCriteria implements Serializable {
         return criteria;
     }
 
+    public boolean contains(QueryAttribute attribute) {
+        boolean contains = false;
+        for (QueryCriteriaGroup queryCriteriaGroup : criteriaGroups) {
+            contains = queryCriteriaGroup.contains(attribute);
+            if (contains) {
+                break;
+            }
+        }
+        return contains;
+    }
+
+    public boolean contains(QueryTable queryTable) {
+        boolean contains = false;
+        for (QueryCriteriaGroup queryCriteriaGroup : criteriaGroups) {
+            contains = queryCriteriaGroup.contains(queryTable);
+            if (contains) {
+                break;
+            }
+        }
+        return contains;
+    }
+
+    public List<String> aliasList(String tableName) {
+        List<String> tableList = new ArrayList<>();
+        for (QueryCriteriaGroup queryCriteriaGroup : criteriaGroups) {
+            queryCriteriaGroup.aliasList(tableName, tableList);
+        }
+        return tableList;
+    }
+
     public boolean isOrder() {
         return !orderMap.isEmpty();
     }
 
-    public Collection<QueryCriteriaGroup> getQueryCriteriaGroups() {
+    public List<QueryCriteriaGroup> getQueryCriteriaGroups() {
         return criteriaGroups;
     }
 
@@ -109,21 +139,29 @@ public class QueryCriteria implements Serializable {
     }
 
     public void setInterval(int start, int count) {
+        if (start <= 0) {
+            start = 1;
+        }
+        if (count < 0) {
+            count = 0;
+        }
         this.firstRow = start;
         this.lastRow = firstRow + count;
     }
 
     public void setPage(int page, int size) {
-        this.firstRow = page * size;
+        if (page < 0) {
+            page = 0;
+        }
+        if (size < 0) {
+            size = 0;
+        }
+        this.firstRow = page * size + 1;
         this.lastRow = firstRow + size;
     }
 
     public int getPageSize() {
         return getLastRow() - getFirstRow();
-    }
-
-    public int getCurrentPage() {
-        return getFirstRow() / getPageSize();
     }
 
     public Map<QueryAttribute, QueryOrder> getOrderMap() {
