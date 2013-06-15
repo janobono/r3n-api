@@ -90,8 +90,10 @@ public class QueryCriteriaGroup implements Serializable {
         }
     }
 
-    public Collection<QueryAttribute> getCriteriaAttributes() {
-        return attributeMap.keySet();
+    public List<QueryAttribute> getCriteriaAttributes() {
+        List<QueryAttribute> result = new ArrayList<>();
+        result.addAll(attributeMap.keySet());
+        return result;
     }
 
     public QueryCondition getCondition(QueryAttribute attribute) {

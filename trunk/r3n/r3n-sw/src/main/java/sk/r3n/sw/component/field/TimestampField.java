@@ -43,7 +43,6 @@ public class TimestampField extends MaskField<Date> {
                     + "00" + SEPARATOR3 + "00" + SEPARATOR3 + "00").toCharArray();
             pattern = "dd" + SEPARATOR1 + "MM" + SEPARATOR1 + "yyyy"
                     + SEPARATOR2 + "HH" + SEPARATOR3 + "mm" + SEPARATOR3 + "ss";
-            setColumns(11);
         } else {
             EMPTY = "  " + SEPARATOR1 + "  " + SEPARATOR1 + "    " + SEPARATOR2
                     + "  " + SEPARATOR3 + "  ";
@@ -51,8 +50,8 @@ public class TimestampField extends MaskField<Date> {
                     + "00" + SEPARATOR3 + "00").toCharArray();
             pattern = "dd" + SEPARATOR1 + "MM" + SEPARATOR1 + "yyyy"
                     + SEPARATOR2 + "HH" + SEPARATOR3 + "mm";
-            setColumns(9);
         }
+        setColumns(pattern.length());
         timestampFormat = new SimpleDateFormat(pattern);
         timestampFormat.setLenient(false);
         setToolTipText(pattern);
@@ -233,5 +232,4 @@ public class TimestampField extends MaskField<Date> {
             setText(timestampFormat.format(value));
         }
     }
-
 }
