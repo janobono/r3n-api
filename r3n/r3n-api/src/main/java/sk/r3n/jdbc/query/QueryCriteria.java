@@ -114,8 +114,10 @@ public class QueryCriteria implements Serializable {
         return criteriaGroups;
     }
 
-    public Collection<QueryAttribute> getOrderAttributes() {
-        return orderMap.keySet();
+    public List<QueryAttribute> getOrderAttributes() {
+        List<QueryAttribute> result = new ArrayList<>();
+        result.addAll(orderMap.keySet());
+        return result;
     }
 
     public QueryOrder getOrder(QueryAttribute attribute) {

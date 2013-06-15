@@ -34,13 +34,12 @@ public class TimeField extends MaskField<Date> {
             EMPTY = "  " + SEPARATOR + "  " + SEPARATOR + "  ";
             MASK = ("00" + SEPARATOR + "00" + SEPARATOR + "00").toCharArray();
             pattern = "HH" + SEPARATOR + "mm" + SEPARATOR + "ss";
-            setColumns(5);
         } else {
             EMPTY = "  " + SEPARATOR + "  ";
             MASK = ("00" + SEPARATOR + "00").toCharArray();
             pattern = "HH" + SEPARATOR + "mm";
-            setColumns(3);
         }
+        setColumns(pattern.length());
         timeFormat = new SimpleDateFormat(pattern);
         timeFormat.setLenient(false);
         setToolTipText(pattern);

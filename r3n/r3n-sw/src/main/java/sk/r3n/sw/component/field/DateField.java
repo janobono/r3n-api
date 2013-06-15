@@ -29,7 +29,7 @@ public class DateField extends MaskField<Date> {
         dateFormat = new SimpleDateFormat(pattern);
         dateFormat.setLenient(false);
         setToolTipText(pattern);
-        setColumns(6);
+        setColumns(pattern.length());
         setValue(null);
     }
 
