@@ -9,10 +9,28 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import sk.r3n.ui.LongTermJobListener;
 import sk.r3n.ui.UIActionKey;
 
 public abstract class StatusDialog extends R3NDialog implements LongTermJobListener {
+
+    protected class JobWorker extends SwingWorker<Void, Void> {
+
+        public JobWorker() {
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            jobStarted();
+            try {
+                executeLongTermJob();
+            } finally {
+                jobFinished();
+            }
+            return Void.TYPE.newInstance();
+        }
+    }
 
     private JProgressBar progressBar;
 
@@ -109,10 +127,11 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
     }
 
     public void init() {
-        executeLongTermJob();
+        JobWorker jobWorker = new JobWorker();
+        jobWorker.execute();
+        pack();
         setVisible(true);
     }
 
     protected abstract void executeLongTermJob();
-
 }
