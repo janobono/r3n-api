@@ -30,6 +30,9 @@ public class DateUtil {
     }
 
     public static Date getDateOnlyFirstDayOfMonth(Date date) {
+        if (date == null) {
+            return null;
+        }
         date = DateUtil.getDateOnly(date);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);

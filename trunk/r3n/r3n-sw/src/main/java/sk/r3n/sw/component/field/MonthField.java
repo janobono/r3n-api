@@ -3,9 +3,9 @@ package sk.r3n.sw.component.field;
 import java.awt.event.FocusEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import sk.r3n.ui.InputStatus;
+import sk.r3n.util.DateUtil;
 
 public class MonthField extends MaskField<Date> {
 
@@ -129,14 +129,7 @@ public class MonthField extends MaskField<Date> {
         if (date == null) {
             return null;
         }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        return calendar.getTime();
+        return DateUtil.getDateOnlyFirstDayOfMonth(date);
     }
 
     private void reFormatInput() {
@@ -194,5 +187,4 @@ public class MonthField extends MaskField<Date> {
     @Override
     public void focusGained(FocusEvent e) {
     }
-
 }
