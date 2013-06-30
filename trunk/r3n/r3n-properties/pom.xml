@@ -12,35 +12,6 @@
     <name>r3n properties</name>
     <description>R3N properties service.</description>
 
-    <build>
-        <defaultGoal>package</defaultGoal>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>${maven-bundle-plugin-version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package></Export-Package>
-                        <Import-Package>*</Import-Package>
-                        <Private-Package>sk.r3n.properties.impl</Private-Package>
-                        <Service-Component>OSGI-INF/component.xml</Service-Component>
-                    </instructions>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>bundle-manifest</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>manifest</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>sk.r3n</groupId>

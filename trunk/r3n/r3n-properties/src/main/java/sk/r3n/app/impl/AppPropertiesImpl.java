@@ -7,35 +7,33 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-import org.osgi.service.component.ComponentContext;
+import sk.r3n.app.AppCore;
 import sk.r3n.app.AppProperties;
 import sk.r3n.app.AppProperty;
 import sk.r3n.util.Encrypter;
 
 public class AppPropertiesImpl implements AppProperties {
-    
+
     private enum PropertiesBundle {
-        
+
         LOAD,
         SAVE,
         SET;
-        
+
         public String value() {
             return ResourceBundle.getBundle(AppPropertiesImpl.class.getCanonicalName()).getString(name());
         }
-        
+
         public String value(Object[] parameters) {
             return MessageFormat.format(value(), parameters);
         }
     }
+
     private static final Logger LOGGER = Logger.getLogger(AppProperties.class.getCanonicalName());
-    
+
     private Properties properties;
-    
-    private ComponentContext context;
-    
-    protected void activate(ComponentContext context) {
-        this.context = context;
+
+    public void start() {
         properties = new Properties();
         InputStream in = null;
         try {
@@ -54,8 +52,8 @@ public class AppPropertiesImpl implements AppProperties {
             }
         }
     }
-    
-    protected void deactivate(ComponentContext context) {
+
+    public void stop() {
         OutputStream out = null;
         try {
             File file = new File(System.getProperty("user.home")
@@ -76,7 +74,7 @@ public class AppPropertiesImpl implements AppProperties {
             }
         }
     }
-    
+
     @Override
     public String decrypt(String string) {
         if (string.equals("")) {
@@ -89,7 +87,7 @@ public class AppPropertiesImpl implements AppProperties {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     public String encrypt(String string) {
         if (string.equals("")) {
@@ -97,17 +95,18 @@ public class AppPropertiesImpl implements AppProperties {
         }
         try {
             Encrypter encrypter = new Encrypter();
-            return new HexBinaryAdapter().marshal(encrypter.encrypt(string.getBytes()));
+            String result = new HexBinaryAdapter().marshal(encrypter.encrypt(string.getBytes()));
+            return result;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     public String get(AppProperty appProperty) {
-        return context.getBundleContext().getProperty(appProperty.code());
+        return AppCore.getProperty(appProperty.code());
     }
-    
+
     @Override
     public String get(String key, String defaultValue) {
         if (!properties.containsKey(key)) {
@@ -115,11 +114,11 @@ public class AppPropertiesImpl implements AppProperties {
         }
         return properties.getProperty(key);
     }
-    
+
     public void print() {
         System.out.println(properties);
     }
-    
+
     @Override
     public void set(String key, String value) {
         if (value != null) {
