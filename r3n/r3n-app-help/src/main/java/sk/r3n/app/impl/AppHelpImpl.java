@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.osgi.service.component.ComponentContext;
+import sk.r3n.app.AppCore;
 import sk.r3n.app.AppHelp;
 import sk.r3n.app.AppProperty;
 
@@ -36,12 +36,12 @@ public class AppHelpImpl implements AppHelp {
 
     private Properties properties;
 
-    protected void activate(ComponentContext context) {
+    public void start() {
         properties = new Properties();
-        DIR = context.getBundleContext().getProperty(AppProperty.HELP_DIR.code());
+        DIR = AppCore.getProperty(AppProperty.HELP_DIR.code());
         InputStream in = null;
         try {
-            in = new FileInputStream(DIR + context.getBundleContext().getProperty(AppProperty.HELP_MAP.code()));
+            in = new FileInputStream(DIR + AppCore.getProperty(AppProperty.HELP_MAP.code()));
             properties.load(in);
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, HelpBundle.LOAD.value(), e);
@@ -55,7 +55,7 @@ public class AppHelpImpl implements AppHelp {
         }
     }
 
-    protected void deactivate(ComponentContext context) {
+    public void stop() {
     }
 
     @Override
@@ -65,10 +65,7 @@ public class AppHelpImpl implements AppHelp {
 
     @Override
     public void showHelp(String key) {
-        if (!properties.containsKey(key)) {
-            properties.put(key, "");
-        }
-        if (properties.getProperty(key).equals("")) {
+        if (properties.getProperty(key, "").equals("")) {
             showHelp();
         } else {
             showPage(properties.getProperty(key));
