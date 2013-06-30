@@ -29,6 +29,7 @@ public class AppHelpImpl implements AppHelp {
             return MessageFormat.format(value(), parameters);
         }
     }
+
     private static final Logger LOGGER = Logger.getLogger(AppHelp.class.getCanonicalName());
 
     private String DIR;
@@ -55,23 +56,6 @@ public class AppHelpImpl implements AppHelp {
     }
 
     protected void deactivate(ComponentContext context) {
-        OutputStream out = null;
-        try {
-            File file = new File(DIR + context.getBundleContext().getProperty(AppProperty.HELP_MAP.code()));
-            if (file.canWrite()) {
-                out = new FileOutputStream(file);
-                properties.store(out, AppHelp.class.getCanonicalName());
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, HelpBundle.SAVE.value(), e);
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (Exception e) {
-            }
-        }
     }
 
     @Override
