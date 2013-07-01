@@ -2,7 +2,6 @@ package sk.r3n.jdbc.query;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,10 +151,6 @@ public class QueryCriteria implements Serializable {
 
     public int getPageSize() {
         return getLastRow() - getFirstRow();
-    }
-
-    public int getCurrentPage() {
-        return getFirstRow() / getPageSize();
     }
 
     public Map<QueryAttribute, QueryOrder> getOrderMap() {
