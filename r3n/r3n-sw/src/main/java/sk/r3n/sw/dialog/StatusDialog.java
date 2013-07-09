@@ -114,6 +114,7 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
     @Override
     public void jobInProgress(String message) {
         statusLabel.setText(message);
+        jobInProgress();
     }
 
     @Override
