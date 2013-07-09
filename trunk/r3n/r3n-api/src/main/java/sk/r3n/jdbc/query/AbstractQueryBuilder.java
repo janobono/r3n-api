@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import sk.r3n.jdbc.SqlUtil;
-import static sk.r3n.jdbc.query.QueryAttributeDateType.DATE;
-import static sk.r3n.jdbc.query.QueryAttributeDateType.TIME;
-import static sk.r3n.jdbc.query.QueryAttributeDateType.TIME_STAMP;
+import static sk.r3n.jdbc.query.DataType.DATE;
+import static sk.r3n.jdbc.query.DataType.TIME;
+import static sk.r3n.jdbc.query.DataType.TIME_STAMP;
 import static sk.r3n.jdbc.query.QueryCondition.EQUALS;
 import static sk.r3n.jdbc.query.QueryCondition.EQUALS_LESS;
 import static sk.r3n.jdbc.query.QueryCondition.EQUALS_MORE;
@@ -168,8 +168,7 @@ public abstract class AbstractQueryBuilder {
         }
         if (value instanceof java.util.Date) {
             java.util.Date date = (java.util.Date) value;
-            QueryAttributeDateType dateType = criteria.getDateType(attribute);
-            switch (dateType) {
+            switch (attribute.dataType()) {
                 case DATE:
                     date = DateUtil.getDateOnly(date);
                     value = new Date(date.getTime());

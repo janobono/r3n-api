@@ -8,4 +8,6 @@ public interface QueryAttribute {
     
     public String nameWithAlias();
     
+    public DataType dataType();
+    
 }
