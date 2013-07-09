@@ -3,7 +3,6 @@ package sk.r3n.jdbc.query;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +21,8 @@ public class QueryCriteriaGroup implements Serializable {
         groupOperator = QueryOperator.AND;
     }
 
-    public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value,
-            QueryAttributeDateType dateType, QueryOperator operator) {
-        attributeMap.put(attribute, new Object[]{condition, value, dateType, operator});
+    public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value, QueryOperator operator) {
+        attributeMap.put(attribute, new Object[]{condition, value, operator});
     }
 
     public boolean isCriteria() {
@@ -112,18 +110,10 @@ public class QueryCriteriaGroup implements Serializable {
         return result;
     }
 
-    public QueryAttributeDateType getDateType(QueryAttribute attribute) {
-        QueryAttributeDateType result = null;
-        if (attributeMap.containsKey(attribute)) {
-            result = (QueryAttributeDateType) attributeMap.get(attribute)[2];
-        }
-        return result;
-    }
-
     public QueryOperator getOperator(QueryAttribute attribute) {
         QueryOperator result = null;
         if (attributeMap.containsKey(attribute)) {
-            result = (QueryOperator) attributeMap.get(attribute)[3];
+            result = (QueryOperator) attributeMap.get(attribute)[2];
         }
         return result;
     }

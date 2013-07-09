@@ -35,29 +35,19 @@ public class QueryCriteria implements Serializable {
     }
 
     public void addCriterium(QueryAttribute attribute, QueryCondition condition) {
-        criteriaGroup.addCriterium(attribute, condition, null, null, QueryOperator.AND);
+        criteriaGroup.addCriterium(attribute, condition, null, QueryOperator.AND);
     }
 
     public void addCriterium(QueryAttribute attribute, QueryCondition condition, QueryOperator operator) {
-        criteriaGroup.addCriterium(attribute, condition, null, null, operator);
+        criteriaGroup.addCriterium(attribute, condition, null, operator);
     }
 
     public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value) {
-        criteriaGroup.addCriterium(attribute, condition, value, null, QueryOperator.AND);
+        criteriaGroup.addCriterium(attribute, condition, value, QueryOperator.AND);
     }
 
     public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value, QueryOperator operator) {
-        criteriaGroup.addCriterium(attribute, condition, value, null, operator);
-    }
-
-    public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value,
-            QueryAttributeDateType dateType) {
-        criteriaGroup.addCriterium(attribute, condition, value, dateType, QueryOperator.AND);
-    }
-
-    public void addCriterium(QueryAttribute attribute, QueryCondition condition, Object value,
-            QueryAttributeDateType dateType, QueryOperator operator) {
-        criteriaGroup.addCriterium(attribute, condition, value, dateType, operator);
+        criteriaGroup.addCriterium(attribute, condition, value, operator);
     }
 
     public void addOrder(QueryAttribute attribute, QueryOrder order) {
