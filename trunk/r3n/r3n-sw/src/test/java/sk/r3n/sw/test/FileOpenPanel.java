@@ -42,7 +42,6 @@ public class FileOpenPanel extends JPanel implements UIActionExecutor {
             public String getText(Filter value) {
                 return value.name();
             }
-
         });
         for (Filter filter : Filter.values()) {
             filterBox.addItem(filter);
@@ -51,26 +50,26 @@ public class FileOpenPanel extends JPanel implements UIActionExecutor {
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0));
         add(filterBox, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0));
-        
+
         dirField = new DirField();
         dirField.setValue(System.getProperty("user.home"));
         add(new JLabel(SWTestBundle.DEFAULT_DIRECTORY.value(), JLabel.RIGHT), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0));
         add(dirField, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0));
-        
+
         titleField = new VarcharField(true);
         add(new JLabel(SWTestBundle.TITLE.value(), JLabel.RIGHT), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0));
         add(titleField, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0));
-        
+
         fileNameField = new VarcharField(true);
         add(new JLabel(SWTestBundle.FILE_NAME.value(), JLabel.RIGHT), new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0));
         add(fileNameField, new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0));
-        
+
         resultField = new ValueField<>();
         add(new JLabel(SWTestBundle.RESULT.value(), JLabel.RIGHT), new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0));
@@ -90,12 +89,11 @@ public class FileOpenPanel extends JPanel implements UIActionExecutor {
                             titleField.getValue(),
                             new File(dirField.getValue()),
                             new R3NFileFilter[]{new AllFileFilter(),
-                                new ExtensionFileFilter(".txt", "Text files [*.txt]")},
+                        new ExtensionFileFilter(new String[]{".txt"}, "Text files [*.txt]")},
                             fileNameField.getValue());
                     resultField.setValue(file);
                     break;
             }
         }
     }
-
 }

@@ -42,7 +42,6 @@ public class FileSavePanel extends JPanel implements UIActionExecutor {
             public String getText(Filter value) {
                 return value.name();
             }
-
         });
         for (Filter filter : Filter.values()) {
             filterBox.addItem(filter);
@@ -90,12 +89,11 @@ public class FileSavePanel extends JPanel implements UIActionExecutor {
                             titleField.getValue(),
                             new File(dirField.getValue()),
                             new R3NFileFilter[]{new AllFileFilter(),
-                                new ExtensionFileFilter(".txt", "Text files [*.txt]")},
+                        new ExtensionFileFilter(new String[]{".txt"}, "Text files [*.txt]")},
                             fileNameField.getValue());
                     resultField.setValue(file);
                     break;
             }
         }
     }
-
 }

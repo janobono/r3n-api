@@ -22,7 +22,7 @@ public class AllFileFilter extends R3NFileFilter {
     }
 
     @Override
-    public String getExtension() {
-        return null;
+    public String[] getExtension() {
+        return new String[]{};
     }
 }
