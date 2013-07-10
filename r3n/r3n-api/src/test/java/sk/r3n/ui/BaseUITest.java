@@ -12,7 +12,6 @@ public class BaseUITest {
         assertEquals(
                 ResourceBundle.getBundle(AllFileFilter.class.getCanonicalName()).getString(AllFileFilter.DESCRIPTION),
                 fileFilter.getDescription());
-        assertNull(fileFilter.getExtension());
     }
 
     @Test

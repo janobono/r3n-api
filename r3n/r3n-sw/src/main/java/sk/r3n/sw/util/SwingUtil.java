@@ -319,7 +319,7 @@ public class SwingUtil {
             File file = fileChooser.getSelectedFile();
             FileFilter fileFilter = fileChooser.getFileFilter();
             if (fileFilter instanceof SwingUtilFileFilter) {
-                String ext = ((SwingUtilFileFilter) fileFilter).getFileFilter().getExtension();
+                String ext = ((SwingUtilFileFilter) fileFilter).getFileFilter().getExtension()[0];
                 if (ext != null && !file.getName().toLowerCase().endsWith(ext.toLowerCase())) {
                     file = new File(file.getPath() + ext);
                 }
