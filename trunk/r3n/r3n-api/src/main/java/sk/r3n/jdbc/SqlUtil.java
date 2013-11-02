@@ -132,20 +132,11 @@ public class SqlUtil {
         return statement;
     }
 
-    public static void rollback(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.rollback();
-            } catch (Exception e) {
-            }
-        }
-    }
-
     public static void close(ResultSet resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();
-            } catch (Exception e) {
+            } catch (SQLException e) {
             }
         }
     }
@@ -154,7 +145,7 @@ public class SqlUtil {
         if (statement != null) {
             try {
                 statement.close();
-            } catch (Exception e) {
+            } catch (SQLException e) {
             }
         }
     }
@@ -163,7 +154,7 @@ public class SqlUtil {
         if (connection != null) {
             try {
                 connection.close();
-            } catch (Exception e) {
+            } catch (SQLException e) {
             }
         }
     }

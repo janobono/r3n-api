@@ -32,9 +32,9 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
         }
     }
 
-    private JProgressBar progressBar;
+    private final JProgressBar progressBar;
 
-    private JLabel statusLabel;
+    private final JLabel statusLabel;
 
     private boolean asc;
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumnModel;
 
 public abstract class R3NTable<T> extends JTable {
 
@@ -141,7 +140,6 @@ public abstract class R3NTable<T> extends JTable {
                 index = convertRowIndexToModel(index);
                 list.add(rows.get(index));
             } catch (Exception e) {
-                continue;
             }
         }
         return list;

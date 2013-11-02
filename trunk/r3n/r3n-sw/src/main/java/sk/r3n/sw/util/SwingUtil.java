@@ -14,6 +14,8 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
@@ -27,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import sk.r3n.sw.component.MessagePanel;
 import sk.r3n.sw.dialog.OkDialog;
@@ -99,12 +102,12 @@ public class SwingUtil {
                     t.transcode(new TranscoderInput(url.toURI().toString()), 0,
                             0);
                     image = t.getBufferedImage();
-                } catch (Exception e) {
+                } catch (URISyntaxException | TranscoderException e) {
                 }
             } else {
                 try {
                     image = ImageIO.read(url);
-                } catch (Exception e) {
+                } catch (IOException e) {
                 }
             }
         }

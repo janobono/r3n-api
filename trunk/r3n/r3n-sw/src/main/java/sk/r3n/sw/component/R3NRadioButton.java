@@ -4,7 +4,7 @@ import javax.swing.JRadioButton;
 
 public abstract class R3NRadioButton<T> extends JRadioButton {
 
-    private T value;
+    private final T value;
 
     public R3NRadioButton(T value) {
         super();

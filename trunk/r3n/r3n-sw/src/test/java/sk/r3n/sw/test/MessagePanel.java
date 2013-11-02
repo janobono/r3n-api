@@ -19,9 +19,9 @@ public class MessagePanel extends JPanel implements UIActionExecutor {
 
     private JComboBox<MessageType> typeBox;
 
-    private VarcharField titleField;
+    private final VarcharField titleField;
 
-    private VarcharField messageField;
+    private final VarcharField messageField;
 
     public MessagePanel() {
         super(new GridBagLayout());

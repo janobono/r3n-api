@@ -46,8 +46,8 @@ public class MessagePanel extends JPanel {
 
     public void setMessage(Object message) {
         if (message instanceof Object[]) {
-            for (int i = 0; i < ((Object[]) message).length; i++) {
-                parseMessage(((Object[]) message)[i]);
+            for (Object item : ((Object[]) message)) {
+                parseMessage(item);
             }
         } else {
             parseMessage(message);

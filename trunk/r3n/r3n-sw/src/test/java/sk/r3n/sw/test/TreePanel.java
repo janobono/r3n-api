@@ -11,7 +11,7 @@ public class TreePanel extends JPanel {
     
     private class TestNode {
         
-        private String name;
+        private final String name;
         
         private TestNode parent;
         

@@ -2,8 +2,10 @@ package sk.r3n.sw.component.field;
 
 import java.awt.event.FocusEvent;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.text.BadLocationException;
 import sk.r3n.ui.InputStatus;
 import sk.r3n.util.DateUtil;
 
@@ -100,7 +102,7 @@ public class MonthField extends MaskField<Date> {
         try {
             reFormatInput();
             return modifyDate(dateFormat.parse(getText()));
-        } catch (Exception e) {
+        } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
@@ -177,7 +179,7 @@ public class MonthField extends MaskField<Date> {
             try {
                 document.remove(0, document.getLength());
                 document.insertString(0, EMPTY, null);
-            } catch (Exception e) {
+            } catch (BadLocationException e) {
             }
         } else {
             setText(dateFormat.format(value));

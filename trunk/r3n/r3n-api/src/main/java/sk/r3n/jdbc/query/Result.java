@@ -55,7 +55,6 @@ public class Result<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Result{" + "pageSize=" + pageSize + ", results=" + results
-                + ", totalRowsCount=" + totalRowsCount + '}';
+        return "Result{" + "pageSize=" + pageSize + ", results=" + results + ", totalRowsCount=" + totalRowsCount + '}';
     }
 }

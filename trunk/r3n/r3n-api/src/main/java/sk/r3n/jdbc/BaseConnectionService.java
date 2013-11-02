@@ -11,7 +11,7 @@ public abstract class BaseConnectionService implements ConnectionService {
 
     protected static final Logger LOGGER = Logger.getLogger(ConnectionService.class.getCanonicalName());
 
-    private Map<DbProperty, String> dbProperties;
+    private final Map<DbProperty, String> dbProperties;
 
     public BaseConnectionService() {
         super();

@@ -5,12 +5,15 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import sk.r3n.sw.util.BufferedImageTranscoder;
 
@@ -87,13 +90,13 @@ public class ImagePanel extends JPanel {
                 imageSize.setSize(bufferedImage.getWidth(),
                         bufferedImage.getHeight());
                 return bufferedImage;
-            } catch (Exception e) {
+            } catch (URISyntaxException | TranscoderException e) {
             }
         } else {
             try {
                 BufferedImage bufferedImage = ImageIO.read(url);
                 return bufferedImage;
-            } catch (Exception e) {
+            } catch (IOException e) {
             }
         }
         return null;

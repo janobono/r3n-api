@@ -1,5 +1,6 @@
 package sk.r3n.sw.component.field;
 
+import java.io.UnsupportedEncodingException;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import sk.r3n.ui.InputStatus;
@@ -28,7 +29,7 @@ public class R3NPasswordField extends R3NField<byte[]> {
         if (passwordChanged) {
             try {
                 return this.password.toString().getBytes("UTF-8");
-            } catch (Exception e) {
+            } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
         } else {
@@ -60,10 +61,7 @@ public class R3NPasswordField extends R3NField<byte[]> {
 
     @Override
     public boolean isContentNull() {
-        if (getPassword() == null) {
-            return true;
-        }
-        return false;
+        return getPassword() == null;
     }
 
     @Override

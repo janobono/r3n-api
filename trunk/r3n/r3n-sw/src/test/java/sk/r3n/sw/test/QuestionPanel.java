@@ -23,13 +23,13 @@ public class QuestionPanel extends JPanel implements UIActionExecutor {
 
     private JComboBox<MessageType> typeBox;
 
-    private VarcharField titleField;
+    private final VarcharField titleField;
 
-    private VarcharField questionField;
+    private final VarcharField questionField;
 
-    private JCheckBox yesNoCancelBox;
+    private final JCheckBox yesNoCancelBox;
 
-    private ValueField<File> resultField;
+    private final ValueField<File> resultField;
 
     public QuestionPanel() {
         super(new GridBagLayout());

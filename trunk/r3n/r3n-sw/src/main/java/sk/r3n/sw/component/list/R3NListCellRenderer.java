@@ -11,7 +11,7 @@ import javax.swing.border.Border;
 
 public abstract class R3NListCellRenderer<T> extends JLabel implements ListCellRenderer<T> {
 
-    private static Border NO_FOCUS_BORDER = BorderFactory.createEmptyBorder(1, 1, 1, 1);
+    private static final Border NO_FOCUS_BORDER = BorderFactory.createEmptyBorder(1, 1, 1, 1);
 
     public R3NListCellRenderer() {
         super();

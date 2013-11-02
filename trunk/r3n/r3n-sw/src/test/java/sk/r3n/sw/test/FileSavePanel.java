@@ -25,13 +25,13 @@ public class FileSavePanel extends JPanel implements UIActionExecutor {
 
     private JComboBox<Filter> filterBox;
 
-    private DirField dirField;
+    private final DirField dirField;
 
-    private VarcharField titleField;
+    private final VarcharField titleField;
 
-    private VarcharField fileNameField;
+    private final VarcharField fileNameField;
 
-    private ValueField<File> resultField;
+    private final ValueField<File> resultField;
 
     public FileSavePanel() {
         super(new GridBagLayout());

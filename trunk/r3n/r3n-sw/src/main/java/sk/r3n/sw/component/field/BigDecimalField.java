@@ -23,7 +23,7 @@ public final class BigDecimalField extends R3NField<BigDecimal> {
                 return new BigDecimal(numerics + '.' + decimals);
             }
             return new BigDecimal(numerics);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
     }
@@ -48,7 +48,7 @@ public final class BigDecimalField extends R3NField<BigDecimal> {
                     decimals = decimals.substring(0, decimals.length() - 1);
                 }
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
         if (decimals.length() > 0) {
@@ -65,7 +65,7 @@ public final class BigDecimalField extends R3NField<BigDecimal> {
 
     protected BigDecimal minValue;
 
-    private short scale;
+    private final short scale;
 
     public BigDecimalField(boolean canBeNull, short scale) {
         super(canBeNull);
@@ -153,7 +153,6 @@ public final class BigDecimalField extends R3NField<BigDecimal> {
                     document.insertString(offs, str, a);
                     setCaretPosition(offs + 1);
                 }
-                return;
             }
         } else {
             document.insertString(offs, str, a);

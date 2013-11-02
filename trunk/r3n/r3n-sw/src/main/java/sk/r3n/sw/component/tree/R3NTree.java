@@ -64,8 +64,7 @@ public abstract class R3NTree<T> extends JTree {
         List<T> list = new ArrayList<>();
         TreePath[] treePaths = getSelectionPaths();
         if (treePaths != null) {
-            for (int i = 0; i < treePaths.length; i++) {
-                TreePath treePath = treePaths[i];
+            for (TreePath treePath : treePaths) {
                 if (treePath != null) {
                     if (!treePath.getLastPathComponent().equals(getModel().getRoot())) {
                         list.add((T) treePath.getLastPathComponent());

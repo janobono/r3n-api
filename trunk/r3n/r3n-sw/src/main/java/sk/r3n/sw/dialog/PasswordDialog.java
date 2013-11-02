@@ -9,7 +9,7 @@ import sk.r3n.ui.R3NAction;
 
 public class PasswordDialog extends OkCancelDialog {
 
-    private R3NPasswordField passwordField;
+    private final R3NPasswordField passwordField;
 
     public PasswordDialog(Frame frame, String label) {
         super(frame);
