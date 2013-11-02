@@ -41,14 +41,14 @@ public class AppPropertiesImpl implements AppProperties {
                     + File.separatorChar + get(AppProperty.APP_DATA_DIR)
                     + File.separatorChar + get(AppProperty.PROPERTIES_FILE));
             properties.load(in);
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.log(Level.WARNING, PropertiesBundle.LOAD.value(), e);
         } finally {
             try {
                 if (in != null) {
                     in.close();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
             }
         }
     }
@@ -63,14 +63,14 @@ public class AppPropertiesImpl implements AppProperties {
                 out = new FileOutputStream(file);
                 properties.store(out, AppProperties.class.getCanonicalName());
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.log(Level.WARNING, PropertiesBundle.SAVE.value(), e);
         } finally {
             try {
                 if (out != null) {
                     out.close();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
             }
         }
     }

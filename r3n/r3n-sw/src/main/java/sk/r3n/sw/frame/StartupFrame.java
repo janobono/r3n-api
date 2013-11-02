@@ -7,6 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -53,7 +54,7 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
         if (url != null) {
             try {
                 image = ImageIO.read(url);
-            } catch (Exception e) {
+            } catch (IOException e) {
             }
         }
         setIconImage(image);

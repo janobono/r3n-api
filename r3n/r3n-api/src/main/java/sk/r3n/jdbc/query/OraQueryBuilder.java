@@ -1,17 +1,14 @@
 package sk.r3n.jdbc.query;
 
+import sk.r3n.jdbc.Sequence;
 import java.util.List;
 
 public class OraQueryBuilder extends AbstractQueryBuilder {
 
     public static final String ROWNUM = "ROWNUM rnm";
 
-    public static void criteriaToCountSQL(QueryAttribute[] resultColumns, String fromSQL,
-            QueryCriteria criteria, StringBuilder countSQL, List<Object> countParams) {
-        criteriaToCountSQL(resultColumns, fromSQL, false, criteria, countSQL, countParams);
-    }
-
-    public static void criteriaToCountSQL(QueryAttribute[] resultColumns, String fromSQL, boolean distinct,
+    @Override
+    public void criteriaToCountSQL(QueryAttribute[] resultColumns, String fromSQL, boolean distinct,
             QueryCriteria criteria, StringBuilder countSQL, List<Object> countParams) {
         countSQL.append("SELECT COUNT(*) FROM (SELECT ");
         if (distinct) {
@@ -31,22 +28,9 @@ public class OraQueryBuilder extends AbstractQueryBuilder {
         countSQL.append(")");
     }
 
-    public static void criteriaToSQL(QueryAttribute[] resultColumns, String fromSQL,
+    @Override
+    public void criteriaToSQL(QueryAttribute[] resultColumns, String fromSQL, boolean distinct,
             QueryCriteria criteria, StringBuilder sql, List<Object> params) {
-        criteriaToSQL(resultColumns, fromSQL, false, criteria, sql, params);
-    }
-
-    public static void criteriaToSQL(QueryAttribute[] resultColumns, String fromSQL, boolean distinct,
-            QueryCriteria criteria, StringBuilder sql, List<Object> params) {
-        String where = null;
-        String orderBy = null;
-        if (criteria.isCriteria()) {
-            where = criteriaToWhere(criteria, params);
-        }
-        if (criteria.isOrder()) {
-            orderBy = criteriaToOrderBy(resultColumns, criteria);
-        }
-
         sql.append("SELECT * FROM (SELECT ");
         for (int i = 0; i < resultColumns.length; i++) {
             sql.append("col").append(i).append(", ");
@@ -64,14 +48,32 @@ public class OraQueryBuilder extends AbstractQueryBuilder {
             }
         }
         sql.append(" FROM ").append(fromSQL);
-        if (where != null) {
-            sql.append(where);
+        if (criteria.isCriteria()) {
+            sql.append(criteriaToWhere(criteria, params));
         }
-        if (orderBy != null) {
-            sql.append(orderBy);
+        if (criteria.isOrder()) {
+            sql.append(criteriaToOrderBy(resultColumns, criteria));
         }
         sql.append(") WHERE ROWNUM <= ? ) WHERE rnm >= ?");
-        params.add(criteria.getLastRow() + 1);
-        params.add(criteria.getFirstRow() + 1);
+        params.add(criteria.getLastRow());
+        params.add(criteria.getFirstRow());
+    }
+
+    @Override
+    public String insert(QueryTable table, Sequence sequence, QueryAttribute[] attributes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("BEGIN INSERT INTO ");
+        sb.append(table.name());
+        sb.append("(").append(getColumns(attributes, false, ", "));
+        sb.append(") VALUES (");
+        sb.append(sequence.nextval()).append(", ");
+        for (int i = 1; i < attributes.length; i++) {
+            sb.append("?");
+            if (i < attributes.length - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append(") RETURNING ").append(attributes[0].name()).append(" INTO ?; END;");
+        return sb.toString();
     }
 }

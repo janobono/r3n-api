@@ -14,7 +14,7 @@ import sk.r3n.ui.UIActionKey;
 
 public class R3NActionPanel extends JPanel implements UIActionExecutor {
 
-    private ValueField<File> resultField;
+    private final ValueField<File> resultField;
 
     public R3NActionPanel() {
         super(new GridBagLayout());

@@ -15,7 +15,7 @@ public class ButtonPanel extends JPanel implements UIActionExecutor {
 
     private final boolean row;
 
-    private List<JButton> buttons;
+    private final List<JButton> buttons;
 
     public ButtonPanel(int size, boolean row) {
         super();

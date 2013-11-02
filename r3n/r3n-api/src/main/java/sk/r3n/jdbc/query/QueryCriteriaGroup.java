@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class QueryCriteriaGroup implements Serializable {
 
-    private Map<QueryAttribute, Object[]> attributeMap;
+    private final Map<QueryAttribute, Object[]> attributeMap;
 
     private QueryOperator groupOperator;
 

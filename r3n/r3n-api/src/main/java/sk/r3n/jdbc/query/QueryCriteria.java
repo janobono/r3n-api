@@ -8,15 +8,15 @@ import java.util.Map;
 
 public class QueryCriteria implements Serializable {
 
-    private int firstRow;
+    protected int firstRow;
 
-    private int lastRow;
+    protected int lastRow;
 
     private QueryCriteriaGroup criteriaGroup;
 
-    private List<QueryCriteriaGroup> criteriaGroups;
+    private final List<QueryCriteriaGroup> criteriaGroups;
 
-    private Map<QueryAttribute, QueryOrder> orderMap;
+    private final Map<QueryAttribute, QueryOrder> orderMap;
 
     public QueryCriteria() {
         super();
@@ -130,11 +130,27 @@ public class QueryCriteria implements Serializable {
     }
 
     public void setInterval(int start, int count) {
-        this.firstRow = start;
-        this.lastRow = firstRow + count;
+        this.firstRow = 0;
+        this.lastRow = 0;
+        if (start < 0) {
+            start = 0;
+        }
+        if (count < 0) {
+            count = 0;
+        }
+        if (count != 0) {
+            this.firstRow = start;
+            this.lastRow = start + count;
+        }
     }
 
     public void setPage(int page, int size) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size < 0) {
+            size = 0;
+        }
         this.firstRow = page * size;
         this.lastRow = firstRow + size;
     }

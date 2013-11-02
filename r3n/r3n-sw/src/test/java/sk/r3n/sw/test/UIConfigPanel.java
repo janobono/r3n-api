@@ -8,6 +8,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import sk.r3n.sw.component.R3NButton;
@@ -17,11 +18,11 @@ import sk.r3n.ui.UIActionKey;
 
 public class UIConfigPanel extends JPanel implements UIActionExecutor, ChangeListener {
     
-    private JComboBox<Locale> localeBox;
+    private final JComboBox<Locale> localeBox;
     
-    private JComboBox<String> lookAndFeelBox;
+    private final JComboBox<String> lookAndFeelBox;
     
-    private JLabel infoLabel;
+    private final JLabel infoLabel;
     
     public UIConfigPanel() {
         super(new GridBagLayout());
@@ -55,7 +56,7 @@ public class UIConfigPanel extends JPanel implements UIActionExecutor, ChangeLis
                     
                     try {
                         UIManager.setLookAndFeel((String) lookAndFeelBox.getSelectedItem());
-                    } catch (Exception e) {
+                    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
                     }
                     
                     infoLabel.setText(SWTestBundle.CONFIG_INFO.value());

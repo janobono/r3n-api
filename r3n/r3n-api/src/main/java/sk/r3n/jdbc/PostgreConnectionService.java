@@ -21,7 +21,7 @@ public class PostgreConnectionService extends BaseConnectionService {
                     getProperty(DbProperty.USER.name()), getProperty(DbProperty.PASSWORD.name()));
             connection.setAutoCommit(false);
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-        } catch (Exception exception) {
+        } catch (ClassNotFoundException | SQLException exception) {
             SqlUtil.close(connection);
             if (exception instanceof SQLException) {
                 SQLException sqlException = (SQLException) exception;

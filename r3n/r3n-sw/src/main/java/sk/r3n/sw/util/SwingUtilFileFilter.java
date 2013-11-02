@@ -6,7 +6,7 @@ import sk.r3n.ui.R3NFileFilter;
 
 public class SwingUtilFileFilter extends FileFilter {
 
-    private R3NFileFilter fileFilter;
+    private final R3NFileFilter fileFilter;
 
     public SwingUtilFileFilter(R3NFileFilter fileFilter) {
         this.fileFilter = fileFilter;

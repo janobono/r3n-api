@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.text.BadLocationException;
 import sk.r3n.ui.InputStatus;
 
 public class TimestampField extends MaskField<Date> {
@@ -226,7 +227,7 @@ public class TimestampField extends MaskField<Date> {
             try {
                 document.remove(0, document.getLength());
                 document.insertString(0, EMPTY, null);
-            } catch (Exception e) {
+            } catch (BadLocationException e) {
             }
         } else {
             setText(timestampFormat.format(value));

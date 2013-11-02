@@ -2,8 +2,6 @@ package sk.r3n.sw.test;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingWorker;
 import sk.r3n.sw.component.ButtonPanel;
@@ -19,7 +17,7 @@ public class SWTestApp {
 
     protected class TestWorker extends SwingWorker<Void, Void> {
 
-        private LongTermJobListener jobListener;
+        private final LongTermJobListener jobListener;
 
         public TestWorker(LongTermJobListener jobListener) {
             this.jobListener = jobListener;

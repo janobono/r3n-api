@@ -2,18 +2,25 @@ package sk.r3n.sw.component.field;
 
 import java.awt.event.FocusEvent;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.text.BadLocationException;
 import sk.r3n.ui.InputStatus;
 import sk.r3n.util.DateUtil;
 
 public class DateField extends MaskField<Date> {
 
     protected DateFormat dateFormat;
+
     protected final String EMPTY;
+
     protected final char[] MASK;
+
     protected final char SEPARATOR;
+
     protected Date maxValue;
+
     protected Date minValue;
 
     public DateField(boolean canBeNull) {
@@ -95,7 +102,7 @@ public class DateField extends MaskField<Date> {
         try {
             reFormatInput();
             return DateUtil.getDateOnly(dateFormat.parse(getText()));
-        } catch (Exception e) {
+        } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
@@ -171,7 +178,7 @@ public class DateField extends MaskField<Date> {
             try {
                 document.remove(0, document.getLength());
                 document.insertString(0, EMPTY, null);
-            } catch (Exception e) {
+            } catch (BadLocationException e) {
             }
         } else {
             setText(dateFormat.format(value));

@@ -26,31 +26,31 @@ import sk.r3n.ui.UIActionKey;
 
 public class ComponentPanel extends JPanel implements UIActionExecutor {
 
-    private DatePanel datePanel;
+    private final DatePanel datePanel;
 
-    private MonthPanel monthPanel;
+    private final MonthPanel monthPanel;
 
-    private DateField dateField;
+    private final DateField dateField;
 
-    private MonthField monthField;
+    private final MonthField monthField;
 
-    private TimeField timeField;
+    private final TimeField timeField;
 
-    private TimestampField timestampField;
+    private final TimestampField timestampField;
 
-    private BigDecimalField bigDecimalField;
+    private final BigDecimalField bigDecimalField;
 
-    private LongField longField;
+    private final LongField longField;
 
-    private IntegerField integerField;
+    private final IntegerField integerField;
 
-    private ShortField shortField;
+    private final ShortField shortField;
 
-    private VarcharField varcharField;
+    private final VarcharField varcharField;
 
-    private DirField dirField;
+    private final DirField dirField;
 
-    private FileField fileField;
+    private final FileField fileField;
 
     public ComponentPanel() {
         super(new GridBagLayout());

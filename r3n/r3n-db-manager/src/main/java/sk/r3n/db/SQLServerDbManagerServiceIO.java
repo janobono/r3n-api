@@ -20,7 +20,7 @@ public class SQLServerDbManagerServiceIO implements DbManagerServiceIO {
             connectionService.setProperty(DbManagerProperties.PASSWORD.connCode(),
                     properties.getProperty(DbManagerProperties.ADMIN_PASSWORD.connCode()));
             connection = connectionService.getConnection();
-        } catch (Exception e) {
+        } catch (R3NException e) {
         }
         if (connection != null) {
             SqlUtil.close(connection);

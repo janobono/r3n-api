@@ -43,14 +43,14 @@ public class AppHelpImpl implements AppHelp {
         try {
             in = new FileInputStream(DIR + AppCore.getProperty(AppProperty.HELP_MAP.code()));
             properties.load(in);
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.log(Level.WARNING, HelpBundle.LOAD.value(), e);
         } finally {
             try {
                 if (in != null) {
                     in.close();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
             }
         }
     }
@@ -80,7 +80,7 @@ public class AppHelpImpl implements AppHelp {
                     URI uri = new File(DIR + name).toURI();
                     desktop.browse(uri);
                     return;
-                } catch (Exception e) {
+                } catch (IOException e) {
                     LOGGER.log(Level.WARNING, HelpBundle.SHOW_PAGE_ERR.value(), e);
                 }
             }

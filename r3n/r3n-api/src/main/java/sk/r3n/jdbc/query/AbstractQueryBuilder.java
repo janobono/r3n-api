@@ -1,12 +1,12 @@
 package sk.r3n.jdbc.query;
 
-import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import sk.r3n.jdbc.Sequence;
 import sk.r3n.jdbc.SqlUtil;
 import static sk.r3n.jdbc.query.DataType.DATE;
 import static sk.r3n.jdbc.query.DataType.TIME;
@@ -28,7 +28,23 @@ import sk.r3n.util.ScDf;
 
 public abstract class AbstractQueryBuilder {
 
-    public static String criteriaToWhere(QueryCriteria criteria, List<Object> params) {
+    public void criteriaToCountSQL(QueryAttribute[] resultColumns, String fromSQL,
+            QueryCriteria criteria, StringBuilder countSQL, List<Object> countParams) {
+        criteriaToCountSQL(resultColumns, fromSQL, false, criteria, countSQL, countParams);
+    }
+
+    public abstract void criteriaToCountSQL(QueryAttribute[] resultColumns, String fromSQL, boolean distinct,
+            QueryCriteria criteria, StringBuilder countSQL, List<Object> countParams);
+
+    public void criteriaToSQL(QueryAttribute[] resultColumns, String fromSQL,
+            QueryCriteria criteria, StringBuilder sql, List<Object> params) {
+        criteriaToSQL(resultColumns, fromSQL, false, criteria, sql, params);
+    }
+
+    public abstract void criteriaToSQL(QueryAttribute[] resultColumns, String fromSQL, boolean distinct,
+            QueryCriteria criteria, StringBuilder sql, List<Object> params);
+
+    public String criteriaToWhere(QueryCriteria criteria, List<Object> params) {
         StringBuilder where = new StringBuilder();
         where.append(" WHERE ");
         for (int i = 0; i < criteria.getQueryCriteriaGroups().size(); i++) {
@@ -42,12 +58,12 @@ public abstract class AbstractQueryBuilder {
         return where.toString();
     }
 
-    public static String criteriaToOrderBy(QueryAttribute[] resultColumns, QueryCriteria criteria) {
+    public String criteriaToOrderBy(QueryAttribute[] resultColumns, QueryCriteria criteria) {
         List<QueryAttribute> cols = Arrays.asList(resultColumns);
         List<QueryAttribute> orders = new ArrayList<>();
 
-        QueryAttribute[] attribs =
-                criteria.getOrderAttributes().toArray(new QueryAttribute[criteria.getOrderAttributes().size()]);
+        QueryAttribute[] attribs
+                = criteria.getOrderAttributes().toArray(new QueryAttribute[criteria.getOrderAttributes().size()]);
         for (QueryAttribute attribute : attribs) {
             if (cols.contains(attribute)) {
                 orders.add(attribute);
@@ -71,7 +87,7 @@ public abstract class AbstractQueryBuilder {
         return orderBy.toString();
     }
 
-    protected static void criteriaToWhere(StringBuilder where, QueryCriteriaGroup criteriaGroup, List<Object> params) {
+    protected void criteriaToWhere(StringBuilder where, QueryCriteriaGroup criteriaGroup, List<Object> params) {
         where.append("(");
         attributesToWhere(where, criteriaGroup, params);
         for (int i = 0; i < criteriaGroup.getChildren().size(); i++) {
@@ -84,7 +100,7 @@ public abstract class AbstractQueryBuilder {
         where.append(")");
     }
 
-    private static void attributesToWhere(StringBuilder where, QueryCriteriaGroup criteriaGroup, List<Object> params) {
+    private void attributesToWhere(StringBuilder where, QueryCriteriaGroup criteriaGroup, List<Object> params) {
         int size = criteriaGroup.getCriteriaAttributes().size();
         int index = 0;
         for (QueryAttribute attribute : criteriaGroup.getCriteriaAttributes()) {
@@ -140,7 +156,7 @@ public abstract class AbstractQueryBuilder {
         }
     }
 
-    private static void appendOperator(StringBuilder sb, QueryOperator operator) {
+    private void appendOperator(StringBuilder sb, QueryOperator operator) {
         if (operator == QueryOperator.AND) {
             sb.append(" AND ");
         } else {
@@ -148,7 +164,7 @@ public abstract class AbstractQueryBuilder {
         }
     }
 
-    private static void appendGroupOperator(StringBuilder sb, QueryOperator operator, int index,
+    private void appendGroupOperator(StringBuilder sb, QueryOperator operator, int index,
             List<QueryCriteriaGroup> list) {
         if (index < list.size() - 1) {
             for (int i = index + 1; i < list.size(); i++) {
@@ -160,7 +176,7 @@ public abstract class AbstractQueryBuilder {
         }
     }
 
-    protected static void appendStandardValue(QueryCriteriaGroup criteria, StringBuilder sql, List<Object> params,
+    private void appendStandardValue(QueryCriteriaGroup criteria, StringBuilder sql, List<Object> params,
             QueryAttribute attribute, QueryCondition condition, Object value) {
         if (value instanceof Calendar) {
             Calendar calendar = (Calendar) value;
@@ -171,7 +187,7 @@ public abstract class AbstractQueryBuilder {
             switch (attribute.dataType()) {
                 case DATE:
                     date = DateUtil.getDateOnly(date);
-                    value = new Date(date.getTime());
+                    value = new java.sql.Date(date.getTime());
                     break;
                 case TIME:
                     date = DateUtil.getTimeOnly(date);
@@ -185,7 +201,7 @@ public abstract class AbstractQueryBuilder {
         appendAttribute(sql, params, attribute, condition, value);
     }
 
-    protected static void appendLikeValue(StringBuilder sql, List<Object> params, QueryAttribute attribute,
+    private void appendLikeValue(StringBuilder sql, List<Object> params, QueryAttribute attribute,
             QueryCondition condition, Object value, boolean scdf) {
         String likeValue = (String) value;
         if (scdf) {
@@ -195,7 +211,7 @@ public abstract class AbstractQueryBuilder {
         appendAttribute(sql, params, attribute, condition, likeValue);
     }
 
-    protected static void appendAttribute(StringBuilder sb, List<Object> list, QueryAttribute attribute,
+    private void appendAttribute(StringBuilder sb, List<Object> list, QueryAttribute attribute,
             QueryCondition condition, Object value) {
         sb.append(attribute.nameWithAlias());
         sb.append(condition.condition());
@@ -203,12 +219,92 @@ public abstract class AbstractQueryBuilder {
         list.add(value);
     }
 
-    protected static String toLike(String string) {
+    private String toLike(String string) {
         StringBuilder sb = new StringBuilder();
         sb.append('%');
         if (!string.equals("")) {
             sb.append(string);
             sb.append('%');
+        }
+        return sb.toString();
+    }
+
+    public Calendar dateToCalendar(java.util.Date date) {
+        Calendar result = null;
+        if (date != null) {
+            result = Calendar.getInstance();
+            result.setTime(date);
+        }
+        return result;
+    }
+
+    public Timestamp calendarToTimestamp(Calendar calendar) {
+        Timestamp result = null;
+        if (calendar != null) {
+            result = new Timestamp(calendar.getTimeInMillis());
+        }
+        return result;
+    }
+
+    public String select(boolean distinct, QueryTable table, QueryAttribute[] attributes, boolean nameWithAlias) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT ");
+        if (distinct) {
+            sb.append("DISTINCT ");
+        }
+        sb.append(getColumns(attributes, nameWithAlias, ", ")).append(" FROM ");
+        if (nameWithAlias) {
+            sb.append(table.nameWithAlias());
+        } else {
+            sb.append(table.name());
+        }
+        return sb.toString();
+    }
+
+    public String insert(QueryTable table, QueryAttribute[] attributes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO ");
+        sb.append(table.name());
+        sb.append("(").append(getColumns(attributes, false, ", "));
+        sb.append(") values (");
+        for (int i = 0; i < attributes.length; i++) {
+            sb.append("?");
+            if (i < attributes.length - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public abstract String insert(QueryTable table, Sequence sequence, QueryAttribute[] attributes);
+
+    public String update(QueryTable table, QueryAttribute[] attributes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("UPDATE ");
+        sb.append(table.name());
+        sb.append(" SET ");
+        for (int i = 1; i < attributes.length; i++) {
+            sb.append(attributes[i].name()).append(" = ?");
+            if (i < attributes.length - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append(" WHERE ").append(attributes[0].name()).append(" = ?");
+        return sb.toString();
+    }
+
+    protected String getColumns(QueryAttribute[] attributes, boolean nameWithAlias, String separator) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < attributes.length; i++) {
+            if (nameWithAlias) {
+                sb.append(attributes[i].nameWithAlias());
+            } else {
+                sb.append(attributes[i].name());
+            }
+            if (i < attributes.length - 1) {
+                sb.append(separator);
+            }
         }
         return sb.toString();
     }

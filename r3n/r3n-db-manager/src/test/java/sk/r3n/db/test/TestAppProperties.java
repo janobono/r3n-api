@@ -8,7 +8,7 @@ import sk.r3n.util.Encrypter;
 
 public class TestAppProperties implements AppProperties {
 
-    private Properties properties;
+    private final Properties properties;
 
     public TestAppProperties() {
         super();

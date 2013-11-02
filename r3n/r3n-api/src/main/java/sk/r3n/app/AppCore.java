@@ -2,6 +2,8 @@ package sk.r3n.app;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
@@ -16,9 +18,9 @@ public class AppCore {
 
     public static final String MODULE = "R3N_M_";
 
-    private static Map<String, String> appProperties = new HashMap<>();
+    private static final Map<String, String> appProperties = new HashMap<>();
 
-    private static Map<String, Object> moduleMap = new HashMap<>();
+    private static final Map<String, Object> moduleMap = new HashMap<>();
 
     public static void main(String[] args) {
         String propertyFile = System.getProperty(APP_CORE_PROPS, "");
@@ -45,7 +47,7 @@ public class AppCore {
                     key = key.substring(6);
                     register(key, Class.forName(data[1]).newInstance());
                 }
-            } catch (Exception ex) {
+            } catch (IOException | ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
                 throw new RuntimeException(ex);
             } finally {
                 FileUtil.close(br);
@@ -66,7 +68,7 @@ public class AppCore {
         try {
             Class[] noparams = {};
             method = object.getClass().getDeclaredMethod(name, noparams);
-        } catch (Exception ex) {
+        } catch (NoSuchMethodException | SecurityException ex) {
         }
         return method;
     }
@@ -78,7 +80,7 @@ public class AppCore {
             if (method != null) {
                 method.invoke(object, new Object[]{});
             }
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -90,7 +92,7 @@ public class AppCore {
             if (method != null) {
                 method.invoke(object, new Object[]{});
             }
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -110,7 +112,6 @@ public class AppCore {
             start(key);
         } catch (Exception e) {
             moduleMap.remove(key);
-            e.printStackTrace();
         }
     }
 

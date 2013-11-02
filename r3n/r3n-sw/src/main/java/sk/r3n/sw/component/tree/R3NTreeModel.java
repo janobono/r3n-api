@@ -10,7 +10,7 @@ public class R3NTreeModel<T> implements TreeModel {
 
     protected R3NTree<T> baseTree;
 
-    private EventListenerList eventListenerList;
+    private final EventListenerList eventListenerList;
 
     public R3NTreeModel(R3NTree<T> baseTree) {
         super();

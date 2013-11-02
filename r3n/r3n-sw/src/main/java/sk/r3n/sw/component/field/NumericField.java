@@ -57,7 +57,6 @@ public abstract class NumericField<T> extends R3NField<T> {
                 if (actual.indexOf(str.charAt(0)) == -1 && offs == 0) {
                     document.insertString(offs, str, a);
                 }
-                return;
             }
         } else {
             document.insertString(offs, str, a);
