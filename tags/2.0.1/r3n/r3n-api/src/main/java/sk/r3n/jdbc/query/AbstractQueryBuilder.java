@@ -47,14 +47,7 @@ public abstract class AbstractQueryBuilder {
     public String criteriaToWhere(QueryCriteria criteria, List<Object> params) {
         StringBuilder where = new StringBuilder();
         where.append(" WHERE ");
-        for (int i = 0; i < criteria.getQueryCriteriaGroups().size(); i++) {
-            QueryCriteriaGroup criteriaGroup = criteria.getQueryCriteriaGroups().get(i);
-            if (criteriaGroup.isCriteria()) {
-                criteriaToWhere(where, criteriaGroup, params);
-                appendGroupOperator(where, criteriaGroup.getGroupOperator(), i, criteria.getQueryCriteriaGroups());
-            }
-        }
-
+        criteriaToWhere(where, criteria.getQueryCriteriaGroups(), params);
         return where.toString();
     }
 
@@ -87,20 +80,39 @@ public abstract class AbstractQueryBuilder {
         return orderBy.toString();
     }
 
-    protected void criteriaToWhere(StringBuilder where, QueryCriteriaGroup criteriaGroup, List<Object> params) {
-        where.append("(");
-        attributesToWhere(where, criteriaGroup, params);
-        for (int i = 0; i < criteriaGroup.getChildren().size(); i++) {
-            QueryCriteriaGroup child = criteriaGroup.getChildren().get(i);
-            if (child.isCriteria()) {
-                criteriaToWhere(where, child, params);
-                appendGroupOperator(where, criteriaGroup.getGroupOperator(), i, criteriaGroup.getChildren());
+    protected void criteriaToWhere(StringBuilder where, List<QueryCriteriaGroup> criteriaGroups, List<Object> params) {
+        int index = 0;
+        for (QueryCriteriaGroup criteriaGroup : criteriaGroups) {
+            if (criteriaGroup.isCriteria()) {
+                if (!criteriaGroup.getAttributeMap().isEmpty()) {
+                    where.append("(");
+                    if (isCriteria(criteriaGroup.getChildren())) {
+                        where.append("(");
+                    }
+                    where.append(attributesToWhere(criteriaGroup, params));
+                    if (isCriteria(criteriaGroup.getChildren())) {
+                        where.append(")");
+                        appendOperator(where, criteriaGroup.getGroupOperator());
+                    }
+                }
+                if (isCriteria(criteriaGroup.getChildren())) {
+                    where.append("(");
+                    criteriaToWhere(where, criteriaGroup.getChildren(), params);
+                    where.append(")");
+                }
+                if (!criteriaGroup.getAttributeMap().isEmpty()) {
+                    where.append(")");
+                }
+                if (isCriteria(index, criteriaGroups)) {
+                    appendOperator(where, criteriaGroup.getGroupOperator());
+                }
             }
+            index++;
         }
-        where.append(")");
     }
 
-    private void attributesToWhere(StringBuilder where, QueryCriteriaGroup criteriaGroup, List<Object> params) {
+    private String attributesToWhere(QueryCriteriaGroup criteriaGroup, List<Object> params) {
+        StringBuilder sb = new StringBuilder();
         int size = criteriaGroup.getCriteriaAttributes().size();
         int index = 0;
         for (QueryAttribute attribute : criteriaGroup.getCriteriaAttributes()) {
@@ -113,18 +125,18 @@ public abstract class AbstractQueryBuilder {
                 case EQUALS_NOT:
                 case MORE:
                 case LESS:
-                    appendStandardValue(criteriaGroup, where, params, attribute, condition, value);
+                    appendStandardValue(criteriaGroup, sb, params, attribute, condition, value);
                     break;
                 case LIKE:
-                    appendLikeValue(where, params, attribute, condition, value, false);
+                    appendLikeValue(sb, params, attribute, condition, value, false);
                     break;
                 case LIKE_SCDF:
-                    appendLikeValue(where, params, attribute, condition, value, true);
+                    appendLikeValue(sb, params, attribute, condition, value, true);
                     break;
                 case IS_NULL:
                 case IS_NOT_NULL:
-                    where.append(attribute.nameWithAlias());
-                    where.append(condition.condition());
+                    sb.append(attribute.nameWithAlias());
+                    sb.append(condition.condition());
                     break;
                 case IN:
                 case NOT_IN:
@@ -134,26 +146,27 @@ public abstract class AbstractQueryBuilder {
                     } else {
                         arrayString = SqlUtil.arrayToString((Object[]) value);
                     }
-                    where.append(attribute.nameWithAlias());
-                    where.append(condition.condition());
-                    where.append(arrayString);
+                    sb.append(attribute.nameWithAlias());
+                    sb.append(condition.condition());
+                    sb.append(arrayString);
                     break;
                 case DIRECT:
-                    where.append(value);
+                    sb.append(value);
                     break;
             }
             if (index < size - 1) {
-                appendOperator(where, criteriaGroup.getOperator(attribute));
+                appendOperator(sb, criteriaGroup.getOperator(attribute));
             } else {
                 for (QueryCriteriaGroup child : criteriaGroup.getChildren()) {
                     if (child.isCriteria()) {
-                        appendOperator(where, criteriaGroup.getOperator(attribute));
+                        appendOperator(sb, criteriaGroup.getOperator(attribute));
                         break;
                     }
                 }
             }
             index++;
         }
+        return sb.toString();
     }
 
     private void appendOperator(StringBuilder sb, QueryOperator operator) {
@@ -161,18 +174,6 @@ public abstract class AbstractQueryBuilder {
             sb.append(" AND ");
         } else {
             sb.append(" OR ");
-        }
-    }
-
-    private void appendGroupOperator(StringBuilder sb, QueryOperator operator, int index,
-            List<QueryCriteriaGroup> list) {
-        if (index < list.size() - 1) {
-            for (int i = index + 1; i < list.size(); i++) {
-                if (list.get(i).isCriteria()) {
-                    appendOperator(sb, operator);
-                    break;
-                }
-            }
         }
     }
 
@@ -307,5 +308,29 @@ public abstract class AbstractQueryBuilder {
             }
         }
         return sb.toString();
+    }
+
+    private boolean isCriteria(List<QueryCriteriaGroup> queryCriteriaGroups) {
+        boolean result = false;
+        for (QueryCriteriaGroup queryCriteriaGroup : queryCriteriaGroups) {
+            if (queryCriteriaGroup.isCriteria()) {
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+
+    private boolean isCriteria(int index, List<QueryCriteriaGroup> list) {
+        boolean result = false;
+        if (index < list.size() - 1) {
+            for (int i = index + 1; i < list.size(); i++) {
+                if (list.get(i).isCriteria()) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 }
