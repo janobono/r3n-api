@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sk.r3n</groupId>
     <artifactId>r3n</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <packaging>pom</packaging>
     <name>r3n</name>
     <description>R3N actions application framework.</description>
@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-bundle-plugin-version>2.3.7</maven-bundle-plugin-version>
-        <r3n.version>2.0.1</r3n.version>   
+        <r3n.version>2.0.2</r3n.version>   
     </properties>
 
     <modules>
