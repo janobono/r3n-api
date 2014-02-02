@@ -11,38 +11,38 @@ public class DbManagerUtil {
 
     public static Properties getProperties(AppProperties appProperties) {
         Properties properties = new Properties();
-        properties.put(DbManagerProperties.DRIVER.connCode(),
-                appProperties.get(DbManagerProperties.DRIVER.appCode(), ""));
-        properties.put(DbManagerProperties.HOST.connCode(), appProperties.get(DbManagerProperties.HOST.appCode(), ""));
-        properties.put(DbManagerProperties.PORT.connCode(), appProperties.get(DbManagerProperties.PORT.appCode(), ""));
-        properties.put(DbManagerProperties.NAME.connCode(), appProperties.get(DbManagerProperties.NAME.appCode(), ""));
-        properties.put(DbManagerProperties.USER.connCode(), appProperties.get(DbManagerProperties.USER.appCode(), ""));
-        properties.put(DbManagerProperties.PASSWORD.connCode(), appProperties.decrypt(
-                appProperties.get(DbManagerProperties.PASSWORD.appCode(), "")));
-        properties.put(DbManagerProperties.ADMIN_NAME.connCode(), "");
-        properties.put(DbManagerProperties.ADMIN_USER.connCode(), "");
-        properties.put(DbManagerProperties.ADMIN_PASSWORD.connCode(), "");
+        properties.put(DbManagerProperties.DRIVER.name(),
+                appProperties.get(DbManagerProperties.DRIVER.name(), ""));
+        properties.put(DbManagerProperties.HOST.name(), appProperties.get(DbManagerProperties.HOST.name(), ""));
+        properties.put(DbManagerProperties.PORT.name(), appProperties.get(DbManagerProperties.PORT.name(), ""));
+        properties.put(DbManagerProperties.NAME.name(), appProperties.get(DbManagerProperties.NAME.name(), ""));
+        properties.put(DbManagerProperties.USER.name(), appProperties.get(DbManagerProperties.USER.name(), ""));
+        properties.put(DbManagerProperties.PASSWORD.name(), appProperties.decrypt(
+                appProperties.get(DbManagerProperties.PASSWORD.name(), "")));
+        properties.put(DbManagerProperties.ADMIN_NAME.name(), "");
+        properties.put(DbManagerProperties.ADMIN_USER.name(), "");
+        properties.put(DbManagerProperties.ADMIN_PASSWORD.name(), "");
         return properties;
     }
 
     public static void setProperties(AppProperties appProperties, Properties properties) {
-        appProperties.set(DbManagerProperties.DRIVER.appCode(),
-                properties.getProperty(DbManagerProperties.DRIVER.connCode()));
-        appProperties.set(DbManagerProperties.HOST.appCode(),
-                properties.getProperty(DbManagerProperties.HOST.connCode()));
-        appProperties.set(DbManagerProperties.PORT.appCode(),
-                properties.getProperty(DbManagerProperties.PORT.connCode()));
-        appProperties.set(DbManagerProperties.NAME.appCode(),
-                properties.getProperty(DbManagerProperties.NAME.connCode()));
-        appProperties.set(DbManagerProperties.USER.appCode(),
-                properties.getProperty(DbManagerProperties.USER.connCode()));
-        appProperties.set(DbManagerProperties.PASSWORD.appCode(),
-                appProperties.encrypt(properties.getProperty(DbManagerProperties.PASSWORD.connCode())));
+        appProperties.set(DbManagerProperties.DRIVER.name(),
+                properties.getProperty(DbManagerProperties.DRIVER.name()));
+        appProperties.set(DbManagerProperties.HOST.name(),
+                properties.getProperty(DbManagerProperties.HOST.name()));
+        appProperties.set(DbManagerProperties.PORT.name(),
+                properties.getProperty(DbManagerProperties.PORT.name()));
+        appProperties.set(DbManagerProperties.NAME.name(),
+                properties.getProperty(DbManagerProperties.NAME.name()));
+        appProperties.set(DbManagerProperties.USER.name(),
+                properties.getProperty(DbManagerProperties.USER.name()));
+        appProperties.set(DbManagerProperties.PASSWORD.name(),
+                appProperties.encrypt(properties.getProperty(DbManagerProperties.PASSWORD.name())));
     }
 
     public static ConnectionService getConnectionService(Properties properties) {
         ConnectionService result = null;
-        String driver = properties.getProperty(DbManagerProperties.DRIVER.connCode(), "");
+        String driver = properties.getProperty(DbManagerProperties.DRIVER.name(), "");
         DbType dbType = DbType.get(driver);
         if (dbType != null) {
             result = ConnectionServiceFactory.createConnectionService(dbType);
@@ -52,12 +52,12 @@ public class DbManagerUtil {
     }
 
     public static boolean isNotSet(Properties properties) {
-        return properties.getProperty(DbManagerProperties.DRIVER.connCode(), "").equals("")
-                || properties.getProperty(DbManagerProperties.HOST.connCode(), "").equals("")
-                || properties.getProperty(DbManagerProperties.PORT.connCode(), "").equals("")
-                || properties.getProperty(DbManagerProperties.NAME.connCode(), "").equals("")
-                || properties.getProperty(DbManagerProperties.USER.connCode(), "").equals("")
-                || properties.getProperty(DbManagerProperties.PASSWORD.connCode(), "").equals("");
+        return properties.getProperty(DbManagerProperties.DRIVER.name(), "").equals("")
+                || properties.getProperty(DbManagerProperties.HOST.name(), "").equals("")
+                || properties.getProperty(DbManagerProperties.PORT.name(), "").equals("")
+                || properties.getProperty(DbManagerProperties.NAME.name(), "").equals("")
+                || properties.getProperty(DbManagerProperties.USER.name(), "").equals("")
+                || properties.getProperty(DbManagerProperties.PASSWORD.name(), "").equals("");
     }
 
     public static boolean testProperties(Properties properties) {
@@ -85,7 +85,7 @@ public class DbManagerUtil {
 
     public static DbManagerServiceIO getDbManagerServiceIO(Properties properties) {
         DbManagerServiceIO dbManagerServiceIO = null;
-        String driver = properties.getProperty(DbManagerProperties.DRIVER.connCode(), "");
+        String driver = properties.getProperty(DbManagerProperties.DRIVER.name(), "");
         DbType dbType = DbType.get(driver);
         if (dbType != null) {
             switch (dbType) {

@@ -173,18 +173,18 @@ public class DbManagerSWDialog extends R3NDialog {
 
     public boolean init(Properties properties) {
         DbType dbType = DbType.get(
-                properties.getProperty(DbManagerProperties.DRIVER.connCode(), DbType.POSTGRE.driver()));
+                properties.getProperty(DbManagerProperties.DRIVER.name(), DbType.POSTGRE.driver()));
         if (dbType != null) {
             driverBox.setSelectedItem(dbType);
         }
-        hostField.setText(properties.getProperty(DbManagerProperties.HOST.connCode(), ""));
-        portField.setText(properties.getProperty(DbManagerProperties.PORT.connCode(), ""));
-        nameField.setText(properties.getProperty(DbManagerProperties.NAME.connCode(), ""));
-        userField.setText(properties.getProperty(DbManagerProperties.USER.connCode(), ""));
-        passwordField.setValue(properties.getProperty(DbManagerProperties.PASSWORD.connCode(), "").getBytes());
-        adminNameField.setText(properties.getProperty(DbManagerProperties.ADMIN_NAME.connCode(), ""));
-        adminUserField.setText(properties.getProperty(DbManagerProperties.ADMIN_USER.connCode(), ""));
-        adminPasswordField.setValue(properties.getProperty(DbManagerProperties.ADMIN_PASSWORD.connCode(), "").getBytes());
+        hostField.setText(properties.getProperty(DbManagerProperties.HOST.name(), ""));
+        portField.setText(properties.getProperty(DbManagerProperties.PORT.name(), ""));
+        nameField.setText(properties.getProperty(DbManagerProperties.NAME.name(), ""));
+        userField.setText(properties.getProperty(DbManagerProperties.USER.name(), ""));
+        passwordField.setValue(properties.getProperty(DbManagerProperties.PASSWORD.name(), "").getBytes());
+        adminNameField.setText(properties.getProperty(DbManagerProperties.ADMIN_NAME.name(), ""));
+        adminUserField.setText(properties.getProperty(DbManagerProperties.ADMIN_USER.name(), ""));
+        adminPasswordField.setValue(properties.getProperty(DbManagerProperties.ADMIN_PASSWORD.name(), "").getBytes());
         pack();
         setVisible(true);
         return lastActionKey.equals(R3NAction.OK);
@@ -227,22 +227,22 @@ public class DbManagerSWDialog extends R3NDialog {
 
     public Properties getProperties() {
         Properties properties = new Properties();
-        properties.put(DbManagerProperties.DRIVER.connCode(), ((DbType) driverBox.getSelectedItem()).driver());
-        properties.put(DbManagerProperties.HOST.connCode(), hostField.getText());
-        properties.put(DbManagerProperties.PORT.connCode(), portField.getText());
-        properties.put(DbManagerProperties.NAME.connCode(), nameField.getText());
-        properties.put(DbManagerProperties.USER.connCode(), userField.getText());
+        properties.put(DbManagerProperties.DRIVER.name(), ((DbType) driverBox.getSelectedItem()).driver());
+        properties.put(DbManagerProperties.HOST.name(), hostField.getText());
+        properties.put(DbManagerProperties.PORT.name(), portField.getText());
+        properties.put(DbManagerProperties.NAME.name(), nameField.getText());
+        properties.put(DbManagerProperties.USER.name(), userField.getText());
         if (!passwordField.isContentNull()) {
-            properties.put(DbManagerProperties.PASSWORD.connCode(), new String(passwordField.getValue()));
+            properties.put(DbManagerProperties.PASSWORD.name(), new String(passwordField.getValue()));
         } else {
-            properties.put(DbManagerProperties.PASSWORD.connCode(), "");
+            properties.put(DbManagerProperties.PASSWORD.name(), "");
         }
-        properties.put(DbManagerProperties.ADMIN_NAME.connCode(), adminNameField.getText());
-        properties.put(DbManagerProperties.ADMIN_USER.connCode(), adminUserField.getText());
+        properties.put(DbManagerProperties.ADMIN_NAME.name(), adminNameField.getText());
+        properties.put(DbManagerProperties.ADMIN_USER.name(), adminUserField.getText());
         if (!adminPasswordField.isContentNull()) {
-            properties.put(DbManagerProperties.ADMIN_PASSWORD.connCode(), new String(adminPasswordField.getValue()));
+            properties.put(DbManagerProperties.ADMIN_PASSWORD.name(), new String(adminPasswordField.getValue()));
         } else {
-            properties.put(DbManagerProperties.ADMIN_PASSWORD.connCode(), "");
+            properties.put(DbManagerProperties.ADMIN_PASSWORD.name(), "");
         }
         return properties;
     }
