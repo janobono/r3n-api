@@ -84,7 +84,7 @@ public abstract class DbManagerService {
     }
 
     protected Properties createDB(Properties properties) throws R3NException {
-        if (properties.getProperty(DbManagerProperties.ADMIN_NAME.connCode()).equals("")) {
+        if (properties.getProperty(DbManagerProperties.ADMIN_NAME.name()).equals("")) {
             properties = edit(properties);
         }
         ConnectionService cs = DbManagerUtil.getConnectionService(properties);
@@ -93,7 +93,7 @@ public abstract class DbManagerService {
     }
 
     protected Properties createUser(Properties properties) throws R3NException {
-        if (properties.getProperty(DbManagerProperties.ADMIN_NAME.connCode()).equals("")) {
+        if (properties.getProperty(DbManagerProperties.ADMIN_NAME.name()).equals("")) {
             properties = edit(properties);
         }
         ConnectionService cs = DbManagerUtil.getConnectionService(properties);
