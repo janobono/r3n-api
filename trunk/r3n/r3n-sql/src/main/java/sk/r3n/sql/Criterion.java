@@ -2,10 +2,6 @@ package sk.r3n.sql;
 
 import java.io.Serializable;
 
-/**
- *
- * @author jan
- */
 public class Criterion implements Serializable {
 
     private Column column;

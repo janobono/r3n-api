@@ -4,31 +4,67 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author jan
- */
 public class SELECT implements Serializable {
 
     private boolean distinct = false;
 
-    private int offset = -1;
+    protected int firstRow = -1;
 
-    private int limit = -1;
+    protected int lastRow = -1;
 
-    private Column[] attributes;
+    private Column[] columns;
 
-    private Table[] tables;
+    private Table table;
 
-    private Criteria critera;
+    private final List<JoinCriterion> joinCriteria;
 
-    private final List<Criteria> criteriaList;
+    private final CriteriaManager cm;
+
+    private final List<OrderCriterion> orderCriteria;
 
     public SELECT() {
         super();
-        criteriaList = new ArrayList<Criteria>();
-        critera = new Criteria();
-        criteriaList.add(critera);
+        joinCriteria = new ArrayList<JoinCriterion>();
+        cm = new CriteriaManager();
+        orderCriteria = new ArrayList<OrderCriterion>();
+    }
+
+    public SELECT firstRow(int firstRow) {
+        this.firstRow = firstRow;
+        return this;
+    }
+
+    public SELECT lastRow(int lastRow) {
+        this.lastRow = lastRow;
+        return this;
+    }
+
+    public SELECT interval(int start, int count) {
+        this.firstRow = 0;
+        this.lastRow = 0;
+        if (start < 0) {
+            start = 0;
+        }
+        if (count < 0) {
+            count = 0;
+        }
+        if (count != 0) {
+            this.firstRow = start;
+            this.lastRow = start + count;
+        }
+        return this;
+    }
+
+    public SELECT page(int page, int size) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size < 0) {
+            size = 0;
+        }
+        this.firstRow = page * size;
+        this.lastRow = firstRow + size;
+        return this;
     }
 
     public SELECT DISTINCT() {
@@ -36,140 +72,138 @@ public class SELECT implements Serializable {
         return this;
     }
 
-    public SELECT offset(int offset) {
-        this.offset = offset;
+    public SELECT COLUMNS(Column... columns) {
+        this.columns = columns;
         return this;
     }
 
-    public SELECT limit(int limit) {
-        this.limit = limit;
+    public SELECT FROM(Table table) {
+        this.table = table;
         return this;
     }
 
-    public SELECT COLUMNS(Column... attributes) {
-        this.attributes = attributes;
+    public SELECT INNER_JOIN(Table table, Column col1, Column col2) {
+        JoinCriterion joinCriterion = new JoinCriterion(Join.INNER, table);
+        joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
+        joinCriteria.add(joinCriterion);
         return this;
     }
 
-    public SELECT COLUMNS(List<Column> attributes) {
-        this.attributes = new Column[attributes.size()];
-        this.attributes = attributes.toArray(this.attributes);
+    public SELECT LEFT_JOIN(Table table, Column col1, Column col2) {
+        JoinCriterion joinCriterion = new JoinCriterion(Join.LEFT, table);
+        joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
+        joinCriteria.add(joinCriterion);
         return this;
     }
 
-    public SELECT FROM(Table... tables) {
-        this.tables = tables;
+    public SELECT RIGHT_JOIN(Table table, Column col1, Column col2) {
+        JoinCriterion joinCriterion = new JoinCriterion(Join.RIGHT, table);
+        joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
+        joinCriteria.add(joinCriterion);
         return this;
     }
 
-    public SELECT FROM(List<Table> tables) {
-        this.tables = new Table[tables.size()];
-        this.tables = tables.toArray(this.tables);
+    public SELECT FULL_JOIN(Table table, Column col1, Column col2) {
+        JoinCriterion joinCriterion = new JoinCriterion(Join.FULL, table);
+        joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
+        joinCriteria.add(joinCriterion);
         return this;
     }
 
     public SELECT WHERE(Column column, Condition condition, Object value, String representation) {
-        critera.addCriterion(column, condition, value, representation, Operator.AND);
+        cm.addCriterion(column, condition, value, representation, Operator.AND);
         return this;
     }
 
     public SELECT WHERE(Column column, Condition condition, Object value) {
-        critera.addCriterion(column, condition, value, null, Operator.AND);
+        cm.addCriterion(column, condition, value, null, Operator.AND);
         return this;
     }
 
     public SELECT AND(Column column, Condition condition, Object value, String representation) {
-        setCriterionOperator(Operator.AND);
-        critera.addCriterion(column, condition, value, representation, Operator.AND);
+        cm.addCriterion(column, condition, value, representation, Operator.AND);
         return this;
     }
 
     public SELECT AND(Column column, Condition condition, Object value) {
-        setCriterionOperator(Operator.AND);
-        critera.addCriterion(column, condition, value, null, Operator.AND);
+        cm.addCriterion(column, condition, value, null, Operator.AND);
         return this;
     }
 
     public SELECT OR(Column column, Condition condition, Object value, String representation) {
-        setCriterionOperator(Operator.OR);
-        critera.addCriterion(column, condition, value, representation, Operator.AND);
+        cm.addCriterion(column, condition, value, representation, Operator.AND);
         return this;
     }
 
     public SELECT OR(Column column, Condition condition, Object value) {
-        setCriterionOperator(Operator.OR);
-        critera.addCriterion(column, condition, value, null, Operator.AND);
+        cm.addCriterion(column, condition, value, null, Operator.AND);
         return this;
     }
 
     public SELECT AND_NEXT() {
-        setCriteriaOperator(Operator.AND);
-        Criteria next = new Criteria();
-        if (critera.getParent() == null) {
-            criteriaList.add(next);
-        } else {
-            next.setParent(critera.getParent());
-            critera.getParent().getChildren().add(next);
-        }
-        critera = next;
+        cm.next(Operator.AND);
         return this;
     }
 
     public SELECT OR_NEXT() {
-        setCriteriaOperator(Operator.OR);
-        Criteria next = new Criteria();
-        if (critera.getParent() == null) {
-            criteriaList.add(next);
-        } else {
-            next.setParent(critera.getParent());
-            critera.getParent().getChildren().add(next);
-        }
-        critera = next;
+        cm.next(Operator.OR);
         return this;
     }
 
     public SELECT AND_IN() {
-        setCriterionOperator(Operator.AND);
-        Criteria in = new Criteria();
-        critera.getChildren().add(in);
-        in.setParent(critera);
-        critera = in;
+        cm.in(Operator.AND);
         return this;
     }
 
     public SELECT OR_IN() {
-        setCriterionOperator(Operator.OR);
-        Criteria in = new Criteria();
-        critera.getChildren().add(in);
-        in.setParent(critera);
-        critera = in;
+        cm.in(Operator.OR);
         return this;
     }
 
     public SELECT OUT() {
-        Criteria out = critera.getParent();
-        if (out != null) {
-            critera = out;
-        }
+        cm.out();
         return this;
     }
 
-    private void setCriterionOperator(Operator operator) {
-        if (!critera.getCriteria().isEmpty()) {
-            critera.getCriteria().get(critera.getCriteria().size() - 1).setOperator(operator);
-        }
+    public SELECT ORDER_BY(Column column, Order order) {
+        orderCriteria.add(new OrderCriterion(column, order));
+        return this;
     }
 
-    private void setCriteriaOperator(Operator operator) {
-        if (critera.getParent() == null) {
-            if (!criteriaList.isEmpty()) {
-                criteriaList.get(criteriaList.size() - 1).setOperator(operator);
-            }
-        } else {
-            if (!critera.getChildren().isEmpty()) {
-                critera.getChildren().get(critera.getChildren().size() - 1).setOperator(operator);
-            }
-        }
+    public boolean getDistinct() {
+        return distinct;
+    }
+
+    public int getFirstRow() {
+        return firstRow;
+    }
+
+    public int getLastRow() {
+        return lastRow;
+    }
+
+    public int getPageSize() {
+        return getLastRow() - getFirstRow();
+    }
+
+    public Column[] getColumns() {
+        return columns;
+    }
+
+    public Table getTable() {
+        return table;
+    }
+
+    public List<JoinCriterion> getJoinCriteria() {
+        return joinCriteria;
+    }
+
+    public CriteriaManager getCriteriaManager() {
+        return cm;
+    }
+
+    public List<OrderCriterion> getOrderCriteria() {
+        return orderCriteria;
     }
 
 }
