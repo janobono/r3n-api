@@ -1,4 +1,6 @@
-package sk.r3n.jdbc.query;
+package sk.r3n.jdbc;
+
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class Result<T> implements Serializable {
 
     public List<T> getResults() {
         if (results == null) {
-            results = new ArrayList<>();
+            results = new ArrayList<T>();
         }
         return results;
     }

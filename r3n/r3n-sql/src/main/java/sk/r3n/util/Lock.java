@@ -6,12 +6,12 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class Lock {
 
-    private static final Logger LOGGER = Logger.getLogger(Lock.class.getCanonicalName());
+    private static final Log LOG = LogFactory.getLog(Lock.class);
 
     private FileLock lock;
 
@@ -26,19 +26,22 @@ public class Lock {
             lock = lockChannel.tryLock();
             locked = lock != null;
             if (!locked) {
-                LOGGER.log(Level.SEVERE,
-                        ResourceBundle.getBundle(Lock.class.getCanonicalName()).getString("CREATE_LOCK"),
-                        new Object[]{lockName});
+                LOG.error(
+                        MessageFormat.format(
+                                ResourceBundle.getBundle(Lock.class.getCanonicalName()).getString("CREATE_LOCK"),
+                                new Object[]{lockName}
+                        )
+                );
                 unlock();
             }
         } catch (Exception e) {
-            LOGGER.log(
-                    Level.SEVERE,
+            LOG.error(
                     MessageFormat.format(
-                    ResourceBundle.getBundle(
-                    Lock.class.getCanonicalName()).getString(
-                    "CREATE_LOCK"), new Object[]{lockName}),
-                    e);
+                            ResourceBundle.getBundle(Lock.class.getCanonicalName()).getString("CREATE_LOCK"),
+                            new Object[]{lockName}
+                    ),
+                    e
+            );
             unlock();
         }
     }
@@ -53,14 +56,14 @@ public class Lock {
                 lock.release();
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unlock", e);
+            LOG.error("Unlock", e);
         }
         try {
             if (lockChannel != null) {
                 lockChannel.close();
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unlock", e);
+            LOG.error("Unlock", e);
         }
         locked = false;
     }
