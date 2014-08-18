@@ -60,7 +60,7 @@ public abstract class AbstractQueryBuilder {
 
     public String criteriaToOrderBy(QueryAttribute[] resultColumns, QueryCriteria criteria) {
         List<QueryAttribute> cols = Arrays.asList(resultColumns);
-        List<QueryAttribute> orders = new ArrayList<>();
+        List<QueryAttribute> orders = new ArrayList<QueryAttribute>();
 
         QueryAttribute[] attribs
                 = criteria.getOrderAttributes().toArray(new QueryAttribute[criteria.getOrderAttributes().size()]);

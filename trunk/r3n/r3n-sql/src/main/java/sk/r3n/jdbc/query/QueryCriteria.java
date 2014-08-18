@@ -20,8 +20,8 @@ public class QueryCriteria implements Serializable {
 
     public QueryCriteria() {
         super();
-        criteriaGroups = new ArrayList<>();
-        orderMap = new HashMap<>();
+        criteriaGroups = new ArrayList<QueryCriteriaGroup>();
+        orderMap = new HashMap<QueryAttribute, QueryOrder>();
         nextGroup();
     }
 
@@ -88,7 +88,7 @@ public class QueryCriteria implements Serializable {
     }
 
     public List<String> aliasList(String tableName) {
-        List<String> tableList = new ArrayList<>();
+        List<String> tableList = new ArrayList<String>();
         for (QueryCriteriaGroup queryCriteriaGroup : criteriaGroups) {
             queryCriteriaGroup.aliasList(tableName, tableList);
         }
@@ -104,7 +104,7 @@ public class QueryCriteria implements Serializable {
     }
 
     public List<QueryAttribute> getOrderAttributes() {
-        List<QueryAttribute> result = new ArrayList<>();
+        List<QueryAttribute> result = new ArrayList<QueryAttribute>();
         result.addAll(orderMap.keySet());
         return result;
     }
