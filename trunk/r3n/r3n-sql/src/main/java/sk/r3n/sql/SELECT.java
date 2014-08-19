@@ -22,6 +22,8 @@ public class SELECT implements Serializable {
 
     private final List<OrderCriterion> orderCriteria;
 
+    private Column[] groupByColumns;
+
     public SELECT() {
         super();
         joinCriteria = new ArrayList<JoinCriterion>();
@@ -170,6 +172,11 @@ public class SELECT implements Serializable {
         return this;
     }
 
+    public SELECT GROUP_BY(Column... columns) {
+        this.groupByColumns = columns;
+        return this;
+    }
+
     public boolean getDistinct() {
         return distinct;
     }
@@ -204,6 +211,10 @@ public class SELECT implements Serializable {
 
     public List<OrderCriterion> getOrderCriteria() {
         return orderCriteria;
+    }
+
+    public Column[] getGroupByColumns() {
+        return groupByColumns;
     }
 
 }

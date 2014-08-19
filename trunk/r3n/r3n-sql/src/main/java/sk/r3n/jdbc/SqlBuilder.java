@@ -1,17 +1,27 @@
 package sk.r3n.jdbc;
 
 import java.io.File;
+import java.io.IOException;
+import java.sql.Blob;
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import sk.r3n.jdbc.query.OraQueryBuilder;
+import sk.r3n.sql.Column;
 import sk.r3n.sql.DELETE;
 import sk.r3n.sql.INSERT;
 import sk.r3n.sql.SELECT;
 import sk.r3n.sql.Sequence;
 import sk.r3n.sql.UPDATE;
+import sk.r3n.util.FileUtil;
 
 public abstract class SqlBuilder {
 
@@ -46,7 +56,7 @@ public abstract class SqlBuilder {
 
     public abstract String select(SELECT select);
 
-    public abstract List<Object[]> select(Connection connection, SELECT select);
+    public abstract Result<Object[]> select(Connection connection, SELECT select);
 
     public abstract String selectCount(SELECT select);
 
@@ -63,5 +73,69 @@ public abstract class SqlBuilder {
     public abstract String delete(DELETE delete);
 
     public abstract void delete(Connection connection, DELETE delete);
+
+    protected Object[] getRow(ResultSet resultSet, Column... columns) throws SQLException {
+        Object[] result = new Result[columns.length];
+
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getColumn(resultSet, i + 1, columns[i]);
+        }
+
+        return result;
+    }
+
+    protected Object getColumn(ResultSet resultSet, int index, Column column) throws SQLException {
+        Object result = null;
+
+        if (resultSet.getObject(index) != null) {
+            switch (column.getDataType()) {
+                case BOOLEAN:
+                    result = resultSet.getBoolean(index);
+                    break;
+                case STRING:
+                    result = resultSet.getString(index);
+                    break;
+                case SHORT:
+                    result = resultSet.getShort(index);
+                    break;
+                case INTEGER:
+                    result = resultSet.getInt(index);
+                    break;
+                case LONG:
+                    result = resultSet.getLong(index);
+                    break;
+                case BIG_DECIMAL:
+                    result = resultSet.getBigDecimal(index);
+                    break;
+                case DATE:
+                    java.sql.Date date = resultSet.getDate(index);
+                    result = new Date(date.getTime());
+                    break;
+                case TIME:
+                    java.sql.Time time = resultSet.getTime(index);
+                    result = new Date(time.getTime());
+                    break;
+                case TIME_STAMP:
+                    java.sql.Timestamp timestamp = resultSet.getTimestamp(index);
+                    result = new Date(timestamp.getTime());
+                    break;
+                case BLOB:
+                    File file = null;
+                    try {
+                        file = File.createTempFile("SQL", ".BIN", getTmpDir());
+                        Blob blob = resultSet.getBlob(index);
+                        FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);
+                        result = file;
+                    } catch (IOException e) {
+                        if (file != null) {
+                            file.delete();
+                        }
+                        throw new SQLException(e);
+                    }
+                    break;
+            }
+        }
+        return result;
+    }
 
 }
