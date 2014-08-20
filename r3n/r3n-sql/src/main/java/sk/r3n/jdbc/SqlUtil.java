@@ -90,7 +90,7 @@ public class SqlUtil {
         }
     }
 
-    public static void execute(Connection connection, String command) throws Exception {
+    public static void execute(Connection connection, String command) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -98,38 +98,6 @@ public class SqlUtil {
         } finally {
             close(statement);
         }
-    }
-
-    public static void execute(Connection connection, String sql, Object[] params) throws Exception {
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(sql);
-            prepare(statement, params);
-            statement.executeUpdate();
-        } finally {
-            close(statement);
-        }
-    }
-
-    public static PreparedStatement prepare(Connection connection, String sql, Object[] params) throws Exception {
-        PreparedStatement result = connection.prepareStatement(sql);
-        prepare(result, params);
-        return result;
-    }
-
-    public static PreparedStatement prepare(PreparedStatement statement, Object[] params) throws Exception {
-        if (params != null) {
-            int i = 1;
-            for (Object o : params) {
-                if (o != null) {
-                    statement.setObject(i, o);
-                } else {
-                    statement.setNull(i, Types.NULL);
-                }
-                i++;
-            }
-        }
-        return statement;
     }
 
     public static void close(ResultSet resultSet) {

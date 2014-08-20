@@ -3,33 +3,50 @@ package sk.r3n.jdbc;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Blob;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import sk.r3n.jdbc.query.OraQueryBuilder;
 import sk.r3n.sql.Column;
-import sk.r3n.sql.DELETE;
-import sk.r3n.sql.INSERT;
-import sk.r3n.sql.SELECT;
+import sk.r3n.sql.Condition;
+import sk.r3n.sql.Criteria;
+import sk.r3n.sql.CriteriaManager;
+import sk.r3n.sql.Criterion;
+import sk.r3n.sql.Join;
+import sk.r3n.sql.JoinCriterion;
+import sk.r3n.sql.Query;
 import sk.r3n.sql.Sequence;
-import sk.r3n.sql.UPDATE;
 import sk.r3n.util.FileUtil;
 
 public abstract class SqlBuilder {
 
     private static final Log LOG = LogFactory.getLog(SqlBuilder.class);
 
+    protected static final char NEW_LINE = '\n';
+    protected static final char SPACE = ' ';
+    protected static final char LEFT_BRACE = '(';
+    protected static final char RIGHT_BRACE = ')';
+    protected static final char QUESTION_MARK = '?';
+    protected static final char EQUALS = '=';
+    protected static final char COMMA = ',';
+
     private List<Object> params;
 
     private File tmpDir;
+
+    public List<Object> params() {
+        if (params == null) {
+            params = new ArrayList<Object>();
+        }
+        return params;
+    }
 
     public File getTmpDir() {
         if (tmpDir == null) {
@@ -43,36 +60,280 @@ public abstract class SqlBuilder {
         this.tmpDir = tmpDir;
     }
 
-    public abstract String nextVal(Sequence sequence);
-
-    public abstract long nextVal(Connection connection, Sequence sequence) throws SQLException;
-
-    public List<Object> params() {
-        if (params == null) {
-            params = new ArrayList<Object>();
+    public String toSql(Query query) {
+        String result = null;
+        switch (query.getQueryType()) {
+            case SELECT:
+                result = toSelect(query);
+                break;
+            case INSERT:
+                result = toInsert(query);
+                break;
+            case UPDATE:
+                result = toUpdate(query);
+                break;
+            case DELETE:
+                result = toDelete(query);
+                break;
         }
-        return params;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(result);
+        }
+        return result;
     }
 
-    public abstract String select(SELECT select);
+    public String toSql(CriteriaManager criteriaManager) {
+        StringBuilder sql = new StringBuilder();
+        Criteria lastCriteria = null;
+        for (int i = 0; i < criteriaManager.getCriteriaList().size(); i++) {
+            Criteria criteria = criteriaManager.getCriteriaList().get(i);
+            if (criteria.isCriteria()) {
+                if (lastCriteria != null) {
+                    sql.append(SPACE);
+                    sql.append(lastCriteria.getOperator());
+                    sql.append(SPACE);
+                }
+                sql.append(toSql(criteria));
+                lastCriteria = criteria;
+            }
+        }
+        return sql.toString();
+    }
 
-    public abstract Result<Object[]> select(Connection connection, SELECT select);
+    public String toSql(Criteria criteria) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(LEFT_BRACE);
+        Criterion criterion = null;
+        for (Object object : criteria.getContent()) {
+            if (criterion != null) {
+                sql.append(SPACE);
+                sql.append(criterion.getOperator());
+                sql.append(SPACE);
+            }
+            if (object instanceof Criterion) {
+                sql.append(toSql((Criterion) object));
+                criterion = (Criterion) object;
+            } else {
+                sql.append(toSql(criteria));
+            }
+        }
+        sql.append(RIGHT_BRACE);
+        return sql.toString();
+    }
 
-    public abstract String selectCount(SELECT select);
+    public String toSql(Criterion criterion) {
+        StringBuilder sql = new StringBuilder();
+        if (criterion.getCondition() == Condition.DIRECT) {
+            sql.append(criterion.getValue());
+        } else {
+            if (criterion.getValue() instanceof Query) {
+                sql.append(criterion.getColumn());
+                sql.append(criterion.getCondition().condition());
+                sql.append(LEFT_BRACE);
+                sql.append(toSql((Query) criterion.getValue()));
+                sql.append(RIGHT_BRACE);
+            } else if (criterion.getValue() instanceof Column) {
+                if (criterion.getRepresentation() == null) {
+                    sql.append(criterion.getColumn());
+                    sql.append(criterion.getCondition().condition());
+                    sql.append(criterion.getValue());
+                } else {
+                    sql.append(MessageFormat.format(criterion.getRepresentation(), criterion.getColumn(), criterion.getCondition().condition(), criterion.getValue().toString()));
+                }
+            } else {
+                if (criterion.getRepresentation() == null) {
+                    sql.append(criterion.getColumn());
+                    sql.append(criterion.getCondition().condition());
+                    sql.append(QUESTION_MARK);
+                    params().add(criterion.getValue());
+                } else {
+                    sql.append(MessageFormat.format(criterion.getRepresentation(), criterion.getColumn(), criterion.getCondition().condition()));
+                    params().add(criterion.getValue());
+                }
+            }
+        }
+        return sql.toString();
+    }
 
-    public abstract int selectCount(Connection connection, SELECT select);
+    protected String toSelect(Query query) {
+        if (query.getPagination() && query.getCount()) {
+            throw new IllegalArgumentException("Pagination and count can't be in one query!");
+        }
+        StringBuilder sql = new StringBuilder();
 
-    public abstract String insert(INSERT insert);
+        if (query.getPagination()) {
+            sql.append(toPaginatedSelect(query));
+        } else {
+            if (query.getCount()) {
+                sql.append("SELECT COUNT(*) FROM ").append(LEFT_BRACE);
+            }
 
-    public abstract Object insert(Connection connection, INSERT insert);
+            sql.append("SELECT ");
 
-    public abstract String update(UPDATE update);
+            if (query.getDistinct()) {
+                sql.append("DISTINCT ");
+            }
 
-    public abstract void update(Connection connection, UPDATE update);
+            Column[] columns = query.getColumns();
+            for (int i = 0; i < columns.length; i++) {
+                sql.append(columns[i]);
+                if (i < columns.length - 1) {
+                    sql.append(COMMA);
+                }
+                sql.append(SPACE);
+            }
 
-    public abstract String delete(DELETE delete);
+            sql.append(NEW_LINE).append("FROM ").append(query.getTable()).append(SPACE);
 
-    public abstract void delete(Connection connection, DELETE delete);
+            for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
+                sql.append(NEW_LINE).append(joinCriterion.getJoin());
+                if (joinCriterion.getJoin() == Join.FULL) {
+                    sql.append(" OUTER");
+                }
+                sql.append(" JOIN ON ");
+                sql.append(toSql(joinCriterion.getCriteriaManager()));
+            }
+
+            if (query.getCriteriaManager().isCriteria()) {
+                sql.append(SPACE).append(NEW_LINE).append("WHERE ").append(NEW_LINE);
+                sql.append(toSql(query.getCriteriaManager()));
+            }
+
+            if (query.getOrderColumns() != null) {
+                sql.append(SPACE).append(NEW_LINE).append("ORDER BY ");
+                columns = query.getOrderColumns();
+                for (int i = 0; i < columns.length; i++) {
+                    sql.append(columns[i]);
+                    if (i < columns.length - 1) {
+                        sql.append(COMMA);
+                    }
+                    sql.append(SPACE);
+                }
+                sql.append(query.getOrder());
+            }
+
+            if (query.getGroupByColumns() != null) {
+                sql.append(SPACE).append(NEW_LINE).append("GROUP BY ");
+                columns = query.getGroupByColumns();
+                for (int i = 0; i < columns.length; i++) {
+                    sql.append(columns[i]);
+                    if (i < columns.length - 1) {
+                        sql.append(COMMA).append(SPACE);
+                    }
+                }
+            }
+
+            if (query.getCount()) {
+                sql.append(RIGHT_BRACE);
+            }
+        }
+
+        return sql.toString();
+    }
+
+    protected String toInsert(Query query) {
+        StringBuilder sql = new StringBuilder();
+
+        if (query.getReturning() != null) {
+            sql.append(toInsertReturningValue(query));
+        } else {
+            sql.append("INSERT INTO ").append(query.getTable()).append(SPACE).append(LEFT_BRACE);
+            Column[] columns = query.getColumns();
+            for (int i = 0; i < columns.length; i++) {
+                sql.append(columns[i]);
+                if (i < columns.length - 1) {
+                    sql.append(COMMA).append(SPACE);
+                }
+            }
+            sql.append(RIGHT_BRACE).append(" VALUES ").append(LEFT_BRACE);
+            Object[] values = query.getValues();
+            for (int i = 0; i < columns.length; i++) {
+                if (values[i] instanceof Sequence) {
+                    sql.append(nextVal((Sequence) values[i]));
+                } else {
+                    sql.append(QUESTION_MARK);
+                    params().add(values[i]);
+                }
+                if (i < columns.length - 1) {
+                    sql.append(COMMA).append(SPACE);
+                }
+            }
+            sql.append(RIGHT_BRACE);
+        }
+
+        return sql.toString();
+    }
+
+    protected String toUpdate(Query query) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE ").append(query.getTable()).append(" SET ");
+        Column[] columns = query.getColumns();
+        Object[] values = query.getValues();
+        for (int i = 0; i < columns.length; i++) {
+            if (values[i] instanceof Sequence) {
+                sql.append(columns[i]).append(EQUALS).append(nextVal((Sequence) values[i]));
+            } else {
+                sql.append(columns[i]).append(EQUALS).append(QUESTION_MARK);
+                params().add(values[i]);
+            }
+            if (i < columns.length - 1) {
+                sql.append(COMMA).append(SPACE);
+            }
+        }
+        if (query.getCriteriaManager().isCriteria()) {
+            sql.append(SPACE).append(NEW_LINE).append("WHERE ").append(NEW_LINE);
+            sql.append(toSql(query.getCriteriaManager()));
+        }
+        return sql.toString();
+    }
+
+    protected String toDelete(Query query) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("DELETE FROM ").append(query.getTable()).append(SPACE);
+        if (query.getCriteriaManager().isCriteria()) {
+            sql.append(NEW_LINE).append("WHERE ").append(NEW_LINE);
+            sql.append(toSql(query.getCriteriaManager()));
+        }
+        return sql.toString();
+    }
+
+    public List<Object[]> executeQuery(Connection connection, Query query) throws SQLException {
+        if (query.getQueryType() != Query.QueryType.SELECT) {
+            throw new IllegalArgumentException("Wrong query type!");
+        }
+
+        params().clear();
+        String sql = toSql(query);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(sql);
+            LOG.debug(params());
+        }
+
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        List<Object[]> result = new ArrayList<Object[]>();
+        try {
+            preparedStatement = preparedStatement(connection, sql);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                if (query.getCount()) {
+                    result.add(new Object[]{resultSet.getInt(1)});
+                } else {
+                    result.add(getRow(resultSet, query.getColumns()));
+                }
+            }
+        } finally {
+            SqlUtil.close(resultSet);
+            SqlUtil.close(preparedStatement);
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("RESULT:" + result);
+        }
+        return result;
+    }
 
     protected Object[] getRow(ResultSet resultSet, Column... columns) throws SQLException {
         Object[] result = new Result[columns.length];
@@ -137,5 +398,68 @@ public abstract class SqlBuilder {
         }
         return result;
     }
+
+    public Object executeUpdate(Connection connection, Query query) throws SQLException {
+        if (query.getQueryType() == Query.QueryType.SELECT) {
+            throw new IllegalArgumentException("Wrong query type!");
+        }
+
+        Object result = null;
+        params().clear();
+        String sql = toSql(query);
+
+        switch (query.getQueryType()) {
+            case INSERT:
+                if (query.getReturning() != null) {
+                    result = executeInsert(connection, sql, query.getColumns(), query.getReturning());
+                } else {
+                    executeUpdate(connection, sql);
+                }
+                break;
+            default:
+                executeUpdate(connection, sql);
+                break;
+        }
+        return result;
+    }
+
+    private PreparedStatement preparedStatement(Connection connection, String sql) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        int i = 1;
+        for (Object param : params()) {
+            if (param != null) {
+                if (param instanceof File) {
+                    Blob blob = connection.createBlob();
+                    FileUtil.fileToStream((File) param, blob.setBinaryStream(1));
+                    preparedStatement.setBlob(i++, blob);
+                } else {
+                    preparedStatement.setObject(i++, param);
+                }
+            } else {
+                preparedStatement.setNull(i++, Types.NULL);
+            }
+        }
+        return preparedStatement;
+    }
+
+    private void executeUpdate(Connection connection, String sql) throws SQLException {
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = preparedStatement(connection, sql);
+            preparedStatement.executeUpdate();
+        } finally {
+            SqlUtil.close(preparedStatement);
+        }
+    }
+
+    public abstract String nextVal(Sequence sequence);
+
+    public abstract long nextVal(Connection connection, Sequence sequence) throws SQLException;
+
+    protected abstract String toPaginatedSelect(Query query);
+
+    protected abstract String toInsertReturningValue(Query query);
+
+    protected abstract Object executeInsert(Connection connection, String sql, Column[] columns, Column returning);
 
 }

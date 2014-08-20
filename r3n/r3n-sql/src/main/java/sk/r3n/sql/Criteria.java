@@ -6,22 +6,20 @@ import java.util.List;
 
 public class Criteria implements Serializable {
 
-    private final List<Criterion> criteria;
+    private final List<Object> content;
 
     private Operator operator;
 
     private Criteria parent;
 
-    private List<Criteria> children;
-
     public Criteria() {
         super();
-        criteria = new ArrayList<Criterion>();
+        content = new ArrayList<Object>();
         operator = Operator.AND;
     }
 
     public void addCriterion(Column column, Condition condition, Object value, String representation, Operator operator) {
-        criteria.add(new Criterion(column, condition, value, representation, operator));
+        content.add(new Criterion(column, condition, value, representation, operator));
     }
 
     public boolean isCriteria() {
@@ -29,9 +27,16 @@ public class Criteria implements Serializable {
     }
 
     private boolean isCriteria(Criteria criteria) {
-        boolean result = !criteria.getCriteria().isEmpty();
-        for (Criteria child : criteria.getChildren()) {
-            result |= isCriteria(child);
+        boolean result = false;
+        for (Object contentObject : criteria.getContent()) {
+            if (contentObject instanceof Criterion) {
+                result = true;
+            } else {
+                result |= isCriteria((Criteria) contentObject);
+            }
+            if (result) {
+                break;
+            }
         }
         return result;
     }
@@ -42,12 +47,14 @@ public class Criteria implements Serializable {
 
     private boolean contains(Criteria criteria, Column column) {
         boolean result = false;
-        for (Criterion criterion : criteria.getCriteria()) {
-            result |= criterion.getColumn().equals(column);
-        }
-        if (!result) {
-            for (Criteria child : criteria.getChildren()) {
-                result |= contains(child, column);
+        for (Object contentObject : criteria.getContent()) {
+            if (contentObject instanceof Criterion) {
+                result |= ((Criterion) contentObject).getColumn().equals(column);
+            } else {
+                result |= contains((Criteria) contentObject, column);
+            }
+            if (result) {
+                break;
             }
         }
         return result;
@@ -59,39 +66,41 @@ public class Criteria implements Serializable {
 
     private boolean contains(Criteria criteria, Table table) {
         boolean result = false;
-        for (Criterion criterion : criteria.getCriteria()) {
-            result |= criterion.getColumn().getTable().equals(table);
+        for (Object contentObject : criteria.getContent()) {
+            if (contentObject instanceof Criterion) {
+                result |= ((Criterion) contentObject).getColumn().getTable().equals(table);
+            } else {
+                result |= contains((Criteria) contentObject, table);
+            }
             if (result) {
                 break;
-            }
-        }
-        if (!result) {
-            for (Criteria child : criteria.getChildren()) {
-                result |= contains(child, table);
             }
         }
         return result;
     }
 
-    public void aliasList(String tableName, List<String> tableList) {
-        aliasList(this, tableName, tableList);
+    public List<String> aliasList(String tableName) {
+        List<String> result = new ArrayList<String>();
+        aliasList(this, tableName, result);
+        return result;
     }
 
     private void aliasList(Criteria criteria, String tableName, List<String> aliasList) {
-        for (Criterion criterion : criteria.getCriteria()) {
-            if (criterion.getColumn().getTable().getName().equals(tableName)) {
-                if (!aliasList.contains(criterion.getColumn().getTable().getAlias())) {
-                    aliasList.add(criterion.getColumn().getTable().getAlias());
+        for (Object contentObject : criteria.getContent()) {
+            if (contentObject instanceof Criterion) {
+                if (((Criterion) contentObject).getColumn().getTable().getName().equals(tableName)) {
+                    if (!aliasList.contains(((Criterion) contentObject).getColumn().getTable().getAlias())) {
+                        aliasList.add(((Criterion) contentObject).getColumn().getTable().getAlias());
+                    }
                 }
+            } else {
+                aliasList((Criteria) contentObject, tableName, aliasList);
             }
-        }
-        for (Criteria child : criteria.getChildren()) {
-            aliasList(child, tableName, aliasList);
         }
     }
 
-    public List<Criterion> getCriteria() {
-        return criteria;
+    public List<Object> getContent() {
+        return content;
     }
 
     public Operator getOperator() {
@@ -108,17 +117,6 @@ public class Criteria implements Serializable {
 
     public void setParent(Criteria parent) {
         this.parent = parent;
-    }
-
-    public List<Criteria> getChildren() {
-        if (children == null) {
-            children = new ArrayList<Criteria>();
-        }
-        return children;
-    }
-
-    public void setChildren(List<Criteria> children) {
-        this.children = children;
     }
 
 }
