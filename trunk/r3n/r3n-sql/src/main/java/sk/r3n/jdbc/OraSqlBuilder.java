@@ -6,7 +6,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import sk.r3n.sql.DELETE;
+import sk.r3n.sql.INSERT;
+import sk.r3n.sql.SELECT;
 import sk.r3n.sql.Sequence;
+import sk.r3n.sql.UPDATE;
 
 public class OraSqlBuilder extends SqlBuilder {
 
@@ -50,4 +54,5 @@ public class OraSqlBuilder extends SqlBuilder {
         return result;
     }
 
+   
 }

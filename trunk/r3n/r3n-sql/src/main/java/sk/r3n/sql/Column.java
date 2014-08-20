@@ -36,7 +36,7 @@ public class Column implements Serializable {
         sb.append(table.getAlias());
         sb.append(".");
         sb.append(name);
-        return sb.toString();
+        return sb.toString().toLowerCase();
     }
 
     @Override

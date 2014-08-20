@@ -33,7 +33,7 @@ public class Table implements Serializable {
         sb.append(name);
         sb.append(" ");
         sb.append(alias);
-        return sb.toString();
+        return sb.toString().toLowerCase();
     }
 
     @Override

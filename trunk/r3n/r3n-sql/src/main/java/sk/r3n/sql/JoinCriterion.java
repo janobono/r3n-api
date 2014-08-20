@@ -33,5 +33,4 @@ public class JoinCriterion {
     public CriteriaManager getCriteriaManager() {
         return cm;
     }
-
 }

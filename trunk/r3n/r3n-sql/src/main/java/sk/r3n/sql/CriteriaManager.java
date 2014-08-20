@@ -5,73 +5,92 @@ import java.util.List;
 
 public class CriteriaManager {
 
-    private Criteria critera;
+    private Criteria criteria;
 
     private final List<Criteria> criteriaList;
 
     public CriteriaManager() {
         super();
         criteriaList = new ArrayList<Criteria>();
-        critera = new Criteria();
-        criteriaList.add(critera);
+        criteria = new Criteria();
+        criteriaList.add(criteria);
     }
 
     public void addCriterion(Column column, Condition condition, Object value, String representation, Operator operator) {
         setCriterionOperator(operator);
-        critera.addCriterion(column, condition, value, representation, Operator.AND);
+        criteria.addCriterion(column, condition, value, representation, Operator.AND);
     }
 
     public void next(Operator operator) {
         setCriteriaOperator(operator);
         Criteria next = new Criteria();
-        if (critera.getParent() == null) {
+        if (criteria.getParent() == null) {
             criteriaList.add(next);
         } else {
-            next.setParent(critera.getParent());
-            critera.getParent().getChildren().add(next);
+            next.setParent(criteria.getParent());
+            criteria.getParent().getContent().add(next);
         }
-        critera = next;
+        criteria = next;
     }
 
     public void in(Operator operator) {
         setCriterionOperator(operator);
         Criteria in = new Criteria();
-        critera.getChildren().add(in);
-        in.setParent(critera);
-        critera = in;
+        criteria.getContent().add(in);
+        in.setParent(criteria);
+        criteria = in;
     }
 
     public void out() {
-        Criteria out = critera.getParent();
+        Criteria out = criteria.getParent();
         if (out != null) {
-            critera = out;
+            criteria = out;
         }
     }
 
     private void setCriterionOperator(Operator operator) {
-        if (!critera.getCriteria().isEmpty()) {
-            critera.getCriteria().get(critera.getCriteria().size() - 1).setOperator(operator);
-        }
+        setLastCriterionOperator(operator);
     }
 
     private void setCriteriaOperator(Operator operator) {
-        if (critera.getParent() == null) {
+        if (criteria.getParent() == null) {
             if (!criteriaList.isEmpty()) {
                 criteriaList.get(criteriaList.size() - 1).setOperator(operator);
             }
         } else {
-            if (!critera.getChildren().isEmpty()) {
-                critera.getChildren().get(critera.getChildren().size() - 1).setOperator(operator);
+            setLastCriterionOperator(operator);
+        }
+    }
+
+    private void setLastCriterionOperator(Operator operator) {
+        Criterion criterion = null;
+        for (Object object : criteria.getContent()) {
+            if (object instanceof Criterion) {
+                criterion = (Criterion) object;
             }
+        }
+        if (criterion != null) {
+            criterion.setOperator(operator);
         }
     }
 
     public Criteria getCritera() {
-        return critera;
+        return criteria;
     }
 
     public List<Criteria> getCriteriaList() {
         return criteriaList;
+    }
+
+    public boolean isCriteria() {
+        boolean result = false;
+        for (Criteria c : criteriaList) {
+            result |= c.isCriteria();
+            if (result) {
+                break;
+            }
+        }
+        return result;
     }
 
 }
