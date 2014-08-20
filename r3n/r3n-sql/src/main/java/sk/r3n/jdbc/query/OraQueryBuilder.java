@@ -60,7 +60,7 @@ public class OraQueryBuilder extends AbstractQueryBuilder {
     }
 
     @Override
-    public String insert(QueryTable table, Sequence sequence, QueryAttribute[] attributes) {
+    public String insert(QueryTable table, Sequence sequence, QueryAttribute[] attributes) throws SQLException{
         StringBuilder sb = new StringBuilder();
         sb.append("BEGIN INSERT INTO ");
         sb.append(table.name());

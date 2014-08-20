@@ -138,7 +138,9 @@ public abstract class SqlBuilder {
                     sql.append(criterion.getCondition().condition());
                     sql.append(criterion.getValue());
                 } else {
-                    sql.append(MessageFormat.format(criterion.getRepresentation(), criterion.getColumn(), criterion.getCondition().condition(), criterion.getValue().toString()));
+                    sql.append(MessageFormat.format(criterion.getRepresentation(),
+                            criterion.getColumn(), criterion.getCondition().condition(),
+                            criterion.getValue().toString()));
                 }
             } else {
                 if (criterion.getRepresentation() == null) {
@@ -147,7 +149,8 @@ public abstract class SqlBuilder {
                     sql.append(QUESTION_MARK);
                     params().add(criterion.getValue());
                 } else {
-                    sql.append(MessageFormat.format(criterion.getRepresentation(), criterion.getColumn(), criterion.getCondition().condition()));
+                    sql.append(MessageFormat.format(criterion.getRepresentation(),
+                            criterion.getColumn(), criterion.getCondition().condition()));
                     params().add(criterion.getValue());
                 }
             }
@@ -315,7 +318,8 @@ public abstract class SqlBuilder {
 
         List<Object[]> result = new ArrayList<Object[]>();
         try {
-            preparedStatement = preparedStatement(connection, sql);
+            preparedStatement = connection.prepareStatement(sql);
+            setParams(connection, preparedStatement);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 if (query.getCount()) {
@@ -408,6 +412,11 @@ public abstract class SqlBuilder {
         params().clear();
         String sql = toSql(query);
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(sql);
+            LOG.debug(params());
+        }
+
         switch (query.getQueryType()) {
             case INSERT:
                 if (query.getReturning() != null) {
@@ -420,11 +429,14 @@ public abstract class SqlBuilder {
                 executeUpdate(connection, sql);
                 break;
         }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("RESULT:" + result);
+        }
         return result;
     }
 
-    private PreparedStatement preparedStatement(Connection connection, String sql) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    protected void setParams(Connection connection, PreparedStatement preparedStatement) throws SQLException {
         int i = 1;
         for (Object param : params()) {
             if (param != null) {
@@ -439,13 +451,13 @@ public abstract class SqlBuilder {
                 preparedStatement.setNull(i++, Types.NULL);
             }
         }
-        return preparedStatement;
     }
 
-    private void executeUpdate(Connection connection, String sql) throws SQLException {
+    protected void executeUpdate(Connection connection, String sql) throws SQLException {
         PreparedStatement preparedStatement = null;
         try {
-            preparedStatement = preparedStatement(connection, sql);
+            preparedStatement = connection.prepareStatement(sql);
+            setParams(connection, preparedStatement);
             preparedStatement.executeUpdate();
         } finally {
             SqlUtil.close(preparedStatement);
@@ -460,6 +472,7 @@ public abstract class SqlBuilder {
 
     protected abstract String toInsertReturningValue(Query query);
 
-    protected abstract Object executeInsert(Connection connection, String sql, Column[] columns, Column returning);
+    protected abstract Object executeInsert(Connection connection, String sql, Column[] columns, Column returning)
+            throws SQLException;
 
 }
