@@ -48,10 +48,14 @@ public class StructureWriter implements Serializable {
             sb.append("import sk.r3n.sql.Table;\n");
             sb.append("\n");
             sb.append("public class TABLE implements Serializable {\n");
-            sb.append("\n");
             for (Table table : structure.getTables()) {
+                sb.append("\n");
                 sb.append("    public static Table ").append(table.getName().toUpperCase()).append("() {\n");
                 sb.append("        return new Table(\"").append(table.getName()).append("\", \"").append(table.getAlias()).append("\");\n");
+                sb.append("    }\n");
+                sb.append("\n");
+                sb.append("    public static Table ").append(table.getName().toUpperCase()).append("(String alias) {\n");
+                sb.append("        return new Table(\"").append(table.getName()).append("\", alias);\n");
                 sb.append("    }\n");
             }
             sb.append("\n");
@@ -73,13 +77,40 @@ public class StructureWriter implements Serializable {
                 sb.append("import sk.r3n.sql.DataType;\n");
                 sb.append("\n");
                 sb.append("public class ").append(table.getName().toUpperCase()).append(" implements Serializable {\n");
-                sb.append("\n");
                 for (Column column : structure.getColumns(table)) {
+                    sb.append("\n");
                     sb.append("    public static Column ").append(column.getName().toUpperCase()).append("() {\n");
                     sb.append("        return new Column(\"").append(column.getName()).append("\", TABLE.").append(table.getName().toUpperCase()).append("(), DataType.").append(column.getDataType()).append(");\n");
                     sb.append("    }\n");
+                    sb.append("\n");
+                    sb.append("    public static Column ").append(column.getName().toUpperCase()).append("(String alias) {\n");
+                    sb.append("        return new Column(\"").append(column.getName()).append("\", TABLE.").append(table.getName().toUpperCase()).append("(alias), DataType.").append(column.getDataType()).append(");\n");
+                    sb.append("    }\n");
                 }
                 sb.append("\n");
+                sb.append("    public static Column[] columns() {\n");
+                sb.append("        return new Column[]{");
+                for (int i = 0; i < structure.getColumns(table).size(); i++) {
+                    Column column = structure.getColumns(table).get(i);
+                    sb.append(column.getName().toUpperCase()).append("()");
+                    if (i < structure.getColumns(table).size() - 1) {
+                        sb.append(", ");
+                    }
+                }
+                sb.append("};\n");
+                sb.append("    }\n");
+                sb.append("\n");
+                sb.append("    public static Column[] columns(String alias) {\n");
+                sb.append("        return new Column[]{");
+                for (int i = 0; i < structure.getColumns(table).size(); i++) {
+                    Column column = structure.getColumns(table).get(i);
+                    sb.append(column.getName().toUpperCase()).append("(alias)");
+                    if (i < structure.getColumns(table).size() - 1) {
+                        sb.append(", ");
+                    }
+                }
+                sb.append("};\n");
+                sb.append("    }\n");
                 sb.append("}\n");
                 FileUtil.write(file, sb.toString().getBytes());
             } else {
