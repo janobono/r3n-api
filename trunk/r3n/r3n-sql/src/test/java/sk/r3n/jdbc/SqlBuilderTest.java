@@ -6,8 +6,10 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import static sk.r3n.example.TABLE.*;
 import sk.r3n.example.*;
+import sk.r3n.sql.Column;
 import sk.r3n.sql.Condition;
 import sk.r3n.sql.Query;
+import sk.r3n.sql.Table;
 
 public class SqlBuilderTest {
 
@@ -78,9 +80,16 @@ public class SqlBuilderTest {
                 LOG.debug(sqlBuilder.params());
             }
 
-            // DELETE with inner select condition
+            // DELETE with inner query condition
+            Query innerQuery = new Query();
+            Table table = ACCOUNT();
+            table.setAlias("inner");
+            Column column = ACCOUNT.NAME();
+            column.setTable(table);
+            innerQuery.SELECT(column).DISTINCT().FROM(table).WHERE(column, Condition.LIKE, "%test%");
+            
             sqlBuilder.params().clear();
-            query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IN, new Query().SELECT(ACCOUNT.NAME_SCDF()).DISTINCT().FROM(ACCOUNT()));
+            query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IN, innerQuery);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toDelete(query));
