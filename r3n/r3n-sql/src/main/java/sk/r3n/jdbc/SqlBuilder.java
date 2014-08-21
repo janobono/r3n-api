@@ -153,7 +153,9 @@ public abstract class SqlBuilder {
                 } else {
                     sql.append(MessageFormat.format(criterion.getRepresentation(),
                             criterion.getColumn(), criterion.getCondition().condition()));
-                    params().add(criterion.getValue());
+                    if (criterion.getValue() != null) {
+                        params().add(criterion.getValue());
+                    }
                 }
             }
         }

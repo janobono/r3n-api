@@ -9,6 +9,7 @@ public enum Condition {
     MORE(" > "),
     LESS(" < "),
     LIKE(" LIKE "),
+    NOT_LIKE(" NOT LIKE "),
     IS_NULL(" IS NULL "),
     IS_NOT_NULL(" IS NOT NULL "),
     IN(" IN "),
