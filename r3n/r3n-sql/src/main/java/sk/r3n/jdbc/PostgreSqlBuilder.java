@@ -8,6 +8,8 @@ import java.sql.Statement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sk.r3n.sql.Column;
+import sk.r3n.sql.Join;
+import sk.r3n.sql.JoinCriterion;
 import sk.r3n.sql.Query;
 import sk.r3n.sql.Sequence;
 
@@ -53,7 +55,68 @@ public class PostgreSqlBuilder extends SqlBuilder {
 
     @Override
     protected String toPaginatedSelect(Query query) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("SELECT ");
+
+        if (query.getDistinct()) {
+            sql.append("DISTINCT ");
+        }
+
+        Column[] columns = query.getColumns();
+        for (int i = 0; i < columns.length; i++) {
+            sql.append(columns[i]);
+            if (i < columns.length - 1) {
+                sql.append(COMMA);
+            }
+            sql.append(SPACE);
+        }
+
+        sql.append(NEW_LINE).append("FROM ").append(query.getTable()).append(SPACE);
+
+        for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
+            sql.append(NEW_LINE).append(joinCriterion.getJoin());
+            if (joinCriterion.getJoin() == Join.FULL) {
+                sql.append(" OUTER");
+            }
+            sql.append(" JOIN ON ");
+            sql.append(toSql(joinCriterion.getCriteriaManager()));
+        }
+
+        if (query.getCriteriaManager().isCriteria()) {
+            sql.append(SPACE).append(NEW_LINE).append("WHERE ").append(NEW_LINE);
+            sql.append(toSql(query.getCriteriaManager()));
+        }
+
+        if (query.getOrderColumns() != null) {
+            sql.append(SPACE).append(NEW_LINE).append("ORDER BY ");
+            columns = query.getOrderColumns();
+            for (int i = 0; i < columns.length; i++) {
+                sql.append(columns[i]);
+                if (i < columns.length - 1) {
+                    sql.append(COMMA);
+                }
+                sql.append(SPACE);
+            }
+            sql.append(query.getOrder());
+        }
+
+        if (query.getGroupByColumns() != null) {
+            sql.append(SPACE).append(NEW_LINE).append("GROUP BY ");
+            columns = query.getGroupByColumns();
+            for (int i = 0; i < columns.length; i++) {
+                sql.append(columns[i]);
+                if (i < columns.length - 1) {
+                    sql.append(COMMA).append(SPACE);
+                }
+            }
+        }
+
+        sql.append(" OFFSET ? LIMIT ?");
+        params().add(query.getFirstRow());
+        params().add(query.getPageSize());
+
+        return sql.toString();
     }
 
     @Override
