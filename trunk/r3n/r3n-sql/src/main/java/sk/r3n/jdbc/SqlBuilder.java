@@ -146,8 +146,10 @@ public abstract class SqlBuilder {
                 if (criterion.getRepresentation() == null) {
                     sql.append(criterion.getColumn());
                     sql.append(criterion.getCondition().condition());
-                    sql.append(QUESTION_MARK);
-                    params().add(criterion.getValue());
+                    if (criterion.getValue() != null) {
+                        sql.append(QUESTION_MARK);
+                        params().add(criterion.getValue());
+                    }
                 } else {
                     sql.append(MessageFormat.format(criterion.getRepresentation(),
                             criterion.getColumn(), criterion.getCondition().condition()));

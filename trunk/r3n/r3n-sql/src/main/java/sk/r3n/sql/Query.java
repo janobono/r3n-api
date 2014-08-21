@@ -333,7 +333,7 @@ public class Query implements Serializable {
 
     private QueryType queryType;
 
-    private final CriteriaManager cm = new CriteriaManager();
+    private CriteriaManager cm;
 
     private Table table;
 
@@ -355,7 +355,7 @@ public class Query implements Serializable {
 
     private int lastRow = -1;
 
-    private final List<JoinCriterion> joinCriteria = new ArrayList<JoinCriterion>();
+    private List<JoinCriterion> joinCriteria;
 
     private Column returning;
 
@@ -425,21 +425,29 @@ public class Query implements Serializable {
 
     public Select SELECT(Column... columns) {
         queryType = QueryType.SELECT;
+        cm = new CriteriaManager();
+        joinCriteria = new ArrayList<JoinCriterion>();
         return new Select(columns);
     }
 
     public Insert INSERT() {
         queryType = QueryType.INSERT;
+        cm = new CriteriaManager();
+        joinCriteria = new ArrayList<JoinCriterion>();
         return new Insert();
     }
 
     public Update UPDATE(Table table) {
         queryType = QueryType.UPDATE;
+        cm = new CriteriaManager();
+        joinCriteria = new ArrayList<JoinCriterion>();
         return new Update(table);
     }
 
-    public Delete DELETE(Table table) {
+    public Delete DELETE() {
         queryType = QueryType.DELETE;
+        cm = new CriteriaManager();
+        joinCriteria = new ArrayList<JoinCriterion>();
         return new Delete();
     }
 
