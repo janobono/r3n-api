@@ -7,28 +7,15 @@
         <version>3.0.0</version>
         <relativePath>..</relativePath>
     </parent>
-    <artifactId>r3n-sql-plugin</artifactId>
-    <packaging>maven-plugin</packaging>
-
-    <description>R3N maven plugin.</description>
-    
-    <properties>
-        <mavenVersion>3.2.2</mavenVersion>
-    </properties>
-    
+    <artifactId>r3n-example</artifactId>
+   
     <dependencies>
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>${mavenVersion}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugin-tools</groupId>
-            <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.3</version>
-            <scope>provided</scope>
-        </dependency>
-        
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -51,25 +38,48 @@
         </dependency>
     </dependencies>
     
-    
     <build>
+        <defaultGoal>package</defaultGoal>
         <plugins>
             <plugin>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.3</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
                 <configuration>
-                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>sk.r3n</groupId>
+                <artifactId>r3n-sql-plugin</artifactId>
+                <version>${project.version}</version>
+                <configuration>
+                    <targetPackage>sk.r3n.example</targetPackage>
+                    
+                    <jdbcDriver>oracle.jdbc.driver.OracleDriver</jdbcDriver>
+                    <jdbcUrl>jdbc:oracle:thin:@mc-odbs2.microcomp.sk:1521:oISISdb</jdbcUrl>
+                    <jdbcUser>metis_prod_t4</jdbcUser>
+                    <jdbcPassword>metis_prod_t4</jdbcPassword>
+                    
+                    
+                    <!--<jdbcDriver>org.postgresql.Driver</jdbcDriver>
+                    <jdbcUrl>jdbc:postgresql://localhost:5432/test</jdbcUrl>
+                    <jdbcUser>test</jdbcUser>
+                    <jdbcPassword>test</jdbcPassword>-->
+                    
                 </configuration>
                 <executions>
                     <execution>
-                        <id>mojo-descriptor</id>
-                        <phase>process-classes</phase>
+                        <id>r3n-gen</id>
+                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>descriptor</goal>
+                            <goal>r3n-gen</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+    
 </project>
