@@ -77,6 +77,15 @@ public class SqlBuilderTest {
                 LOG.debug(sqlBuilder.toDelete(query));
                 LOG.debug(sqlBuilder.params());
             }
+
+            // DELETE with inner select condition
+            sqlBuilder.params().clear();
+            query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IN, new Query().SELECT(ACCOUNT.NAME_SCDF()).DISTINCT().FROM(ACCOUNT()));
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(sqlBuilder.toDelete(query));
+                LOG.debug(sqlBuilder.params());
+            }
         }
     }
 
