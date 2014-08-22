@@ -65,8 +65,8 @@
                     
                     <jdbcDriver>org.postgresql.Driver</jdbcDriver>
                     <jdbcUrl>jdbc:postgresql://localhost:5432/test</jdbcUrl>
-                    <jdbcUser>test</jdbcUser>
-                    <jdbcPassword>test</jdbcPassword>
+                    <jdbcUser>postgres</jdbcUser>
+                    <jdbcPassword>postgres</jdbcPassword>
                     
                 </configuration>
             </plugin>
