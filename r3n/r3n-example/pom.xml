@@ -52,32 +52,23 @@
             </plugin>
             <plugin>
                 <groupId>sk.r3n</groupId>
-                <artifactId>r3n-sql-plugin</artifactId>
+                <artifactId>r3n-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <configuration>
                     <targetPackage>sk.r3n.example</targetPackage>
                     
-                    <jdbcDriver>oracle.jdbc.driver.OracleDriver</jdbcDriver>
+                    <!--<jdbcDriver>oracle.jdbc.driver.OracleDriver</jdbcDriver>
                     <jdbcUrl>jdbc:oracle:thin:@mc-odbs2.microcomp.sk:1521:oISISdb</jdbcUrl>
                     <jdbcUser>metis_prod_t4</jdbcUser>
-                    <jdbcPassword>metis_prod_t4</jdbcPassword>
+                    <jdbcPassword>metis_prod_t4</jdbcPassword>-->
                     
                     
-                    <!--<jdbcDriver>org.postgresql.Driver</jdbcDriver>
+                    <jdbcDriver>org.postgresql.Driver</jdbcDriver>
                     <jdbcUrl>jdbc:postgresql://localhost:5432/test</jdbcUrl>
                     <jdbcUser>test</jdbcUser>
-                    <jdbcPassword>test</jdbcPassword>-->
+                    <jdbcPassword>test</jdbcPassword>
                     
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>r3n-gen</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>r3n-gen</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
