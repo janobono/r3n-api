@@ -16,9 +16,10 @@
     </properties>
 
     <modules>
-        <module>r3n-sql</module>
-        <module>r3n-maven-plugin</module>
         <module>r3n-example</module>
+        <module>r3n-maven-plugin</module>
+        <module>r3n-sql</module>
+        <module>r3n-util</module>
     </modules>
 
 </project>
