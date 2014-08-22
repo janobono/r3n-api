@@ -29,8 +29,16 @@ public class TABLE implements Serializable {
         return new Table("bill", alias);
     }
 
+    public static Table BILL_ITEM() {
+        return new Table("bill_item", "T4");
+    }
+
+    public static Table BILL_ITEM(String alias) {
+        return new Table("bill_item", alias);
+    }
+
     public static Table ACCOUNT_ACTIVITY() {
-        return new Table("account_activity", "T4");
+        return new Table("account_activity", "T5");
     }
 
     public static Table ACCOUNT_ACTIVITY(String alias) {
@@ -38,19 +46,11 @@ public class TABLE implements Serializable {
     }
 
     public static Table BILL_ACTIVITY() {
-        return new Table("bill_activity", "T5");
+        return new Table("bill_activity", "T6");
     }
 
     public static Table BILL_ACTIVITY(String alias) {
         return new Table("bill_activity", alias);
-    }
-
-    public static Table BILL_ITEM() {
-        return new Table("bill_item", "T6");
-    }
-
-    public static Table BILL_ITEM(String alias) {
-        return new Table("bill_item", alias);
     }
 
     public static Table EXPENSE_CATEGORY() {
