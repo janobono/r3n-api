@@ -355,7 +355,7 @@ public abstract class SqlBuilder {
     }
 
     protected Object[] getRow(ResultSet resultSet, Column... columns) throws SQLException {
-        Object[] result = new Result[columns.length];
+        Object[] result = new Object[columns.length];
 
         for (int i = 0; i < result.length; i++) {
             result[i] = getColumn(resultSet, i + 1, columns[i]);
