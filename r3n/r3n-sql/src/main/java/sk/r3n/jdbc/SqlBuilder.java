@@ -103,19 +103,32 @@ public abstract class SqlBuilder {
     public String toSql(Criteria criteria) {
         StringBuilder sql = new StringBuilder();
         sql.append(LEFT_BRACE);
-        Criterion criterion = null;
+        Object lastObject = null;
+        boolean criteriaSequence = false;
         for (Object object : criteria.getContent()) {
-            if (criterion != null) {
+            if (object instanceof Criterion && criteriaSequence) {
+                sql.append(RIGHT_BRACE);
+                criteriaSequence = false;
+            }
+            if (lastObject != null) {
                 sql.append(SPACE);
-                sql.append(criterion.getOperator());
+                if (lastObject instanceof Criterion) {
+                    sql.append(((Criterion) lastObject).getOperator());
+                } else {
+                    sql.append(((Criteria) lastObject).getOperator());
+                }
                 sql.append(SPACE);
             }
             if (object instanceof Criterion) {
                 sql.append(toSql((Criterion) object));
-                criterion = (Criterion) object;
             } else {
-                sql.append(toSql(criteria));
+                if (!criteriaSequence) {
+                    sql.append(LEFT_BRACE);
+                    criteriaSequence = true;
+                }
+                sql.append(toSql((Criteria) object));
             }
+            lastObject = object;
         }
         sql.append(RIGHT_BRACE);
         return sql.toString();
@@ -193,11 +206,11 @@ public abstract class SqlBuilder {
             sql.append(NEW_LINE).append("FROM ").append(query.getTable()).append(SPACE);
 
             for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
-                sql.append(NEW_LINE).append(joinCriterion.getJoin());
+                sql.append(SPACE).append(NEW_LINE).append(joinCriterion.getJoin());
                 if (joinCriterion.getJoin() == Join.FULL) {
                     sql.append(" OUTER");
                 }
-                sql.append(" JOIN ON ");
+                sql.append(" JOIN ").append(joinCriterion.getTable()).append(" ON ");
                 sql.append(toSql(joinCriterion.getCriteriaManager()));
             }
 
@@ -206,17 +219,15 @@ public abstract class SqlBuilder {
                 sql.append(toSql(query.getCriteriaManager()));
             }
 
-            if (query.getOrderColumns() != null) {
+            if (!query.getOrderCriteria().isEmpty()) {
                 sql.append(SPACE).append(NEW_LINE).append("ORDER BY ");
-                columns = query.getOrderColumns();
-                for (int i = 0; i < columns.length; i++) {
-                    sql.append(columns[i]);
-                    if (i < columns.length - 1) {
+                for (int i = 0; i < query.getOrderCriteria().size(); i++) {
+                    sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
+                    if (i < query.getOrderCriteria().size() - 1) {
                         sql.append(COMMA);
                     }
                     sql.append(SPACE);
                 }
-                sql.append(query.getOrder());
             }
 
             if (query.getGroupByColumns() != null) {

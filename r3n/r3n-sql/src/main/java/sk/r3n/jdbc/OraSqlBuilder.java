@@ -95,7 +95,7 @@ public class OraSqlBuilder extends SqlBuilder {
             if (joinCriterion.getJoin() == Join.FULL) {
                 sql.append(" OUTER");
             }
-            sql.append(" JOIN ON ");
+            sql.append(" JOIN ").append(joinCriterion.getTable()).append(" ON ");
             sql.append(toSql(joinCriterion.getCriteriaManager()));
         }
 
@@ -104,17 +104,15 @@ public class OraSqlBuilder extends SqlBuilder {
             sql.append(toSql(query.getCriteriaManager()));
         }
 
-        if (query.getOrderColumns() != null) {
+        if (!query.getOrderCriteria().isEmpty()) {
             sql.append(SPACE).append(NEW_LINE).append("ORDER BY ");
-            columns = query.getOrderColumns();
-            for (int i = 0; i < columns.length; i++) {
-                sql.append(columns[i]);
-                if (i < columns.length - 1) {
+            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
+                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
+                if (i < query.getOrderCriteria().size() - 1) {
                     sql.append(COMMA);
                 }
                 sql.append(SPACE);
             }
-            sql.append(query.getOrder());
         }
 
         if (query.getGroupByColumns() != null) {
@@ -135,7 +133,7 @@ public class OraSqlBuilder extends SqlBuilder {
         sql.append(RIGHT_BRACE).append(" WHERE ROWNUM <= ? ").append(RIGHT_BRACE).append(" WHERE rnm >= ?");
         params().add(query.getLastRow() + 1);
         params().add(query.getFirstRow() + 1);
-        
+
         return sql.toString();
     }
 

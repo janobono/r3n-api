@@ -17,12 +17,12 @@ public class CriteriaManager {
     }
 
     public void addCriterion(Column column, Condition condition, Object value, String representation, Operator operator) {
-        setCriterionOperator(operator);
+        setLastOperator(operator);
         criteria.addCriterion(column, condition, value, representation, Operator.AND);
     }
 
     public void next(Operator operator) {
-        setCriteriaOperator(operator);
+        setLastOperator(operator);
         Criteria next = new Criteria();
         if (criteria.getParent() == null) {
             criteriaList.add(next);
@@ -34,7 +34,7 @@ public class CriteriaManager {
     }
 
     public void in(Operator operator) {
-        setCriterionOperator(operator);
+        setLastOperator(operator);
         Criteria in = new Criteria();
         criteria.getContent().add(in);
         in.setParent(criteria);
@@ -48,29 +48,14 @@ public class CriteriaManager {
         }
     }
 
-    private void setCriterionOperator(Operator operator) {
-        setLastCriterionOperator(operator);
-    }
-
-    private void setCriteriaOperator(Operator operator) {
-        if (criteria.getParent() == null) {
-            if (!criteriaList.isEmpty()) {
-                criteriaList.get(criteriaList.size() - 1).setOperator(operator);
-            }
-        } else {
-            setLastCriterionOperator(operator);
-        }
-    }
-
-    private void setLastCriterionOperator(Operator operator) {
-        Criterion criterion = null;
-        for (Object object : criteria.getContent()) {
+    private void setLastOperator(Operator operator) {
+        if (!criteria.getContent().isEmpty()) {
+            Object object = criteria.getContent().get(criteria.getContent().size() - 1);
             if (object instanceof Criterion) {
-                criterion = (Criterion) object;
+                ((Criterion) object).setOperator(operator);
+            } else {
+                ((Criteria) object).setOperator(operator);
             }
-        }
-        if (criterion != null) {
-            criterion.setOperator(operator);
         }
     }
 

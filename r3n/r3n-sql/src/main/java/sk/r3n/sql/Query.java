@@ -14,23 +14,50 @@ public class Query implements Serializable {
 
     public final class Select implements Serializable {
 
+        protected Column[] columns;
+
+        protected Table table;
+
+        protected List<JoinCriterion> joinCriteria;
+
+        protected CriteriaManager cm;
+
+        protected List<OrderCriterion> orderCriteria;
+
+        protected Column[] groupByColumns;
+
+        protected boolean count;
+
+        protected boolean distinct;
+
+        protected int firstRow;
+
+        protected int lastRow;
+
         public Select(Column... columns) {
-            Query.this.columns = columns;
+            cm = new CriteriaManager();
+            joinCriteria = new ArrayList<JoinCriterion>();
+            orderCriteria = new ArrayList<OrderCriterion>();
+            this.columns = columns;
+            count = false;
+            distinct = false;
+            firstRow = -1;
+            lastRow = -1;
         }
 
         public Select firstRow(int firstRow) {
-            Query.this.firstRow = firstRow;
+            this.firstRow = firstRow;
             return this;
         }
 
         public Select lastRow(int lastRow) {
-            Query.this.lastRow = lastRow;
+            this.lastRow = lastRow;
             return this;
         }
 
         public Select interval(int start, int count) {
-            Query.this.firstRow = 0;
-            Query.this.lastRow = 0;
+            firstRow = 0;
+            lastRow = 0;
             if (start < 0) {
                 start = 0;
             }
@@ -38,8 +65,8 @@ public class Query implements Serializable {
                 count = 0;
             }
             if (count != 0) {
-                Query.this.firstRow = start;
-                Query.this.lastRow = start + count;
+                firstRow = start;
+                lastRow = start + count;
             }
             return this;
         }
@@ -51,117 +78,119 @@ public class Query implements Serializable {
             if (size < 0) {
                 size = 0;
             }
-            Query.this.firstRow = page * size;
-            Query.this.lastRow = Query.this.firstRow + size;
+            firstRow = page * size;
+            lastRow = firstRow + size;
             return this;
         }
 
         public Select COUNT() {
-            Query.this.count = true;
+            count = true;
             return this;
         }
 
         public Select DISTINCT() {
-            Query.this.distinct = true;
+            distinct = true;
             return this;
         }
 
         public Select FROM(Table table) {
-            Query.this.table = table;
+            this.table = table;
             return this;
         }
 
         public Select INNER_JOIN(Table table, Column col1, Column col2) {
             JoinCriterion joinCriterion = new JoinCriterion(Join.INNER, table);
             joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
-            Query.this.joinCriteria.add(joinCriterion);
+            joinCriteria.add(joinCriterion);
             return this;
         }
 
         public Select LEFT_JOIN(Table table, Column col1, Column col2) {
             JoinCriterion joinCriterion = new JoinCriterion(Join.LEFT, table);
             joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
-            Query.this.joinCriteria.add(joinCriterion);
+            joinCriteria.add(joinCriterion);
             return this;
         }
 
         public Select RIGHT_JOIN(Table table, Column col1, Column col2) {
             JoinCriterion joinCriterion = new JoinCriterion(Join.RIGHT, table);
             joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
-            Query.this.joinCriteria.add(joinCriterion);
+            joinCriteria.add(joinCriterion);
             return this;
         }
 
         public Select FULL_JOIN(Table table, Column col1, Column col2) {
             JoinCriterion joinCriterion = new JoinCriterion(Join.FULL, table);
             joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
-            Query.this.joinCriteria.add(joinCriterion);
+            joinCriteria.add(joinCriterion);
             return this;
         }
 
         public Select WHERE(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Select WHERE(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Select AND(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Select AND(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Select OR(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Select OR(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Select AND_NEXT() {
-            Query.this.cm.next(Operator.AND);
+            cm.next(Operator.AND);
             return this;
         }
 
         public Select OR_NEXT() {
-            Query.this.cm.next(Operator.OR);
+            cm.next(Operator.OR);
             return this;
         }
 
         public Select AND_IN() {
-            Query.this.cm.in(Operator.AND);
+            cm.in(Operator.AND);
             return this;
         }
 
         public Select OR_IN() {
-            Query.this.cm.in(Operator.OR);
+            cm.in(Operator.OR);
             return this;
         }
 
         public Select OUT() {
-            Query.this.cm.out();
+            cm.out();
             return this;
         }
 
-        public Select ORDER_BY(Order order, Column... columns) {
-            Query.this.order = order;
-            Query.this.orderColumns = columns;
+        public Select ORDER_BY(Column column, Order order) {
+            OrderCriterion orderCriterion = new OrderCriterion();
+            orderCriterion.setColumn(column);
+            orderCriterion.setOrder(order);
+            orderCriteria.add(orderCriterion);
             return this;
         }
 
         public Select GROUP_BY(Column... columns) {
-            Query.this.groupByColumns = columns;
+            groupByColumns = columns;
             return this;
         }
 
@@ -169,99 +198,116 @@ public class Query implements Serializable {
 
     public class Insert implements Serializable {
 
+        protected Table table;
+
+        protected Column[] columns;
+
+        protected Object[] values;
+
+        protected Column returning;
+
         public Insert INTO(Table table, Column... columns) {
-            Query.this.table = table;
-            Query.this.columns = columns;
+            this.table = table;
+            this.columns = columns;
             return this;
         }
 
         public Insert VALUES(Object... values) {
-            Query.this.values = values;
+            this.values = values;
             return this;
         }
 
         public Insert RETURNING(Column returning) {
-            Query.this.returning = returning;
+            this.returning = returning;
             return this;
         }
     }
 
     public class Update implements Serializable {
 
+        protected CriteriaManager cm;
+
+        protected Table table;
+
+        protected Column[] columns;
+
+        protected Object[] values;
+
         public Update(Table table) {
-            Query.this.table = table;
+            cm = new CriteriaManager();
+            this.table = table;
         }
 
         public Update SET(Column column, Object value) {
-            if (Query.this.columns == null) {
-                Query.this.columns = new Column[]{};
+            if (this.columns == null) {
+                this.columns = new Column[]{};
             }
-            Column[] columns = Arrays.copyOf(Query.this.columns, Query.this.columns.length + 1);
-            columns[columns.length - 1] = column;
+            Column[] newColumns = Arrays.copyOf(this.columns, this.columns.length + 1);
+            newColumns[newColumns.length - 1] = column;
 
-            if (Query.this.values == null) {
-                Query.this.values = new Object[]{};
+            if (this.values == null) {
+                this.values = new Object[]{};
             }
-            Object[] values = Arrays.copyOf(Query.this.values, Query.this.values.length + 1);
-            values[values.length - 1] = value;
+            Object[] newValues = Arrays.copyOf(this.values, this.values.length + 1);
+            newValues[newValues.length - 1] = value;
 
-            Query.this.columns = columns;
-            Query.this.values = values;
+            this.columns = newColumns;
+            this.values = newValues;
             return this;
         }
 
         public Update WHERE(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Update WHERE(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Update AND(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Update AND(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Update OR(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Update OR(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Update AND_NEXT() {
-            Query.this.cm.next(Operator.AND);
+            cm.next(Operator.AND);
             return this;
         }
 
         public Update OR_NEXT() {
-            Query.this.cm.next(Operator.OR);
+            cm.next(Operator.OR);
             return this;
         }
 
         public Update AND_IN() {
-            Query.this.cm.in(Operator.AND);
+            cm.in(Operator.AND);
             return this;
         }
 
         public Update OR_IN() {
-            Query.this.cm.in(Operator.OR);
+            cm.in(Operator.OR);
             return this;
         }
 
         public Update OUT() {
-            Query.this.cm.out();
+            cm.out();
             return this;
         }
 
@@ -269,63 +315,68 @@ public class Query implements Serializable {
 
     public class Delete implements Serializable {
 
+        protected CriteriaManager cm;
+
+        protected Table table;
+
         public Delete FROM(Table from) {
-            Query.this.table = from;
+            cm = new CriteriaManager();
+            table = from;
             return this;
         }
 
         public Delete WHERE(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Delete WHERE(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Delete AND(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Delete AND(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Delete OR(Column column, Condition condition, Object value, String representation) {
-            Query.this.cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
         public Delete OR(Column column, Condition condition, Object value) {
-            Query.this.cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
         public Delete AND_NEXT() {
-            Query.this.cm.next(Operator.AND);
+            cm.next(Operator.AND);
             return this;
         }
 
         public Delete OR_NEXT() {
-            Query.this.cm.next(Operator.OR);
+            cm.next(Operator.OR);
             return this;
         }
 
         public Delete AND_IN() {
-            Query.this.cm.in(Operator.AND);
+            cm.in(Operator.AND);
             return this;
         }
 
         public Delete OR_IN() {
-            Query.this.cm.in(Operator.OR);
+            cm.in(Operator.OR);
             return this;
         }
 
         public Delete OUT() {
-            Query.this.cm.out();
+            cm.out();
             return this;
         }
 
@@ -333,62 +384,108 @@ public class Query implements Serializable {
 
     private QueryType queryType;
 
-    private CriteriaManager cm;
-
-    private Table table;
-
-    private Column[] columns;
-
-    private Object[] values;
-
-    private Column[] orderColumns;
-
-    private Order order;
-
-    private Column[] groupByColumns;
-
-    private boolean count = false;
-
-    private boolean distinct = false;
-
-    private int firstRow = -1;
-
-    private int lastRow = -1;
-
-    private List<JoinCriterion> joinCriteria;
-
-    private Column returning;
+    private Object queryObject;
 
     public QueryType getQueryType() {
         return queryType;
     }
 
     public CriteriaManager getCriteriaManager() {
-        return cm;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).cm;
+                case UPDATE:
+                    return ((Update) queryObject).cm;
+                case DELETE:
+                    return ((Delete) queryObject).cm;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return null;
     }
 
     public Table getTable() {
-        return table;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).table;
+                case INSERT:
+                    return ((Insert) queryObject).table;
+                case UPDATE:
+                    return ((Update) queryObject).table;
+                case DELETE:
+                    return ((Delete) queryObject).table;
+            }
+        }
+        return null;
     }
 
     public Column[] getColumns() {
-        return columns;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).columns;
+                case INSERT:
+                    return ((Insert) queryObject).columns;
+                case UPDATE:
+                    return ((Update) queryObject).columns;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return null;
     }
 
     public Object[] getValues() {
-        return values;
+        if (queryType != null) {
+            switch (queryType) {
+                case INSERT:
+                    return ((Insert) queryObject).values;
+                case UPDATE:
+                    return ((Update) queryObject).values;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return null;
     }
 
     public Column[] getGroupByColumns() {
-        return groupByColumns;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).groupByColumns;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return null;
     }
 
     public boolean getCount() {
-        return count;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).count;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return false;
     }
 
     public boolean getDistinct() {
-        return distinct;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).distinct;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return false;
     }
 
     public boolean getPagination() {
@@ -396,11 +493,27 @@ public class Query implements Serializable {
     }
 
     public int getFirstRow() {
-        return firstRow;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).firstRow;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return -1;
     }
 
     public int getLastRow() {
-        return lastRow;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).lastRow;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return -1;
     }
 
     public int getPageSize() {
@@ -408,47 +521,67 @@ public class Query implements Serializable {
     }
 
     public List<JoinCriterion> getJoinCriteria() {
-        return joinCriteria;
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).joinCriteria;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return null;
     }
 
-    public Column[] getOrderColumns() {
-        return orderColumns;
-    }
-
-    public Order getOrder() {
-        return order;
+    public List<OrderCriterion> getOrderCriteria() {
+        if (queryType != null) {
+            switch (queryType) {
+                case SELECT:
+                    return ((Select) queryObject).orderCriteria;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return null;
     }
 
     public Column getReturning() {
-        return returning;
+        if (queryType != null) {
+            switch (queryType) {
+                case INSERT:
+                    return ((Insert) queryObject).returning;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        }
+        return null;
     }
 
     public Select SELECT(Column... columns) {
         queryType = QueryType.SELECT;
-        cm = new CriteriaManager();
-        joinCriteria = new ArrayList<JoinCriterion>();
-        return new Select(columns);
+        Select select = new Select(columns);
+        queryObject = select;
+        return select;
     }
 
     public Insert INSERT() {
         queryType = QueryType.INSERT;
-        cm = new CriteriaManager();
-        joinCriteria = new ArrayList<JoinCriterion>();
-        return new Insert();
+        Insert insert = new Insert();
+        queryObject = insert;
+        return insert;
     }
 
     public Update UPDATE(Table table) {
         queryType = QueryType.UPDATE;
-        cm = new CriteriaManager();
-        joinCriteria = new ArrayList<JoinCriterion>();
-        return new Update(table);
+        Update update = new Update(table);
+        queryObject = update;
+        return update;
     }
 
     public Delete DELETE() {
         queryType = QueryType.DELETE;
-        cm = new CriteriaManager();
-        joinCriteria = new ArrayList<JoinCriterion>();
-        return new Delete();
+        Delete delete = new Delete();
+        queryObject = delete;
+        return delete;
     }
 
 }
