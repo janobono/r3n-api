@@ -72,7 +72,6 @@ public class StructureWriter implements Serializable {
                 sb.append("package ").append(targetPackage).append(";\n");
                 sb.append("\n");
                 sb.append("import java.io.Serializable;\n");
-                sb.append("import sk.r3n.sql.Table;\n");
                 sb.append("import sk.r3n.sql.Column;\n");
                 sb.append("import sk.r3n.sql.DataType;\n");
                 sb.append("\n");
