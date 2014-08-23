@@ -256,6 +256,13 @@ public class Query implements Serializable {
             return this;
         }
 
+        public Update SET(Column[] columns, Object[] values) {
+            for (int i = 0; i < columns.length; i++) {
+                SET(columns[i], values[i]);
+            }
+            return this;
+        }
+
         public Update WHERE(Column column, Condition condition, Object value, String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
