@@ -26,5 +26,8 @@ public class DtoTest {
         dto.fill(account, new Object[]{10L, (short) 5, "name", "name_scdf", "note"}, ACCOUNT.columns());
         LOG.debug(account);
         LOG.debug(Arrays.toString(dto.toArray(account, ACCOUNT.columns())));
+        Account accountCopy = new Account();
+        dto.objToObj(account, accountCopy);
+        LOG.debug(accountCopy);
     }
 }
