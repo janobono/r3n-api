@@ -8,6 +8,7 @@ import java.sql.Statement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sk.r3n.sql.Column;
+import sk.r3n.sql.DataType;
 import sk.r3n.sql.Join;
 import sk.r3n.sql.JoinCriterion;
 import sk.r3n.sql.Query;
@@ -111,8 +112,8 @@ public class PostgreSqlBuilder extends SqlBuilder {
         }
 
         sql.append(" OFFSET ? LIMIT ?");
-        params().add(query.getFirstRow());
-        params().add(query.getPageSize());
+        params().add(new SqlParam(DataType.INTEGER, query.getFirstRow()));
+        params().add(new SqlParam(DataType.INTEGER, query.getPageSize()));
 
         return sql.toString();
     }
@@ -136,7 +137,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
                 sql.append(nextVal((Sequence) values[i]));
             } else {
                 sql.append(QUESTION_MARK);
-                params().add(values[i]);
+                params().add(new SqlParam(columns[i].getDataType(), values[i]));
             }
             if (i < columns.length - 1) {
                 sql.append(COMMA).append(SPACE);

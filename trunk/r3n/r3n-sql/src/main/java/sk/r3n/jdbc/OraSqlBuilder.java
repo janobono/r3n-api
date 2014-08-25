@@ -13,6 +13,7 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sk.r3n.sql.Column;
+import sk.r3n.sql.DataType;
 import sk.r3n.sql.Join;
 import sk.r3n.sql.JoinCriterion;
 import sk.r3n.sql.Query;
@@ -131,8 +132,8 @@ public class OraSqlBuilder extends SqlBuilder {
         }
 
         sql.append(RIGHT_BRACE).append(" WHERE ROWNUM <= ? ").append(RIGHT_BRACE).append(" WHERE rnm >= ?");
-        params().add(query.getLastRow() + 1);
-        params().add(query.getFirstRow() + 1);
+        params().add(new SqlParam(DataType.INTEGER, query.getLastRow() + 1));
+        params().add(new SqlParam(DataType.INTEGER, query.getFirstRow() + 1));
 
         return sql.toString();
     }
@@ -155,7 +156,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 sql.append(nextVal((Sequence) values[i]));
             } else {
                 sql.append(QUESTION_MARK);
-                params().add(values[i]);
+                params().add(new SqlParam(columns[i].getDataType(), values[i]));
             }
             if (i < columns.length - 1) {
                 sql.append(COMMA).append(SPACE);
