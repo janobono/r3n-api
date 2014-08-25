@@ -92,7 +92,7 @@ public class Dto {
     private void setValue(Object object, Field field, Object value) {
         try {
             String methodName = "set" + Character.toString(field.getName().charAt(0)).toUpperCase() + field.getName().substring(1);
-            Method method = object.getClass().getMethod(methodName, value.getClass());
+            Method method = object.getClass().getMethod(methodName, object.getClass());
             method.invoke(object, value);
         } catch (Exception e) {
             throw new RuntimeException(e);
