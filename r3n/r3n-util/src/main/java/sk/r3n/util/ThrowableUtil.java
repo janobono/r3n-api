@@ -9,9 +9,10 @@ public class ThrowableUtil {
         } else {
             result.append(throwable.toString());
         }
-        if (throwable.getCause() != null) {
+        Throwable cause = throwable.getCause();
+        if (cause != null) {
             result.append("\r\n");
-            result.append(createMessage(throwable.getCause()));
+            result.append(createMessage(cause));
         }
         return result.toString();
     }
