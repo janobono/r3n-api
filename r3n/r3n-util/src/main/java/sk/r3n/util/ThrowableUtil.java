@@ -1,19 +1,26 @@
 package sk.r3n.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public class ThrowableUtil {
 
     public static String createMessage(Throwable throwable) {
-        StringBuilder result = new StringBuilder();
+        String result;
         if (throwable.getLocalizedMessage() != null) {
-            result.append(throwable.getLocalizedMessage());
+            result = throwable.getLocalizedMessage();
         } else {
-            result.append(throwable.toString());
+            result = throwable.toString();
         }
-        Throwable cause = throwable.getCause();
-        if (cause != null) {
-            result.append("\r\n");
-            result.append(createMessage(cause));
-        }
-        return result.toString();
+        return result;
+    }
+
+    public static String getStackTrace(Throwable throwable) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        throwable.printStackTrace(printWriter);
+        printWriter.flush();
+        printWriter.close();
+        return stringWriter.toString();
     }
 }
