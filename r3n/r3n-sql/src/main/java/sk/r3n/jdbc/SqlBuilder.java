@@ -37,13 +37,13 @@ public abstract class SqlBuilder {
     protected static final char EQUALS = '=';
     protected static final char COMMA = ',';
 
-    private List<Object> params;
+    private List<SqlParam> params;
 
     private File tmpDir;
 
-    public List<Object> params() {
+    public List<SqlParam> params() {
         if (params == null) {
-            params = new ArrayList<Object>();
+            params = new ArrayList<SqlParam>();
         }
         return params;
     }
@@ -161,13 +161,13 @@ public abstract class SqlBuilder {
                     sql.append(criterion.getCondition().condition());
                     if (criterion.getValue() != null) {
                         sql.append(QUESTION_MARK);
-                        params().add(criterion.getValue());
+                        params().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
                     }
                 } else {
                     sql.append(MessageFormat.format(criterion.getRepresentation(),
                             criterion.getColumn(), criterion.getCondition().condition()));
                     if (criterion.getValue() != null) {
-                        params().add(criterion.getValue());
+                        params().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
                     }
                 }
             }
@@ -270,7 +270,7 @@ public abstract class SqlBuilder {
                     sql.append(nextVal((Sequence) values[i]));
                 } else {
                     sql.append(QUESTION_MARK);
-                    params().add(values[i]);
+                    params().add(new SqlParam(columns[i].getDataType(), values[i]));
                 }
                 if (i < columns.length - 1) {
                     sql.append(COMMA).append(SPACE);
@@ -292,7 +292,7 @@ public abstract class SqlBuilder {
                 sql.append(columns[i]).append(EQUALS).append(nextVal((Sequence) values[i]));
             } else {
                 sql.append(columns[i]).append(EQUALS).append(QUESTION_MARK);
-                params().add(values[i]);
+                params().add(new SqlParam(columns[i].getDataType(), values[i]));
             }
             if (i < columns.length - 1) {
                 sql.append(COMMA).append(SPACE);
@@ -453,14 +453,26 @@ public abstract class SqlBuilder {
 
     protected void setParams(Connection connection, PreparedStatement preparedStatement) throws SQLException {
         int i = 1;
-        for (Object param : params()) {
+        for (SqlParam param : params()) {
             if (param != null) {
-                if (param instanceof File) {
-                    Blob blob = connection.createBlob();
-                    FileUtil.fileToStream((File) param, blob.setBinaryStream(1));
-                    preparedStatement.setBlob(i++, blob);
-                } else {
-                    preparedStatement.setObject(i++, param);
+                switch (param.getDataType()) {
+                    case BLOB:
+                        Blob blob = connection.createBlob();
+                        FileUtil.fileToStream((File) param.getValue(), blob.setBinaryStream(1));
+                        preparedStatement.setBlob(i++, blob);
+                        break;
+                    case DATE:
+                        preparedStatement.setDate(i++, new java.sql.Date(((java.util.Date) param.getValue()).getTime()));
+                        break;
+                    case TIME:
+                        preparedStatement.setTime(i++, new java.sql.Time(((java.util.Date) param.getValue()).getTime()));
+                        break;
+                    case TIME_STAMP:
+                        preparedStatement.setTimestamp(i++, new java.sql.Timestamp(((java.util.Date) param.getValue()).getTime()));
+                        break;
+                    default:
+                        preparedStatement.setObject(i++, param.getValue());
+                        break;
                 }
             } else {
                 preparedStatement.setNull(i++, Types.NULL);
