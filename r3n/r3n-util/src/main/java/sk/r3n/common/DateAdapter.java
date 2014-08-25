@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 public class DateAdapter extends XmlAdapter<String, Date> {
 
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("UTC");
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SSS'Z'");
 
     static {
         DateAdapter.DATE_FORMAT.setTimeZone(DateAdapter.TIME_ZONE);
