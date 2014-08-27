@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class Sort implements Serializable {
 
-    public static enum Order {
+    public enum Order {
 
         ASC, DESC
     }
