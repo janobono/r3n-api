@@ -39,4 +39,8 @@ public abstract class SearchCriteria implements Serializable {
         this.sort = sort;
     }
 
+    @Override
+    public String toString() {
+        return "SearchCriteria{" + "start=" + start + ", count=" + count + ", sort=" + sort + '}';
+    }
 }
