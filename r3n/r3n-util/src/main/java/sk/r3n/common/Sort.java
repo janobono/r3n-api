@@ -4,9 +4,14 @@ import java.io.Serializable;
 
 public class Sort implements Serializable {
 
+    public static enum Order {
+
+        ASC, DESC
+    }
+
     private String attribute;
 
-    private Boolean descending;
+    private Order order;
 
     public String getAttribute() {
         return attribute;
@@ -16,16 +21,16 @@ public class Sort implements Serializable {
         this.attribute = attribute;
     }
 
-    public Boolean isDescending() {
-        return descending;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setDescending(Boolean descending) {
-        this.descending = descending;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     @Override
     public String toString() {
-        return "Sort{" + "attribute=" + attribute + ", descending=" + descending + '}';
+        return "Sort{" + "attribute=" + attribute + ", order=" + order + '}';
     }
 }
