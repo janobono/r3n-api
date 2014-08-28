@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -355,11 +356,16 @@ public abstract class SqlBuilder {
             setParams(connection, preparedStatement);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
+                Object[] row;
                 if (query.getCount()) {
-                    result.add(new Object[]{resultSet.getInt(1)});
+                    row = new Object[]{resultSet.getInt(1)};
                 } else {
-                    result.add(getRow(resultSet, query.getColumns()));
+                    row = getRow(resultSet, query.getColumns());
                 }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("ROW:" + Arrays.toString(row));
+                }
+                result.add(row);
             }
         } finally {
             SqlUtil.close(resultSet);
@@ -367,7 +373,7 @@ public abstract class SqlBuilder {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("RESULT:" + result);
+            LOG.debug("RESULT SIZE:" + result.size());
         }
         return result;
     }
