@@ -1,5 +1,7 @@
 package sk.r3n.jdbc;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.LogManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -96,6 +98,9 @@ public class SqlBuilderTest {
             }
 
             //SELECT interval with inner select and multiple joins
+            List<String> list = new ArrayList<String>();
+            list.add("l1");
+            list.add("l2");
             sqlBuilder.params().clear();
             query.SELECT(ACCOUNT.columns()).interval(0, 100)
                     .FROM(ACCOUNT())
@@ -103,7 +108,10 @@ public class SqlBuilderTest {
                     .INNER_JOIN(ACCOUNT_ACTIVITY(), ACCOUNT_ACTIVITY.ACCOUNT_FK(), ACCOUNT.ID())
                     .LEFT_JOIN(ACCOUNT_ACTIVITY(), ACCOUNT_ACTIVITY.ACCOUNT_FK(), ACCOUNT.ID())
                     .RIGHT_JOIN(ACCOUNT_ACTIVITY(), ACCOUNT_ACTIVITY.ACCOUNT_FK(), ACCOUNT.ID())
-                    .WHERE(ACCOUNT.NAME(), Condition.EQUALS, "1").OR_IN().AND(ACCOUNT.NAME(), Condition.EQUALS, "2")
+                    .WHERE(ACCOUNT.NAME(), Condition.EQUALS, "1")
+                    .AND(ACCOUNT.NAME(), Condition.IN, new String[]{"in1", "in2"})
+                    .AND(ACCOUNT.NAME(), Condition.IN, list)
+                    .OR_IN().AND(ACCOUNT.NAME(), Condition.EQUALS, "2")
                     .AND_NEXT().AND(ACCOUNT.NAME(), Condition.EQUALS, "3").OUT().OR(ACCOUNT.NAME(), Condition.EQUALS, "4")
                     .ORDER_BY(ACCOUNT.NAME(), Order.ASC).ORDER_BY(ACCOUNT.ID(), Order.DESC);
 
