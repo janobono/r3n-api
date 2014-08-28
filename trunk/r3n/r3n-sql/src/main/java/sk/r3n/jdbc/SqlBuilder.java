@@ -160,8 +160,26 @@ public abstract class SqlBuilder {
                     sql.append(criterion.getColumn());
                     sql.append(criterion.getCondition().condition());
                     if (criterion.getValue() != null) {
-                        sql.append(QUESTION_MARK);
-                        params().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
+                        if (criterion.getValue() instanceof List<?> || criterion.getValue() instanceof Object[]) {
+                            Object[] array;
+                            if (criterion.getValue() instanceof List<?>) {
+                                array = ((List<?>) criterion.getValue()).toArray();
+                            } else {
+                                array = (Object[]) criterion.getValue();
+                            }
+                            sql.append(LEFT_BRACE);
+                            for (int i = 0; i < array.length; i++) {
+                                sql.append(QUESTION_MARK);
+                                params().add(new SqlParam(criterion.getColumn().getDataType(), array[i]));
+                                if (i < array.length - 1) {
+                                    sql.append(COMMA);
+                                }
+                            }
+                            sql.append(RIGHT_BRACE);
+                        } else {
+                            sql.append(QUESTION_MARK);
+                            params().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
+                        }
                     }
                 } else {
                     sql.append(MessageFormat.format(criterion.getRepresentation(),
