@@ -478,7 +478,7 @@ public abstract class SqlBuilder {
     protected void setParams(Connection connection, PreparedStatement preparedStatement) throws SQLException {
         int i = 1;
         for (SqlParam param : params()) {
-            if (param != null) {
+            if (param.getValue() != null) {
                 switch (param.getDataType()) {
                     case BLOB:
                         Blob blob = connection.createBlob();
