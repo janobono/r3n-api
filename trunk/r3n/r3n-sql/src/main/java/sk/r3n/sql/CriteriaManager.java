@@ -22,7 +22,7 @@ public class CriteriaManager {
     }
 
     public void next(Operator operator) {
-        setLastOperator(operator);
+        criteria.setOperator(operator);
         Criteria next = new Criteria();
         if (criteria.getParent() == null) {
             criteriaList.add(next);
