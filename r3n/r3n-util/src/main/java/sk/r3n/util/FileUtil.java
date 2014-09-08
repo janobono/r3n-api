@@ -12,6 +12,11 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class FileUtil {
 
@@ -189,6 +194,70 @@ public class FileUtil {
             throw new RuntimeException(e);
         } finally {
             close(outputStream);
+        }
+    }
+
+    public static void delete(File file) {
+        if (file != null) {
+            if (!file.delete()) {
+                throw new RuntimeException("Can't delete file!");
+            }
+        }
+    }
+
+    public static File createTempFile(String prefix, String suffix, File dir) {
+        try {
+            return File.createTempFile(prefix, suffix, dir);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static File createTempDir(File dir) {
+        File resultDir = createTempFile("TMP", "DIR", dir);
+        File file = new File(resultDir.getAbsolutePath() + "ECTORY");
+        resultDir.delete();
+        resultDir = file;
+        resultDir.mkdir();
+        return resultDir;
+    }
+
+    public static URL toURL(File file) {
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static File toFile(URL url) {
+        try {
+            return new File(url.toURI());
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static void zip(File zipFile, File[] files) {
+        ZipOutputStream zos = null;
+        byte[] buffer = new byte[1024];
+        try {
+            zos = new ZipOutputStream(new FileOutputStream(zipFile));
+            for (File file : files) {
+                ZipEntry ze = new ZipEntry(file.getName());
+                zos.putNextEntry(ze);
+                FileInputStream in = new FileInputStream(file);
+                int len;
+                while ((len = in.read(buffer)) > 0) {
+                    zos.write(buffer, 0, len);
+                }
+                in.close();
+            }
+            zos.closeEntry();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            close(zos);
         }
     }
 }
