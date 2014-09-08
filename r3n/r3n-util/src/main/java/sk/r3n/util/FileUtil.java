@@ -223,19 +223,29 @@ public class FileUtil {
     }
 
     public static URL toURL(File file) {
-        try {
-            return file.toURI().toURL();
-        } catch (MalformedURLException ex) {
-            throw new RuntimeException(ex);
+        URL result = null;
+
+        if (file != null) {
+            try {
+                result = file.toURI().toURL();
+            } catch (MalformedURLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
+
+        return result;
     }
 
     public static File toFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch (URISyntaxException ex) {
-            throw new RuntimeException(ex);
+        File result = null;
+        if (url != null) {
+            try {
+                result = new File(url.toURI());
+            } catch (URISyntaxException ex) {
+                throw new RuntimeException(ex);
+            }
         }
+        return result;
     }
 
     public static void zip(File zipFile, File[] files) {
