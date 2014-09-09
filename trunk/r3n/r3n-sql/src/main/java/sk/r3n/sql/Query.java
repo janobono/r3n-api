@@ -148,12 +148,12 @@ public class Query implements Serializable {
         }
 
         public Select OR(Column column, Condition condition, Object value, String representation) {
-            cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.OR);
             return this;
         }
 
         public Select OR(Column column, Condition condition, Object value) {
-            cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.OR);
             return this;
         }
 

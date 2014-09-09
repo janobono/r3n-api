@@ -105,12 +105,7 @@ public abstract class SqlBuilder {
         StringBuilder sql = new StringBuilder();
         sql.append(LEFT_BRACE);
         Object lastObject = null;
-        boolean criteriaSequence = false;
         for (Object object : criteria.getContent()) {
-            if (object instanceof Criterion && criteriaSequence) {
-                sql.append(RIGHT_BRACE);
-                criteriaSequence = false;
-            }
             if (lastObject != null) {
                 sql.append(SPACE);
                 if (lastObject instanceof Criterion) {
@@ -123,10 +118,6 @@ public abstract class SqlBuilder {
             if (object instanceof Criterion) {
                 sql.append(toSql((Criterion) object));
             } else {
-                if (!criteriaSequence) {
-                    sql.append(LEFT_BRACE);
-                    criteriaSequence = true;
-                }
                 sql.append(toSql((Criteria) object));
             }
             lastObject = object;
