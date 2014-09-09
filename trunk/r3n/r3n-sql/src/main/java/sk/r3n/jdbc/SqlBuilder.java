@@ -431,7 +431,9 @@ public abstract class SqlBuilder {
                     try {
                         file = File.createTempFile("SQL", ".BIN", getTmpDir());
                         Blob blob = resultSet.getBlob(index);
-                        FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);
+                        if (blob.length() > 0) {
+                            FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);
+                        }
                         result = file;
                     } catch (IOException e) {
                         if (file != null) {
