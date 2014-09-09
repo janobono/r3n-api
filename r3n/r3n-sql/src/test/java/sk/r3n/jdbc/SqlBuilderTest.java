@@ -111,7 +111,7 @@ public class SqlBuilderTest {
                     .WHERE(ACCOUNT.NAME(), Condition.EQUALS, "1")
                     .AND(ACCOUNT.NAME(), Condition.IN, new String[]{"in1", "in2"})
                     .OR(ACCOUNT.NAME(), Condition.IN, list)
-                    .OR_IN().AND(ACCOUNT.NAME(), Condition.EQUALS, "2").AND(ACCOUNT.NAME(), Condition.EQUALS, "2")
+                    .OR_IN().AND(ACCOUNT.NAME(), Condition.EQUALS, "2").AND_IN().AND(ACCOUNT.NAME(), Condition.EQUALS, "2")
                     .AND_NEXT().AND(ACCOUNT.NAME(), Condition.EQUALS, "3").OUT().OR(ACCOUNT.NAME(), Condition.EQUALS, "4")
                     .ORDER_BY(ACCOUNT.NAME(), Order.ASC).ORDER_BY(ACCOUNT.ID(), Order.DESC);
 
