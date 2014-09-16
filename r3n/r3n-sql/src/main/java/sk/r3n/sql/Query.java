@@ -61,7 +61,7 @@ public class Query implements Serializable {
             if (start < 0) {
                 start = 0;
             }
-            count = count -1;
+            count = count - 1;
             if (count < 0) {
                 count = 0;
             }
@@ -73,9 +73,12 @@ public class Query implements Serializable {
         }
 
         public Select page(int page, int size) {
+            firstRow = 0;
+            lastRow = 0;
             if (page < 0) {
                 page = 0;
             }
+            size = size -1;
             if (size < 0) {
                 size = 0;
             }
