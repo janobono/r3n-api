@@ -4,7 +4,7 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-example</artifactId>
@@ -22,14 +22,9 @@
             <version>1.2</version>
         </dependency>
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>12.1.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>9.1-901-1.jdbc4</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.181</version>
         </dependency>
         <dependency>
             <groupId>sk.r3n</groupId>
@@ -56,18 +51,10 @@
                 <version>${project.version}</version>
                 <configuration>
                     <targetPackage>sk.r3n.example</targetPackage>
-                    
-                    <!--<jdbcDriver>oracle.jdbc.driver.OracleDriver</jdbcDriver>
-                    <jdbcUrl>jdbc:oracle:thin:@mc-odbs2.microcomp.sk:1521:oISISdb</jdbcUrl>
-                    <jdbcUser>metis_prod_t4</jdbcUser>
-                    <jdbcPassword>metis_prod_t4</jdbcPassword>-->
-                    
-                    
-                    <jdbcDriver>org.postgresql.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:postgresql://localhost:5432/test</jdbcUrl>
-                    <jdbcUser>postgres</jdbcUser>
-                    <jdbcPassword>postgres</jdbcPassword>
-                    
+                    <jdbcDriver>org.h2.Driver</jdbcDriver>
+                    <jdbcUrl>jdbc:h2:${basedir}/target/test</jdbcUrl>
+                    <jdbcUser>sa</jdbcUser>
+                    <jdbcPassword>sa</jdbcPassword>
                 </configuration>
             </plugin>
         </plugins>

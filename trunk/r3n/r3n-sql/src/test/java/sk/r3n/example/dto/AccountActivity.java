@@ -6,10 +6,10 @@ import java.util.Date;
 import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "account_activity")
+@TableId(name = "ACCOUNT_ACTIVITY")
 public class AccountActivity implements Serializable {
 
-    @ColumnId(name = "id")
+    @ColumnId(name = "ID")
     protected Long id;
 
     public Long getId() {
@@ -20,7 +20,7 @@ public class AccountActivity implements Serializable {
         this.id = id;
     }
 
-    @ColumnId(name = "account_fk")
+    @ColumnId(name = "ACCOUNT_FK")
     protected Long accountFk;
 
     public Long getAccountFk() {
@@ -31,7 +31,7 @@ public class AccountActivity implements Serializable {
         this.accountFk = accountFk;
     }
 
-    @ColumnId(name = "type")
+    @ColumnId(name = "TYPE")
     protected Short type;
 
     public Short getType() {
@@ -42,7 +42,7 @@ public class AccountActivity implements Serializable {
         this.type = type;
     }
 
-    @ColumnId(name = "sub_type")
+    @ColumnId(name = "SUB_TYPE")
     protected Short subType;
 
     public Short getSubType() {
@@ -53,7 +53,7 @@ public class AccountActivity implements Serializable {
         this.subType = subType;
     }
 
-    @ColumnId(name = "activity_date")
+    @ColumnId(name = "ACTIVITY_DATE")
     protected Date activityDate;
 
     public Date getActivityDate() {
@@ -64,7 +64,7 @@ public class AccountActivity implements Serializable {
         this.activityDate = activityDate;
     }
 
-    @ColumnId(name = "activity_time")
+    @ColumnId(name = "ACTIVITY_TIME")
     protected Date activityTime;
 
     public Date getActivityTime() {
@@ -75,7 +75,7 @@ public class AccountActivity implements Serializable {
         this.activityTime = activityTime;
     }
 
-    @ColumnId(name = "value")
+    @ColumnId(name = "VALUE")
     protected BigDecimal value;
 
     public BigDecimal getValue() {
@@ -86,7 +86,7 @@ public class AccountActivity implements Serializable {
         this.value = value;
     }
 
-    @ColumnId(name = "note")
+    @ColumnId(name = "NOTE")
     protected String note;
 
     public String getNote() {

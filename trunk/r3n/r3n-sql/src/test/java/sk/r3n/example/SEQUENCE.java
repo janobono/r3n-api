@@ -6,7 +6,7 @@ import sk.r3n.sql.Sequence;
 public class SEQUENCE implements Serializable {
 
     public static Sequence H_SEQUENCE() {
-        return new Sequence("h_sequence");
+        return new Sequence("H_SEQUENCE");
     }
 
 }

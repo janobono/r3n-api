@@ -5,10 +5,10 @@ import java.util.Date;
 import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "bill")
+@TableId(name = "BILL")
 public class Bill implements Serializable {
 
-    @ColumnId(name = "id")
+    @ColumnId(name = "ID")
     protected Long id;
 
     public Long getId() {
@@ -19,7 +19,7 @@ public class Bill implements Serializable {
         this.id = id;
     }
 
-    @ColumnId(name = "note")
+    @ColumnId(name = "NOTE")
     protected String note;
 
     public String getNote() {
@@ -30,7 +30,7 @@ public class Bill implements Serializable {
         this.note = note;
     }
 
-    @ColumnId(name = "note_scdf")
+    @ColumnId(name = "NOTE_SCDF")
     protected String noteScdf;
 
     public String getNoteScdf() {
@@ -41,7 +41,7 @@ public class Bill implements Serializable {
         this.noteScdf = noteScdf;
     }
 
-    @ColumnId(name = "bill_date")
+    @ColumnId(name = "BILL_DATE")
     protected Date billDate;
 
     public Date getBillDate() {
@@ -52,7 +52,7 @@ public class Bill implements Serializable {
         this.billDate = billDate;
     }
 
-    @ColumnId(name = "bill_time")
+    @ColumnId(name = "BILL_TIME")
     protected Date billTime;
 
     public Date getBillTime() {

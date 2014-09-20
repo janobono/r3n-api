@@ -4,67 +4,62 @@ import java.io.Serializable;
 import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "account")
+@TableId(name = "ACCOUNT")
 public class Account implements Serializable {
 
-    @ColumnId(name = "id")
+    @ColumnId(name = "ID")
     protected Long id;
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Long id){
         this.id = id;
     }
 
-    @ColumnId(name = "type")
+    @ColumnId(name = "TYPE")
     protected Short type;
 
     public Short getType() {
         return type;
     }
 
-    public void setType(Short type) {
+    public void setType(Short type){
         this.type = type;
     }
 
-    @ColumnId(name = "name")
+    @ColumnId(name = "NAME")
     protected String name;
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name){
         this.name = name;
     }
 
-    @ColumnId(name = "name_scdf")
+    @ColumnId(name = "NAME_SCDF")
     protected String nameScdf;
 
     public String getNameScdf() {
         return nameScdf;
     }
 
-    public void setNameScdf(String nameScdf) {
+    public void setNameScdf(String nameScdf){
         this.nameScdf = nameScdf;
     }
 
-    @ColumnId(name = "note")
+    @ColumnId(name = "NOTE")
     protected String note;
 
     public String getNote() {
         return note;
     }
 
-    public void setNote(String note) {
+    public void setNote(String note){
         this.note = note;
-    }
-
-    @Override
-    public String toString() {
-        return "Account{" + "id=" + id + ", type=" + type + ", name=" + name + ", nameScdf=" + nameScdf + ", note=" + note + '}';
     }
 
 }
