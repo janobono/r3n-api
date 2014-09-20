@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>r3n</artifactId>
+        <groupId>sk.r3n</groupId>
+        <version>3.0.0</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>r3n-example</artifactId>
+   
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>12.1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901-1.jdbc4</version>
+        </dependency>
+        <dependency>
+            <groupId>sk.r3n</groupId>
+            <artifactId>r3n-sql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <defaultGoal>package</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>sk.r3n</groupId>
+                <artifactId>r3n-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <configuration>
+                    <targetPackage>sk.r3n.example</targetPackage>
+                    
+                    <!--<jdbcDriver>oracle.jdbc.driver.OracleDriver</jdbcDriver>
+                    <jdbcUrl>jdbc:oracle:thin:@mc-odbs2.microcomp.sk:1521:oISISdb</jdbcUrl>
+                    <jdbcUser>metis_prod_t4</jdbcUser>
+                    <jdbcPassword>metis_prod_t4</jdbcPassword>-->
+                    
+                    
+                    <jdbcDriver>org.postgresql.Driver</jdbcDriver>
+                    <jdbcUrl>jdbc:postgresql://localhost:5432/test</jdbcUrl>
+                    <jdbcUser>postgres</jdbcUser>
+                    <jdbcPassword>postgres</jdbcPassword>
+                    
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
