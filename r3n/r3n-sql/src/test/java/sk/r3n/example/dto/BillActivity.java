@@ -4,10 +4,10 @@ import java.io.Serializable;
 import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "bill_activity")
+@TableId(name = "BILL_ACTIVITY")
 public class BillActivity implements Serializable {
 
-    @ColumnId(name = "id")
+    @ColumnId(name = "ID")
     protected Long id;
 
     public Long getId() {
@@ -18,7 +18,7 @@ public class BillActivity implements Serializable {
         this.id = id;
     }
 
-    @ColumnId(name = "bill_fk")
+    @ColumnId(name = "BILL_FK")
     protected Long billFk;
 
     public Long getBillFk() {
@@ -29,7 +29,7 @@ public class BillActivity implements Serializable {
         this.billFk = billFk;
     }
 
-    @ColumnId(name = "account_activity_fk")
+    @ColumnId(name = "ACCOUNT_ACTIVITY_FK")
     protected Long accountActivityFk;
 
     public Long getAccountActivityFk() {

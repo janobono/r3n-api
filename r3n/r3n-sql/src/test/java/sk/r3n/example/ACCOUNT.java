@@ -7,43 +7,43 @@ import sk.r3n.sql.DataType;
 public class ACCOUNT implements Serializable {
 
     public static Column ID() {
-        return new Column("id", TABLE.ACCOUNT(), DataType.LONG);
+        return new Column("ID", TABLE.ACCOUNT(), DataType.LONG);
     }
 
     public static Column ID(String alias) {
-        return new Column("id", TABLE.ACCOUNT(alias), DataType.LONG);
+        return new Column("ID", TABLE.ACCOUNT(alias), DataType.LONG);
     }
 
     public static Column TYPE() {
-        return new Column("type", TABLE.ACCOUNT(), DataType.SHORT);
+        return new Column("TYPE", TABLE.ACCOUNT(), DataType.SHORT);
     }
 
     public static Column TYPE(String alias) {
-        return new Column("type", TABLE.ACCOUNT(alias), DataType.SHORT);
+        return new Column("TYPE", TABLE.ACCOUNT(alias), DataType.SHORT);
     }
 
     public static Column NAME() {
-        return new Column("name", TABLE.ACCOUNT(), DataType.STRING);
+        return new Column("NAME", TABLE.ACCOUNT(), DataType.STRING);
     }
 
     public static Column NAME(String alias) {
-        return new Column("name", TABLE.ACCOUNT(alias), DataType.STRING);
+        return new Column("NAME", TABLE.ACCOUNT(alias), DataType.STRING);
     }
 
     public static Column NAME_SCDF() {
-        return new Column("name_scdf", TABLE.ACCOUNT(), DataType.STRING);
+        return new Column("NAME_SCDF", TABLE.ACCOUNT(), DataType.STRING);
     }
 
     public static Column NAME_SCDF(String alias) {
-        return new Column("name_scdf", TABLE.ACCOUNT(alias), DataType.STRING);
+        return new Column("NAME_SCDF", TABLE.ACCOUNT(alias), DataType.STRING);
     }
 
     public static Column NOTE() {
-        return new Column("note", TABLE.ACCOUNT(), DataType.STRING);
+        return new Column("NOTE", TABLE.ACCOUNT(), DataType.STRING);
     }
 
     public static Column NOTE(String alias) {
-        return new Column("note", TABLE.ACCOUNT(alias), DataType.STRING);
+        return new Column("NOTE", TABLE.ACCOUNT(alias), DataType.STRING);
     }
 
     public static Column[] columns() {

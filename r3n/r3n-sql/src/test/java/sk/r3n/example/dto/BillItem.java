@@ -5,10 +5,10 @@ import java.math.BigDecimal;
 import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "bill_item")
+@TableId(name = "BILL_ITEM")
 public class BillItem implements Serializable {
 
-    @ColumnId(name = "id")
+    @ColumnId(name = "ID")
     protected Long id;
 
     public Long getId() {
@@ -19,7 +19,7 @@ public class BillItem implements Serializable {
         this.id = id;
     }
 
-    @ColumnId(name = "bill_fk")
+    @ColumnId(name = "BILL_FK")
     protected Long billFk;
 
     public Long getBillFk() {
@@ -30,7 +30,7 @@ public class BillItem implements Serializable {
         this.billFk = billFk;
     }
 
-    @ColumnId(name = "note")
+    @ColumnId(name = "NOTE")
     protected String note;
 
     public String getNote() {
@@ -41,7 +41,7 @@ public class BillItem implements Serializable {
         this.note = note;
     }
 
-    @ColumnId(name = "value")
+    @ColumnId(name = "VALUE")
     protected BigDecimal value;
 
     public BigDecimal getValue() {

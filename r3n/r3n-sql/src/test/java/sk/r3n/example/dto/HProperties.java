@@ -4,10 +4,10 @@ import java.io.Serializable;
 import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "h_properties")
+@TableId(name = "H_PROPERTIES")
 public class HProperties implements Serializable {
 
-    @ColumnId(name = "id")
+    @ColumnId(name = "ID")
     protected String id;
 
     public String getId() {
@@ -18,7 +18,7 @@ public class HProperties implements Serializable {
         this.id = id;
     }
 
-    @ColumnId(name = "value")
+    @ColumnId(name = "VALUE")
     protected String value;
 
     public String getValue() {

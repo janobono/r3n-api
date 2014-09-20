@@ -9,10 +9,6 @@ import sk.r3n.sql.Sequence;
 import sk.r3n.sql.Table;
 import sk.r3n.util.FileUtil;
 
-/**
- *
- * @author jan
- */
 public class StructureWriter implements Serializable {
 
     public void write(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {

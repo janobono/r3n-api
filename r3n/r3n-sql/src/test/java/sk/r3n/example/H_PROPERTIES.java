@@ -7,19 +7,19 @@ import sk.r3n.sql.DataType;
 public class H_PROPERTIES implements Serializable {
 
     public static Column ID() {
-        return new Column("id", TABLE.H_PROPERTIES(), DataType.STRING);
+        return new Column("ID", TABLE.H_PROPERTIES(), DataType.STRING);
     }
 
     public static Column ID(String alias) {
-        return new Column("id", TABLE.H_PROPERTIES(alias), DataType.STRING);
+        return new Column("ID", TABLE.H_PROPERTIES(alias), DataType.STRING);
     }
 
     public static Column VALUE() {
-        return new Column("value", TABLE.H_PROPERTIES(), DataType.STRING);
+        return new Column("VALUE", TABLE.H_PROPERTIES(), DataType.STRING);
     }
 
     public static Column VALUE(String alias) {
-        return new Column("value", TABLE.H_PROPERTIES(alias), DataType.STRING);
+        return new Column("VALUE", TABLE.H_PROPERTIES(alias), DataType.STRING);
     }
 
     public static Column[] columns() {

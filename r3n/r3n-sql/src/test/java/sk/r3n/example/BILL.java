@@ -7,43 +7,43 @@ import sk.r3n.sql.DataType;
 public class BILL implements Serializable {
 
     public static Column ID() {
-        return new Column("id", TABLE.BILL(), DataType.LONG);
+        return new Column("ID", TABLE.BILL(), DataType.LONG);
     }
 
     public static Column ID(String alias) {
-        return new Column("id", TABLE.BILL(alias), DataType.LONG);
+        return new Column("ID", TABLE.BILL(alias), DataType.LONG);
     }
 
     public static Column NOTE() {
-        return new Column("note", TABLE.BILL(), DataType.STRING);
+        return new Column("NOTE", TABLE.BILL(), DataType.STRING);
     }
 
     public static Column NOTE(String alias) {
-        return new Column("note", TABLE.BILL(alias), DataType.STRING);
+        return new Column("NOTE", TABLE.BILL(alias), DataType.STRING);
     }
 
     public static Column NOTE_SCDF() {
-        return new Column("note_scdf", TABLE.BILL(), DataType.STRING);
+        return new Column("NOTE_SCDF", TABLE.BILL(), DataType.STRING);
     }
 
     public static Column NOTE_SCDF(String alias) {
-        return new Column("note_scdf", TABLE.BILL(alias), DataType.STRING);
+        return new Column("NOTE_SCDF", TABLE.BILL(alias), DataType.STRING);
     }
 
     public static Column BILL_DATE() {
-        return new Column("bill_date", TABLE.BILL(), DataType.DATE);
+        return new Column("BILL_DATE", TABLE.BILL(), DataType.DATE);
     }
 
     public static Column BILL_DATE(String alias) {
-        return new Column("bill_date", TABLE.BILL(alias), DataType.DATE);
+        return new Column("BILL_DATE", TABLE.BILL(alias), DataType.DATE);
     }
 
     public static Column BILL_TIME() {
-        return new Column("bill_time", TABLE.BILL(), DataType.TIME);
+        return new Column("BILL_TIME", TABLE.BILL(), DataType.TIME);
     }
 
     public static Column BILL_TIME(String alias) {
-        return new Column("bill_time", TABLE.BILL(alias), DataType.TIME);
+        return new Column("BILL_TIME", TABLE.BILL(alias), DataType.TIME);
     }
 
     public static Column[] columns() {
