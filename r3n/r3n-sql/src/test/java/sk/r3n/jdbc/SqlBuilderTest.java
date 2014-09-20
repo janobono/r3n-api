@@ -1,12 +1,15 @@
 package sk.r3n.jdbc;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.LogManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-import static sk.r3n.example.TABLE.*;
+import sk.r3n.example.TABLE;
 import sk.r3n.example.*;
 import sk.r3n.sql.*;
 
@@ -14,20 +17,24 @@ public class SqlBuilderTest {
 
     private static final Log LOG = LogFactory.getLog(SqlBuilderTest.class);
 
-    @Test
-    public void selectTest() throws Exception {
+    public SqlBuilderTest() {
         try {
             LogManager.getLogManager().readConfiguration(getClass().getResourceAsStream("/logging.properties"));
-        } catch (Exception ex) {
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } catch (SecurityException ex) {
             throw new RuntimeException(ex);
         }
+    }
 
+    @Test
+    public void selectTest() throws Exception {
         SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder()};
         for (SqlBuilder sqlBuilder : sqlBuilders) {
 
             // SELECT without condition
             Query query = new Query();
-            query.SELECT(ACCOUNT.columns()).FROM(ACCOUNT());
+            query.SELECT(PERSON.columns()).FROM(TABLE.PERSON());
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -36,7 +43,7 @@ public class SqlBuilderTest {
 
             // SELECT DISTINCT without condition
             sqlBuilder.params().clear();
-            query.SELECT(ACCOUNT.columns()).DISTINCT().FROM(ACCOUNT());
+            query.SELECT(PERSON.columns()).DISTINCT().FROM(TABLE.PERSON());
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -45,7 +52,7 @@ public class SqlBuilderTest {
 
             // SELECT COUNT without condition
             sqlBuilder.params().clear();
-            query.SELECT(ACCOUNT.columns()).COUNT().FROM(ACCOUNT());
+            query.SELECT(PERSON.columns()).COUNT().FROM(TABLE.PERSON());
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -54,7 +61,7 @@ public class SqlBuilderTest {
 
             // SELECT interval without condition
             sqlBuilder.params().clear();
-            query.SELECT(ACCOUNT.columns()).interval(0, 100).FROM(ACCOUNT());
+            query.SELECT(PERSON.columns()).interval(0, 100).FROM(TABLE.PERSON());
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -63,7 +70,7 @@ public class SqlBuilderTest {
 
             // SELECT with simple null value condition
             sqlBuilder.params().clear();
-            query.SELECT(ACCOUNT.columns()).FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IS_NOT_NULL, null);
+            query.SELECT(PERSON.columns()).FROM(TABLE.PERSON()).WHERE(PERSON.FIRST_NAME(), Condition.IS_NOT_NULL, null);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -72,7 +79,7 @@ public class SqlBuilderTest {
 
             // SELECT DISTINCT with simple null value condition
             sqlBuilder.params().clear();
-            query.SELECT(ACCOUNT.columns()).DISTINCT().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IS_NOT_NULL, null);
+            query.SELECT(PERSON.columns()).DISTINCT().FROM(TABLE.PERSON()).WHERE(PERSON.FIRST_NAME(), Condition.IS_NOT_NULL, null);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -81,7 +88,7 @@ public class SqlBuilderTest {
 
             // SELECT COUNT with simple null value condition
             sqlBuilder.params().clear();
-            query.SELECT(ACCOUNT.columns()).COUNT().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IS_NOT_NULL, null);
+            query.SELECT(PERSON.columns()).COUNT().FROM(TABLE.PERSON()).WHERE(PERSON.FIRST_NAME(), Condition.IS_NOT_NULL, null);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -90,7 +97,7 @@ public class SqlBuilderTest {
 
             // SELECT interval with simple null value condition
             sqlBuilder.params().clear();
-            query.SELECT(ACCOUNT.columns()).interval(0, 100).FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IS_NOT_NULL, null);
+            query.SELECT(PERSON.columns()).interval(0, 100).FROM(TABLE.PERSON()).WHERE(PERSON.FIRST_NAME(), Condition.IS_NOT_NULL, null);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -102,18 +109,18 @@ public class SqlBuilderTest {
             list.add("l1");
             list.add("l2");
             sqlBuilder.params().clear();
-            query.SELECT(ACCOUNT.columns()).interval(0, 100)
-                    .FROM(ACCOUNT())
-                    .FULL_JOIN(ACCOUNT_ACTIVITY(), ACCOUNT_ACTIVITY.ACCOUNT_FK(), ACCOUNT.ID())
-                    .INNER_JOIN(ACCOUNT_ACTIVITY(), ACCOUNT_ACTIVITY.ACCOUNT_FK(), ACCOUNT.ID())
-                    .LEFT_JOIN(ACCOUNT_ACTIVITY(), ACCOUNT_ACTIVITY.ACCOUNT_FK(), ACCOUNT.ID())
-                    .RIGHT_JOIN(ACCOUNT_ACTIVITY(), ACCOUNT_ACTIVITY.ACCOUNT_FK(), ACCOUNT.ID())
-                    .WHERE(ACCOUNT.NAME(), Condition.EQUALS, "1")
-                    .AND(ACCOUNT.NAME(), Condition.IN, new String[]{"in1", "in2"})
-                    .OR(ACCOUNT.NAME(), Condition.IN, list)
-                    .OR_IN().AND(ACCOUNT.NAME(), Condition.EQUALS, "2").AND_IN().AND(ACCOUNT.NAME(), Condition.EQUALS, "2")
-                    .AND_NEXT().AND(ACCOUNT.NAME(), Condition.EQUALS, "3").OUT().OR(ACCOUNT.NAME(), Condition.EQUALS, "4")
-                    .ORDER_BY(ACCOUNT.NAME(), Order.ASC).ORDER_BY(ACCOUNT.ID(), Order.DESC);
+            query.SELECT(PERSON.columns()).interval(0, 100)
+                    .FROM(TABLE.PERSON())
+                    .INNER_JOIN(TABLE.ADDRESS(), ADDRESS.PERSON_FK(), PERSON.ID())
+                    .LEFT_JOIN(TABLE.ADDRESS(), ADDRESS.PERSON_FK(), PERSON.ID())
+                    .RIGHT_JOIN(TABLE.ADDRESS(), ADDRESS.PERSON_FK(), PERSON.ID())
+                    .FULL_JOIN(TABLE.ADDRESS(), ADDRESS.PERSON_FK(), PERSON.ID())
+                    .WHERE(PERSON.FIRST_NAME(), Condition.EQUALS, "1")
+                    .AND(PERSON.FIRST_NAME(), Condition.IN, new String[]{"in1", "in2"})
+                    .OR(PERSON.FIRST_NAME(), Condition.IN, list)
+                    .OR_IN().AND(PERSON.FIRST_NAME(), Condition.EQUALS, "2").AND_IN().AND(PERSON.FIRST_NAME(), Condition.EQUALS, "2")
+                    .AND_NEXT().AND(PERSON.FIRST_NAME(), Condition.EQUALS, "3").OUT().OR(PERSON.FIRST_NAME(), Condition.EQUALS, "4")
+                    .ORDER_BY(PERSON.FIRST_NAME(), Order.ASC).ORDER_BY(PERSON.ID(), Order.DESC);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
@@ -124,18 +131,14 @@ public class SqlBuilderTest {
 
     @Test
     public void insertTest() throws Exception {
-        try {
-            LogManager.getLogManager().readConfiguration(getClass().getResourceAsStream("/logging.properties"));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-
-        SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder()};
+        SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder(), new H2SqlBuilder()};
         for (SqlBuilder sqlBuilder : sqlBuilders) {
 
             // INSERT without returning value
             Query query = new Query();
-            query.INSERT().INTO(TABLE.ACCOUNT(), ACCOUNT.columns()).VALUES(1L, 10, "name", "name scdf", "note");
+            query.INSERT().INTO(TABLE.PERSON(), PERSON.columns()).VALUES(
+                    10L, new Date(), "creator", (short) 5, "0123456789",
+                    "first_name", "first_name", "last_name", "last_name", new Date(), "note");
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toInsert(query));
@@ -143,8 +146,22 @@ public class SqlBuilderTest {
             }
 
             // INSERT with returning value
+            Column[] columns;
+            Object[] values;
+            if (sqlBuilder instanceof H2SqlBuilder) {
+                columns = Arrays.copyOfRange(PERSON.columns(), 1, PERSON.columns().length);
+                values = new Object[]{
+                    new Date(), "creator", (short) 5, "0123456789",
+                    "first_name", "first_name", "last_name", "last_name", new Date(), "note"};
+            } else {
+                columns = PERSON.columns();
+                values = new Object[]{
+                    SEQUENCE.H_SEQUENCE(), new Date(), "creator", (short) 5, "0123456789",
+                    "first_name", "first_name", "last_name", "last_name", new Date(), "note"};
+            }
+
             sqlBuilder.params().clear();
-            query.INSERT().INTO(TABLE.ACCOUNT(), ACCOUNT.columns()).VALUES(SEQUENCE.H_SEQUENCE(), 10, "name", "name scdf", "note").RETURNING(ACCOUNT.ID());
+            query.INSERT().INTO(TABLE.PERSON(), columns).VALUES(values).RETURNING(PERSON.ID());
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toInsert(query));
@@ -155,18 +172,12 @@ public class SqlBuilderTest {
 
     @Test
     public void updateTest() throws Exception {
-        try {
-            LogManager.getLogManager().readConfiguration(getClass().getResourceAsStream("/logging.properties"));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-
         //UPDATE is same on supported DBs
         SqlBuilder sqlBuilder = new PostgreSqlBuilder();
 
         // UPDATE without condition
         Query query = new Query();
-        query.UPDATE(ACCOUNT()).SET(ACCOUNT.NAME(), "test");
+        query.UPDATE(TABLE.PERSON()).SET(PERSON.LAST_NAME(), "test");
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toUpdate(query));
@@ -175,7 +186,7 @@ public class SqlBuilderTest {
 
         // UPDATE with simple null value condition
         sqlBuilder.params().clear();
-        query.UPDATE(ACCOUNT()).SET(ACCOUNT.NAME(), "test").WHERE(ACCOUNT.NAME(), Condition.IS_NOT_NULL, null);
+        query.UPDATE(TABLE.PERSON()).SET(PERSON.LAST_NAME(), "test").WHERE(PERSON.LAST_NAME(), Condition.IS_NOT_NULL, null);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toUpdate(query));
@@ -184,7 +195,7 @@ public class SqlBuilderTest {
 
         // UPDATE with simple not null value condition
         sqlBuilder.params().clear();
-        query.UPDATE(ACCOUNT()).SET(ACCOUNT.NAME(), "test").WHERE(ACCOUNT.ID(), Condition.MORE, 100L);
+        query.UPDATE(TABLE.PERSON()).SET(PERSON.LAST_NAME(), "test").WHERE(PERSON.ID(), Condition.MORE, 100L);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toUpdate(query));
@@ -193,7 +204,7 @@ public class SqlBuilderTest {
 
         // UPDATE with functional condition
         sqlBuilder.params().clear();
-        query.UPDATE(ACCOUNT()).SET(ACCOUNT.NAME(), "test").WHERE(ACCOUNT.ID(), Condition.MORE, 100L, "funct({0}) {1} funct(?)");
+        query.UPDATE(TABLE.PERSON()).SET(PERSON.LAST_NAME(), "test").WHERE(PERSON.ID(), Condition.MORE, 100L, "funct({0}) {1} funct(?)");
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toUpdate(query));
@@ -202,7 +213,7 @@ public class SqlBuilderTest {
 
         // UPDATE with two columns condition
         sqlBuilder.params().clear();
-        query.UPDATE(ACCOUNT()).SET(ACCOUNT.NAME(), "test").WHERE(ACCOUNT.NAME(), Condition.EQUALS, ACCOUNT.ID());
+        query.UPDATE(TABLE.PERSON()).SET(PERSON.LAST_NAME(), "test").WHERE(PERSON.LAST_NAME(), Condition.EQUALS, PERSON.ID());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toUpdate(query));
@@ -211,7 +222,7 @@ public class SqlBuilderTest {
 
         // UPDATE with two columns functional condition
         sqlBuilder.params().clear();
-        query.UPDATE(ACCOUNT()).SET(ACCOUNT.NAME(), "test").WHERE(ACCOUNT.NAME(), Condition.EQUALS, ACCOUNT.ID(), "funct({0}) {1} funct({2})");
+        query.UPDATE(TABLE.PERSON()).SET(PERSON.LAST_NAME(), "test").WHERE(PERSON.LAST_NAME(), Condition.EQUALS, PERSON.ID(), "funct({0}) {1} funct({2})");
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toUpdate(query));
@@ -220,10 +231,10 @@ public class SqlBuilderTest {
 
         // UPDATE with inner query condition
         Query innerQuery = new Query();
-        innerQuery.SELECT(ACCOUNT.NAME("inner")).DISTINCT().FROM(ACCOUNT("inner")).WHERE(ACCOUNT.NAME("inner"), Condition.LIKE, "%test%");
+        innerQuery.SELECT(PERSON.LAST_NAME("inner")).DISTINCT().FROM(TABLE.PERSON("inner")).WHERE(PERSON.LAST_NAME("inner"), Condition.LIKE, "%test%");
 
         sqlBuilder.params().clear();
-        query.UPDATE(ACCOUNT()).SET(ACCOUNT.NAME(), "test").WHERE(ACCOUNT.NAME(), Condition.IN, innerQuery);
+        query.UPDATE(TABLE.PERSON()).SET(PERSON.LAST_NAME(), "test").WHERE(PERSON.LAST_NAME(), Condition.IN, innerQuery);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toUpdate(query));
@@ -233,18 +244,12 @@ public class SqlBuilderTest {
 
     @Test
     public void deleteTest() throws Exception {
-        try {
-            LogManager.getLogManager().readConfiguration(getClass().getResourceAsStream("/logging.properties"));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-
         //DELETE is same on supported DBs
         SqlBuilder sqlBuilder = new PostgreSqlBuilder();
 
         // DELETE without condition
         Query query = new Query();
-        query.DELETE().FROM(ACCOUNT());
+        query.DELETE().FROM(TABLE.PERSON());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toDelete(query));
@@ -253,7 +258,7 @@ public class SqlBuilderTest {
 
         // DELETE with simple null value condition
         sqlBuilder.params().clear();
-        query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IS_NOT_NULL, null);
+        query.DELETE().FROM(TABLE.PERSON()).WHERE(PERSON.LAST_NAME(), Condition.IS_NOT_NULL, null);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toDelete(query));
@@ -262,7 +267,7 @@ public class SqlBuilderTest {
 
         // DELETE with simple not null value condition
         sqlBuilder.params().clear();
-        query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.ID(), Condition.MORE, 100L);
+        query.DELETE().FROM(TABLE.PERSON()).WHERE(PERSON.ID(), Condition.MORE, 100L);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toDelete(query));
@@ -271,7 +276,7 @@ public class SqlBuilderTest {
 
         // DELETE with functional condition
         sqlBuilder.params().clear();
-        query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.ID(), Condition.MORE, 100L, "funct({0}) {1} funct(?)");
+        query.DELETE().FROM(TABLE.PERSON()).WHERE(PERSON.ID(), Condition.MORE, 100L, "funct({0}) {1} funct(?)");
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toDelete(query));
@@ -280,7 +285,7 @@ public class SqlBuilderTest {
 
         // DELETE with two columns condition
         sqlBuilder.params().clear();
-        query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.EQUALS, ACCOUNT.ID());
+        query.DELETE().FROM(TABLE.PERSON()).WHERE(PERSON.LAST_NAME(), Condition.EQUALS, PERSON.ID());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toDelete(query));
@@ -289,7 +294,7 @@ public class SqlBuilderTest {
 
         // DELETE with two columns functional condition
         sqlBuilder.params().clear();
-        query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.EQUALS, ACCOUNT.ID(), "funct({0}) {1} funct({2})");
+        query.DELETE().FROM(TABLE.PERSON()).WHERE(PERSON.LAST_NAME(), Condition.EQUALS, PERSON.ID(), "funct({0}) {1} funct({2})");
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toDelete(query));
@@ -298,10 +303,10 @@ public class SqlBuilderTest {
 
         // DELETE with inner query condition
         Query innerQuery = new Query();
-        innerQuery.SELECT(ACCOUNT.NAME("inner")).DISTINCT().FROM(ACCOUNT("inner")).WHERE(ACCOUNT.NAME("inner"), Condition.LIKE, "%test%");
+        innerQuery.SELECT(PERSON.LAST_NAME("inner")).DISTINCT().FROM(TABLE.PERSON("inner")).WHERE(PERSON.LAST_NAME("inner"), Condition.LIKE, "%test%");
 
         sqlBuilder.params().clear();
-        query.DELETE().FROM(ACCOUNT()).WHERE(ACCOUNT.NAME(), Condition.IN, innerQuery);
+        query.DELETE().FROM(TABLE.PERSON()).WHERE(PERSON.LAST_NAME(), Condition.IN, innerQuery);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(sqlBuilder.toDelete(query));

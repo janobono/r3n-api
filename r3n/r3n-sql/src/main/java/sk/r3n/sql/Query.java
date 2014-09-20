@@ -78,7 +78,7 @@ public class Query implements Serializable {
             if (page < 0) {
                 page = 0;
             }
-            size = size -1;
+            size = size - 1;
             if (size < 0) {
                 size = 0;
             }
@@ -528,7 +528,12 @@ public class Query implements Serializable {
     }
 
     public int getPageSize() {
-        return getLastRow() - getFirstRow();
+        int result = 0;
+        if (getLastRow() > 0) {
+            result = getLastRow() - getFirstRow();
+            result++;
+        }
+        return result;
     }
 
     public List<JoinCriterion> getJoinCriteria() {

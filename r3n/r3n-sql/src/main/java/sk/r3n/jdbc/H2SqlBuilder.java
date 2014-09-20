@@ -59,7 +59,7 @@ public class H2SqlBuilder extends SqlBuilder {
     protected String toPaginatedSelect(Query query) {
         StringBuilder sql = new StringBuilder();
 
-        sql.append("SELECT ");
+        sql.append("SELECT * FROM (SELECT ");
 
         if (query.getDistinct()) {
             sql.append("DISTINCT ");
@@ -112,16 +112,46 @@ public class H2SqlBuilder extends SqlBuilder {
             }
         }
 
-        sql.append(" OFFSET ? LIMIT ?");
-        params().add(new SqlParam(DataType.INTEGER, query.getFirstRow()));
+        sql.append(") LIMIT ? OFFSET ?");
         params().add(new SqlParam(DataType.INTEGER, query.getPageSize()));
+        params().add(new SqlParam(DataType.INTEGER, query.getFirstRow()));
+
+        return sql.toString();
+    }
+
+    @Override
+    protected String toInsert(Query query) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("INSERT INTO ").append(query.getTable().getName()).append(SPACE).append(LEFT_BRACE);
+        Column[] columns = query.getColumns();
+        for (int i = 0; i < columns.length; i++) {
+            sql.append(columns[i].getName());
+            if (i < columns.length - 1) {
+                sql.append(COMMA).append(SPACE);
+            }
+        }
+        sql.append(RIGHT_BRACE).append(" VALUES ").append(LEFT_BRACE);
+        Object[] values = query.getValues();
+        for (int i = 0; i < columns.length; i++) {
+            if (values[i] instanceof Sequence) {
+                sql.append(nextVal((Sequence) values[i]));
+            } else {
+                sql.append(QUESTION_MARK);
+                params().add(new SqlParam(columns[i].getDataType(), values[i]));
+            }
+            if (i < columns.length - 1) {
+                sql.append(COMMA).append(SPACE);
+            }
+        }
+        sql.append(RIGHT_BRACE);
 
         return sql.toString();
     }
 
     @Override
     protected String toInsertReturningValue(Query query) {
-        return toInsert(query);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -130,26 +160,16 @@ public class H2SqlBuilder extends SqlBuilder {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
 
-        boolean switchAutoCommit = connection.getAutoCommit();
-
         try {
-            if (switchAutoCommit) {
-                connection.setAutoCommit(false);
-            }
             preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             setParams(connection, preparedStatement);
+            preparedStatement.executeUpdate();
             resultSet = preparedStatement.getGeneratedKeys();
             resultSet.next();
             result = getColumn(resultSet, 1, returning);
-            if (switchAutoCommit) {
-                connection.commit();
-            }
         } finally {
             SqlUtil.close(resultSet);
             SqlUtil.close(preparedStatement);
-            if (switchAutoCommit) {
-                connection.setAutoCommit(true);
-            }
         }
         return result;
     }
