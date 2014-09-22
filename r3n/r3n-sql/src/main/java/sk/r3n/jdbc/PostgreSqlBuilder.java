@@ -155,10 +155,10 @@ public class PostgreSqlBuilder extends SqlBuilder {
 
         try {
             preparedStatement = connection.prepareStatement(sql);
-            setParams(connection, preparedStatement);
+            SqlUtil.setParams(connection, preparedStatement, params().toArray(new SqlParam[params().size()]));
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
-            result = getColumn(resultSet, params().size() + 1, returning);
+            result = SqlUtil.getColumn(resultSet, params().size() + 1, returning);
         } finally {
             SqlUtil.close(resultSet);
             SqlUtil.close(preparedStatement);
