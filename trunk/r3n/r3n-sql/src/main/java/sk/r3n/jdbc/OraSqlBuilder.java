@@ -175,7 +175,7 @@ public class OraSqlBuilder extends SqlBuilder {
             int index = params().size() + 1;
 
             callableStatement = connection.prepareCall(sql);
-            setParams(connection, callableStatement);
+            SqlUtil.setParams(connection, callableStatement, params().toArray(new SqlParam[params().size()]));
 
             switch (returning.getDataType()) {
                 case BOOLEAN:
@@ -246,7 +246,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 case BLOB:
                     File file = null;
                     try {
-                        file = File.createTempFile("SQL", ".BIN", getTmpDir());
+                        file = File.createTempFile("SQL", ".BIN", SqlUtil.getTmpDir());
                         Blob blob = callableStatement.getBlob(index);
                         FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);
                         result = file;

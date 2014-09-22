@@ -162,11 +162,11 @@ public class H2SqlBuilder extends SqlBuilder {
 
         try {
             preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            setParams(connection, preparedStatement);
+            SqlUtil.setParams(connection, preparedStatement, params().toArray(new SqlParam[params().size()]));
             preparedStatement.executeUpdate();
             resultSet = preparedStatement.getGeneratedKeys();
             resultSet.next();
-            result = getColumn(resultSet, 1, returning);
+            result = SqlUtil.getColumn(resultSet, 1, returning);
         } finally {
             SqlUtil.close(resultSet);
             SqlUtil.close(preparedStatement);
