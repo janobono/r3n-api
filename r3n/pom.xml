@@ -12,7 +12,6 @@
     <properties>
         <targetJdk>1.6</targetJdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <r3n.version>3.0.0</r3n.version>   
     </properties>
 
     <modules>
@@ -21,6 +20,7 @@
         <module>r3n-sql</module>
         <module>r3n-util</module>
         <module>r3n-desktop</module>
+        <module>r3n-db-manager</module>
     </modules>
 
 </project>
