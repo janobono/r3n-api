@@ -8,9 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import sk.r3n.util.FileUtil;
 
 public class AppCore {
+
+    private static final Log LOG = LogFactory.getLog(AppCore.class.getCanonicalName());
 
     public static final String APP_CORE_PROPS = "sk.r3n.app.CoreProperties";
 
@@ -22,6 +26,7 @@ public class AppCore {
 
     public static void main(String[] args) {
         String propertyFile = System.getProperty(APP_CORE_PROPS, "");
+        LOG.debug(propertyFile);
         if (!propertyFile.equals("")) {
             BufferedReader br = null;
             try {
@@ -72,6 +77,7 @@ public class AppCore {
     }
 
     public static void start(String key) {
+        LOG.debug(key);
         try {
             Object object = moduleMap.get(key);
             Method method = getMethod("start", object);
@@ -84,6 +90,7 @@ public class AppCore {
     }
 
     public static void stop(String key) {
+        LOG.debug(key);
         try {
             Object object = moduleMap.get(key);
             Method method = getMethod("stop", object);
@@ -105,6 +112,7 @@ public class AppCore {
     }
 
     public static void register(String key, Object object) {
+        LOG.debug(key);
         moduleMap.put(key, object);
         try {
             start(key);
@@ -114,6 +122,7 @@ public class AppCore {
     }
 
     public static void remove(String key) {
+        LOG.debug(key);
         try {
             stop(key);
         } finally {

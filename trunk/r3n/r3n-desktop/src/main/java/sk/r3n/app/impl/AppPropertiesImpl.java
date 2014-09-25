@@ -4,9 +4,9 @@ import java.io.*;
 import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import sk.r3n.app.AppCore;
 import sk.r3n.app.AppProperties;
 import sk.r3n.app.AppProperty;
@@ -29,7 +29,7 @@ public class AppPropertiesImpl implements AppProperties {
         }
     }
 
-    private static final Logger LOGGER = Logger.getLogger(AppProperties.class.getCanonicalName());
+    private static final Log LOG = LogFactory.getLog(AppProperties.class.getCanonicalName());
 
     private Properties properties;
 
@@ -42,7 +42,7 @@ public class AppPropertiesImpl implements AppProperties {
                     + File.separatorChar + get(AppProperty.PROPERTIES_FILE));
             properties.load(in);
         } catch (IOException e) {
-            LOGGER.log(Level.WARNING, PropertiesBundle.LOAD.value(), e);
+            LOG.warn(PropertiesBundle.LOAD.value(), e);
         } finally {
             try {
                 if (in != null) {
@@ -64,7 +64,7 @@ public class AppPropertiesImpl implements AppProperties {
                 properties.store(out, AppProperties.class.getCanonicalName());
             }
         } catch (IOException e) {
-            LOGGER.log(Level.WARNING, PropertiesBundle.SAVE.value(), e);
+            LOG.warn(PropertiesBundle.SAVE.value(), e);
         } finally {
             try {
                 if (out != null) {
@@ -126,6 +126,6 @@ public class AppPropertiesImpl implements AppProperties {
         } else {
             properties.remove(key);
         }
-        LOGGER.log(Level.INFO, PropertiesBundle.SET.value(new Object[]{key, value}));
+        LOG.warn(PropertiesBundle.SET.value(new Object[]{key, value}));
     }
 }
