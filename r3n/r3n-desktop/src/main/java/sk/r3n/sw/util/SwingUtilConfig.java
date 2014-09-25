@@ -23,7 +23,7 @@ public class SwingUtilConfig {
 
         ResourceBundle bundle = null;
         try {
-            bundle = ResourceBundle.getBundle("sk.r3n.sw.util.JFileChooser");
+            bundle = ResourceBundle.getBundle(SwingUtilConfig.class.getCanonicalName());
         } catch (Exception e) {
         }
         if (bundle != null) {
