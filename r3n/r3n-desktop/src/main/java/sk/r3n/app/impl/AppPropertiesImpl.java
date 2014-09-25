@@ -59,10 +59,8 @@ public class AppPropertiesImpl implements AppProperties {
             File file = new File(System.getProperty("user.home")
                     + File.separatorChar + get(AppProperty.APP_DATA_DIR)
                     + File.separatorChar + get(AppProperty.PROPERTIES_FILE));
-            if (file.canWrite()) {
-                out = new FileOutputStream(file);
-                properties.store(out, AppProperties.class.getCanonicalName());
-            }
+            out = new FileOutputStream(file);
+            properties.store(out, AppProperties.class.getCanonicalName());
         } catch (IOException e) {
             LOG.warn(PropertiesBundle.SAVE.value(), e);
         } finally {
