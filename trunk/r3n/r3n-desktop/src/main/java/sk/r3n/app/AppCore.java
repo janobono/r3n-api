@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -103,10 +104,10 @@ public class AppCore {
     }
 
     public static void stop() {
-        List<String> keys = new ArrayList<String>();
-        keys.addAll(moduleMap.keySet());
-        for (String key : keys) {
-            remove(key);
+        Object keys[] = moduleMap.keySet().toArray();
+        LOG.debug(Arrays.toString(keys));
+        for (Object key : keys) {
+            remove((String) key);
         }
         System.exit(0);
     }
