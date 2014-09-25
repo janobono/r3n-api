@@ -12,10 +12,11 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import sk.r3n.sw.component.ImagePanel;
-import sk.r3n.sw.util.LongTermJobListener;
+import sk.r3n.sw.util.R3NAction;
 import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UIActionListener;
 
-public class StartupFrame extends R3NFrame implements LongTermJobListener {
+public abstract class StartupFrame extends R3NFrame {
 
     protected ImagePanel imagePanel;
 
@@ -24,6 +25,8 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
     protected JLabel statusLabel;
 
     protected boolean asc;
+    
+    protected Timer timer;
 
     public StartupFrame() {
         super();
@@ -47,6 +50,13 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
 
     @Override
     public void execute(UIActionKey actionKey, Object source) {
+        if (actionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
+                case REFRESH:
+                    refreshStartupFrame();
+                    break;
+            }
+        }
     }
 
     public void setAppIcon(URL url) {
@@ -93,7 +103,6 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
         jobStarted();
     }
 
-    @Override
     public void jobInProgress() {
         if (asc) {
             if (progressBar.getValue() < 100) {
@@ -114,19 +123,16 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
         }
     }
 
-    @Override
     public void jobInProgress(int value) {
         for (int i = 0; i < value; i++) {
             jobInProgress();
         }
     }
 
-    @Override
     public void jobInProgress(String message) {
         setInfoText(message);
     }
 
-    @Override
     public void jobInProgress(String message, int value) {
         jobInProgress(message);
         jobInProgress(value);
@@ -134,7 +140,15 @@ public class StartupFrame extends R3NFrame implements LongTermJobListener {
 
     public void jobFinished() {
         progressBar.setValue(100);
+        timer.stop();
         dispose();
     }
+
+    public void startTimer(int delay) {
+        timer = new Timer(delay, new UIActionListener(R3NAction.REFRESH, this));
+        timer.start();
+    }
+
+    protected abstract void refreshStartupFrame();
 
 }

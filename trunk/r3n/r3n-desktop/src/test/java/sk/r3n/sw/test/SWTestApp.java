@@ -3,40 +3,17 @@ package sk.r3n.sw.test;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingWorker;
 import sk.r3n.sw.component.ButtonPanel;
 import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.frame.R3NFrame;
 import sk.r3n.sw.frame.StartupFrame;
 import sk.r3n.sw.util.SwingUtil;
-import sk.r3n.sw.util.LongTermJobListener;
 import sk.r3n.sw.util.R3NAction;
 import sk.r3n.sw.util.UIActionKey;
 
 public class SWTestApp {
 
-    protected class TestWorker extends SwingWorker<Void, Void> {
-
-        private final LongTermJobListener jobListener;
-
-        public TestWorker(LongTermJobListener jobListener) {
-            this.jobListener = jobListener;
-        }
-
-        @Override
-        protected Void doInBackground() throws Exception {
-            Thread.sleep(300);
-            for (int i = 0; i < 40; i++) {
-                jobListener.jobInProgress(SWTestBundle.STARTUP_TEST_P.value(new Object[]{i + 1}), 10);
-                Thread.sleep(200);
-            }
-            ((StartupFrame) jobListener).jobFinished();
-            new TestFrame();
-            return Void.TYPE.newInstance();
-        }
-    }
-
-    protected class TestFrame extends R3NFrame {
+    protected static class TestFrame extends R3NFrame {
 
         public TestFrame() {
             super();
@@ -86,14 +63,27 @@ public class SWTestApp {
     }
 
     public static void main(String[] args) {
-        StartupFrame startupFrame = new StartupFrame();
+        StartupFrame startupFrame = new StartupFrame() {
+
+            private int count = 0;
+
+            @Override
+            protected void refreshStartupFrame() {
+                if (count < 10) {
+                    jobInProgress();
+                    count++;
+                } else {
+                    jobFinished();
+                    new TestFrame();
+                }
+            }
+        };
         SwingUtil.setRootFrame(startupFrame);
         startupFrame.setSize(250, 300);
         startupFrame.setAppIcon(SWTestApp.class.getResource("/sk/r3n/sw/test/tux.png"));
-        startupFrame.setAppImage(SWTestApp.class.getResource("/sk/r3n/sw/test/tux.svg"), true);
+        startupFrame.setAppImage(SWTestApp.class.getResource("/sk/r3n/sw/test/tux.png"), true);
         startupFrame.setInfoTextForegroun(Color.ORANGE);
-        TestWorker testWorker = (new SWTestApp()).new TestWorker(startupFrame);
-        testWorker.execute();
         startupFrame.jobStarted(SWTestBundle.STARTUP_TEST.value());
+        startupFrame.startTimer(500);
     }
 }
