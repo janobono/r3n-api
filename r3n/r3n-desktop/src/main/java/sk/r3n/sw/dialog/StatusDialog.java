@@ -9,34 +9,20 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
-import javax.swing.SwingWorker;
-import sk.r3n.sw.util.LongTermJobListener;
+import javax.swing.Timer;
+import sk.r3n.sw.util.R3NAction;
 import sk.r3n.sw.util.UIActionKey;
+import sk.r3n.sw.util.UIActionListener;
 
-public abstract class StatusDialog extends R3NDialog implements LongTermJobListener {
-
-    protected class JobWorker extends SwingWorker<Void, Void> {
-
-        public JobWorker() {
-        }
-
-        @Override
-        protected Void doInBackground() throws Exception {
-            jobStarted();
-            try {
-                executeLongTermJob();
-            } finally {
-                jobFinished();
-            }
-            return Void.TYPE.newInstance();
-        }
-    }
+public abstract class StatusDialog extends R3NDialog {
 
     private final JProgressBar progressBar;
 
     private final JLabel statusLabel;
 
     private boolean asc;
+
+    private Timer timer;
 
     public StatusDialog(Frame frame) {
         super(frame);
@@ -52,7 +38,7 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
         statusLabel.setHorizontalAlignment(JLabel.CENTER);
         add(statusLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-                0, 0, 0, 0), 0, 0));
+                        0, 0, 0, 0), 0, 0));
         progressBar = new JProgressBar();
         progressBar.setMaximum(100);
         progressBar.setPreferredSize(textField.getPreferredSize());
@@ -64,6 +50,13 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
     @Override
     public void execute(UIActionKey actionKey, Object source) {
         lastActionKey = actionKey;
+        if (actionKey instanceof R3NAction) {
+            switch ((R3NAction) actionKey) {
+                case REFRESH:
+                    refreshStatusDialog();
+                    break;
+            }
+        }
     }
 
     @Override
@@ -82,7 +75,6 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
         jobStarted();
     }
 
-    @Override
     public void jobInProgress() {
         int value = progressBar.getValue();
         if (asc) {
@@ -104,35 +96,31 @@ public abstract class StatusDialog extends R3NDialog implements LongTermJobListe
         }
     }
 
-    @Override
     public void jobInProgress(int value) {
         for (int i = 0; i < value; i++) {
             jobInProgress();
         }
     }
 
-    @Override
     public void jobInProgress(String message) {
         statusLabel.setText(message);
         jobInProgress();
     }
 
-    @Override
     public void jobInProgress(String message, int value) {
         jobInProgress(message);
         jobInProgress(value);
     }
 
     public void jobFinished() {
+        timer.stop();
         dispose();
     }
 
-    public void init() {
-        JobWorker jobWorker = new JobWorker();
-        jobWorker.execute();
-        pack();
-        setVisible(true);
+    public void startTimer(int delay) {
+        timer = new Timer(delay, new UIActionListener(R3NAction.REFRESH, this));
+        timer.start();
     }
 
-    protected abstract void executeLongTermJob();
+    protected abstract void refreshStatusDialog();
 }
