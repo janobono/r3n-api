@@ -8,8 +8,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class SqlUtil {
+
+    private static final Log LOG = LogFactory.getLog(SqlUtil.class);
 
     private static final String DEFAULT_DELIMITER = ";";
 
@@ -85,8 +89,20 @@ public class SqlUtil {
     }
 
     private static void runSqlCommands(Connection connection, List<String> commands) throws Exception {
+        SQLException se = null;
         for (String command : commands) {
-            execute(connection, command);
+            try {
+                execute(connection, command);
+            } catch (SQLException e) {
+                LOG.warn(e, e);
+                if (se == null) {
+                    se = e;
+                }
+            }
+        }
+
+        if (se != null) {
+            throw se;
         }
     }
 
