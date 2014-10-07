@@ -107,8 +107,20 @@ public class SqlUtil {
     }
 
     private static void runSqlCommands(Connection connection, List<String> commands) throws Exception {
+        SQLException se = null;
         for (String command : commands) {
-            execute(connection, command);
+            try {
+                execute(connection, command);
+            } catch (SQLException e) {
+                LOG.warn(e, e);
+                if (se == null) {
+                    se = e;
+                }
+            }
+        }
+
+        if (se != null) {
+            throw se;
         }
     }
 
