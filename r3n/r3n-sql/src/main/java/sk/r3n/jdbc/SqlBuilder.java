@@ -270,6 +270,8 @@ public abstract class SqlBuilder {
             for (int i = 0; i < columns.length; i++) {
                 if (values[i] instanceof Sequence) {
                     sql.append(nextVal((Sequence) values[i]));
+                } else if (values[i] instanceof Criterion) {
+                    sql.append(((Criterion) values[i]).getRepresentation());
                 } else {
                     sql.append(QUESTION_MARK);
                     params().add(new SqlParam(columns[i].getDataType(), values[i]));

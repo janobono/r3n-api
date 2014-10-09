@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import static sk.r3n.jdbc.SqlBuilder.COMMA;
 import sk.r3n.sql.Column;
+import sk.r3n.sql.Criterion;
 import sk.r3n.sql.DataType;
 import sk.r3n.sql.Join;
 import sk.r3n.sql.JoinCriterion;
@@ -136,6 +137,8 @@ public class H2SqlBuilder extends SqlBuilder {
         for (int i = 0; i < columns.length; i++) {
             if (values[i] instanceof Sequence) {
                 sql.append(nextVal((Sequence) values[i]));
+            } else if (values[i] instanceof Criterion) {
+                sql.append(((Criterion) values[i]).getRepresentation());
             } else {
                 sql.append(QUESTION_MARK);
                 params().add(new SqlParam(columns[i].getDataType(), values[i]));
