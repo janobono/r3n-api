@@ -135,9 +135,10 @@ public class SqlBuilderTest {
         for (SqlBuilder sqlBuilder : sqlBuilders) {
 
             // INSERT without returning value
+            Criterion criterion = new Criterion(null, Condition.EQUALS, this, "CURRENT_TIMESTAMP", Operator.AND);
             Query query = new Query();
             query.INSERT().INTO(TABLE.PERSON(), PERSON.columns()).VALUES(
-                    10L, new Date(), "creator", (short) 5, "0123456789",
+                    10L, criterion, "creator", (short) 5, "0123456789",
                     "first_name", "first_name", "last_name", "last_name", new Date(), "note");
 
             if (LOG.isDebugEnabled()) {
