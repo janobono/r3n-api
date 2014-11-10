@@ -107,29 +107,45 @@ public abstract class SqlBuilder {
         Object lastObject = null;
         boolean criteriaSequence = false;
         for (Object object : criteria.getContent()) {
-            if (lastObject != null) {
-                if (object instanceof Criterion && criteriaSequence) {
-                    sql.append(RIGHT_BRACE);
-                    criteriaSequence = false;
-                }
-                sql.append(SPACE);
-                if (lastObject instanceof Criterion) {
-                    sql.append(((Criterion) lastObject).getOperator());
-                } else {
-                    sql.append(((Criteria) lastObject).getOperator());
-                }
-                sql.append(SPACE);
-            }
             if (object instanceof Criterion) {
-                sql.append(toSql((Criterion) object));
-            } else {
-                if (!criteriaSequence) {
-                    sql.append(LEFT_BRACE);
-                    criteriaSequence = true;
+                if (lastObject != null) {
+                    if (object instanceof Criterion && criteriaSequence) {
+                        sql.append(RIGHT_BRACE);
+                        criteriaSequence = false;
+                    }
+                    sql.append(SPACE);
+                    if (lastObject instanceof Criterion) {
+                        sql.append(((Criterion) lastObject).getOperator());
+                    } else {
+                        sql.append(((Criteria) lastObject).getOperator());
+                    }
+                    sql.append(SPACE);
                 }
-                sql.append(toSql((Criteria) object));
+                sql.append(toSql((Criterion) object));
+                lastObject = object;
+            } else {
+                if (((Criteria) object).isCriteria()) {
+                    if (lastObject != null) {
+                        if (object instanceof Criterion && criteriaSequence) {
+                            sql.append(RIGHT_BRACE);
+                            criteriaSequence = false;
+                        }
+                        sql.append(SPACE);
+                        if (lastObject instanceof Criterion) {
+                            sql.append(((Criterion) lastObject).getOperator());
+                        } else {
+                            sql.append(((Criteria) lastObject).getOperator());
+                        }
+                        sql.append(SPACE);
+                    }
+                    if (!criteriaSequence) {
+                        sql.append(LEFT_BRACE);
+                        criteriaSequence = true;
+                    }
+                    sql.append(toSql((Criteria) object));
+                    lastObject = object;
+                }
             }
-            lastObject = object;
         }
         if (criteriaSequence) {
             sql.append(RIGHT_BRACE);
