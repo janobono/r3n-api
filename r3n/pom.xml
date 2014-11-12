@@ -21,5 +21,14 @@
         <module>r3n-sql</module>
         <module>r3n-util</module>
     </modules>
-
+    
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>1.0</version>
+            </extension>
+        </extensions>
+    </build>
 </project>
