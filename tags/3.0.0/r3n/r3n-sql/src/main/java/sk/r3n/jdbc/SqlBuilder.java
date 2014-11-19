@@ -20,6 +20,7 @@ import sk.r3n.sql.Condition;
 import sk.r3n.sql.Criteria;
 import sk.r3n.sql.CriteriaManager;
 import sk.r3n.sql.Criterion;
+import sk.r3n.sql.InnerSelect;
 import sk.r3n.sql.Join;
 import sk.r3n.sql.JoinCriterion;
 import sk.r3n.sql.Query;
@@ -234,7 +235,16 @@ public abstract class SqlBuilder {
 
             Column[] columns = query.getColumns();
             for (int i = 0; i < columns.length; i++) {
-                sql.append(columns[i]);
+                Column column = columns[i];
+                if (column instanceof InnerSelect) {
+                    InnerSelect innerSelect = (InnerSelect) column;
+                    sql.append(LEFT_BRACE);
+                    sql.append(toSelect(innerSelect.getQuery()));
+                    sql.append(RIGHT_BRACE);
+                    sql.append(" AS ").append(column.getName());
+                } else {
+                    sql.append(column);
+                }
                 if (i < columns.length - 1) {
                     sql.append(COMMA);
                 }
