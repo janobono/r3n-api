@@ -130,6 +130,29 @@ public class SqlBuilderTest {
     }
 
     @Test
+    public void innerSelectColumnTest() throws Exception {
+        SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder()};
+        for (SqlBuilder sqlBuilder : sqlBuilders) {
+
+            Query innerQuery = new Query();
+            innerQuery.SELECT(new Function("COUNT({0})", PERSON.ID("in")))
+                    .FROM(TABLE.PERSON("in"))
+                    .WHERE(PERSON.BIRTH_DATE("in"), Condition.EQUALS, PERSON.BIRTH_DATE())
+                    .AND(PERSON.BIRTH_DATE("in"), Condition.MORE, new Date());
+
+            InnerSelect innerSelect = new InnerSelect(innerQuery, "INNER_COUNT", DataType.INTEGER);
+
+            Query query = new Query();
+            query.SELECT(PERSON.FIRST_NAME(), innerSelect).FROM(TABLE.PERSON());
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(sqlBuilder.toSelect(query));
+                LOG.debug(sqlBuilder.params());
+            }
+        }
+    }
+
+    @Test
     public void insertTest() throws Exception {
         SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder(), new H2SqlBuilder()};
         for (SqlBuilder sqlBuilder : sqlBuilders) {
