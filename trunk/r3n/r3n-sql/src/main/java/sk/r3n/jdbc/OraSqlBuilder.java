@@ -69,10 +69,6 @@ public class OraSqlBuilder extends SqlBuilder {
 
         sql.append("SELECT * FROM ").append(LEFT_BRACE).append(NEW_LINE).append("SELECT ");
 
-        if (query.getDistinct()) {
-            sql.append("DISTINCT ");
-        }
-
         Column[] columns = query.getColumns();
         for (int i = 0; i < columns.length; i++) {
             sql.append("col").append(i).append(", ");
