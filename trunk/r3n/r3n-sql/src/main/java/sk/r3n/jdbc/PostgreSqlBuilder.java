@@ -90,17 +90,6 @@ public class PostgreSqlBuilder extends SqlBuilder {
             sql.append(toSql(query.getCriteriaManager()));
         }
 
-        if (!query.getOrderCriteria().isEmpty()) {
-            sql.append(SPACE).append(NEW_LINE).append("ORDER BY ");
-            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
-                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
-                if (i < query.getOrderCriteria().size() - 1) {
-                    sql.append(COMMA);
-                }
-                sql.append(SPACE);
-            }
-        }
-
         if (query.getGroupByColumns() != null) {
             sql.append(SPACE).append(NEW_LINE).append("GROUP BY ");
             columns = query.getGroupByColumns();
@@ -109,6 +98,17 @@ public class PostgreSqlBuilder extends SqlBuilder {
                 if (i < columns.length - 1) {
                     sql.append(COMMA).append(SPACE);
                 }
+            }
+        }
+
+        if (!query.getOrderCriteria().isEmpty()) {
+            sql.append(SPACE).append(NEW_LINE).append("ORDER BY ");
+            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
+                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
+                if (i < query.getOrderCriteria().size() - 1) {
+                    sql.append(COMMA);
+                }
+                sql.append(SPACE);
             }
         }
 
