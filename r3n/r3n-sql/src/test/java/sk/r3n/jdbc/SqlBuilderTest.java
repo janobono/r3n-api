@@ -135,7 +135,7 @@ public class SqlBuilderTest {
         for (SqlBuilder sqlBuilder : sqlBuilders) {
 
             Query innerQuery = new Query();
-            innerQuery.SELECT(new Function("COUNT({0})", PERSON.ID("in")))
+            innerQuery.SELECT(new Function("COUNT({0})", DataType.INTEGER, PERSON.ID("in").nameWithAlias()))
                     .FROM(TABLE.PERSON("in"))
                     .WHERE(PERSON.BIRTH_DATE("in"), Condition.EQUALS, PERSON.BIRTH_DATE())
                     .AND(PERSON.BIRTH_DATE("in"), Condition.MORE, new Date());
