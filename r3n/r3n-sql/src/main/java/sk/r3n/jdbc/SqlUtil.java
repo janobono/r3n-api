@@ -23,20 +23,6 @@ public class SqlUtil {
 
     private static final String DEFAULT_ENCODING = "UTF-8";
 
-    private static File tmpDir;
-
-    public static File getTmpDir() {
-        if (tmpDir == null) {
-            tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            LOG.warn("Default tmp dir will be used - " + tmpDir.getAbsolutePath());
-        }
-        return tmpDir;
-    }
-
-    public static void setTmpDir(File tmpDir) {
-        SqlUtil.tmpDir = tmpDir;
-    }
-
     public static void runSqlScript(Connection connection, InputStream is) throws Exception {
         runSqlScript(connection, is, null, DEFAULT_DELIMITER, null);
     }
@@ -161,26 +147,7 @@ public class SqlUtil {
         }
     }
 
-    public static String arrayToString(Object[] array) {
-        StringBuilder sb = new StringBuilder();
-        sb.append('(');
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] instanceof String) {
-                sb.append('\'');
-            }
-            sb.append(array[i]);
-            if (array[i] instanceof String) {
-                sb.append('\'');
-            }
-            if (i < array.length - 1) {
-                sb.append(',');
-            }
-        }
-        sb.append(')');
-        return sb.toString();
-    }
-
-    public static Object getColumn(ResultSet resultSet, int index, Column column) throws SQLException {
+    public static Object getColumn(ResultSet resultSet, int index, Column column, File dir) throws SQLException {
         Object result = null;
 
         if (resultSet.getObject(index) != null) {
@@ -218,7 +185,7 @@ public class SqlUtil {
                 case BLOB:
                     File file = null;
                     try {
-                        file = File.createTempFile("SQL", ".BIN", getTmpDir());
+                        file = File.createTempFile("SQL", ".BIN", dir);
                         Blob blob = resultSet.getBlob(index);
                         if (blob.length() > 0) {
                             FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);

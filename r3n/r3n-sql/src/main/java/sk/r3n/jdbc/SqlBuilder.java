@@ -1,5 +1,6 @@
 package sk.r3n.jdbc;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,6 +33,20 @@ public abstract class SqlBuilder {
     protected static final char QUESTION_MARK = '?';
     protected static final char EQUALS = '=';
     protected static final char COMMA = ',';
+
+    private File tmpDir;
+
+    public File getTmpDir() {
+        if (tmpDir == null) {
+            tmpDir = new File(System.getProperty("java.io.tmpdir"));
+            LOG.warn("Default tmp dir will be used - " + tmpDir.getAbsolutePath());
+        }
+        return tmpDir;
+    }
+
+    public void setTmpDir(File tmpDir) {
+        this.tmpDir = tmpDir;
+    }
 
     private List<SqlParam> params;
 
@@ -393,7 +408,7 @@ public abstract class SqlBuilder {
         Object[] result = new Object[columns.length];
 
         for (int i = 0; i < result.length; i++) {
-            result[i] = SqlUtil.getColumn(resultSet, i + 1, columns[i]);
+            result[i] = SqlUtil.getColumn(resultSet, i + 1, columns[i], getTmpDir());
         }
 
         return result;
