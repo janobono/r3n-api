@@ -245,7 +245,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 case BLOB:
                     File file = null;
                     try {
-                        file = File.createTempFile("SQL", ".BIN", SqlUtil.getTmpDir());
+                        file = File.createTempFile("SQL", ".BIN", getTmpDir());
                         Blob blob = callableStatement.getBlob(index);
                         FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);
                         result = file;

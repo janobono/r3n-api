@@ -169,7 +169,7 @@ public class H2SqlBuilder extends SqlBuilder {
             preparedStatement.executeUpdate();
             resultSet = preparedStatement.getGeneratedKeys();
             resultSet.next();
-            result = SqlUtil.getColumn(resultSet, 1, returning);
+            result = SqlUtil.getColumn(resultSet, 1, returning, getTmpDir());
         } finally {
             SqlUtil.close(resultSet);
             SqlUtil.close(preparedStatement);
