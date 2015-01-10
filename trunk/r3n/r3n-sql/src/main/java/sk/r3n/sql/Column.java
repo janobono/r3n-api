@@ -10,6 +10,8 @@ public class Column implements Serializable {
 
     private DataType dataType;
 
+    private String alias;
+
     public Column(String name, Table table, DataType dataType) {
         this.name = name;
         this.table = table;
@@ -41,7 +43,11 @@ public class Column implements Serializable {
 
     @Override
     public String toString() {
-        return nameWithAlias();
+        if (alias == null) {
+            return nameWithAlias();
+        } else {
+            return alias;
+        }
     }
 
     public String getName() {
@@ -66,6 +72,14 @@ public class Column implements Serializable {
 
     public void setDataType(DataType dataType) {
         this.dataType = dataType;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
 }

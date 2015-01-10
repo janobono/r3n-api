@@ -1,15 +1,11 @@
 package sk.r3n.sql;
 
-/**
- *
- * @author jan
- */
-public class InnerSelect extends Column {
+public class TableSelect extends Table {
 
     private Query query;
 
-    public InnerSelect(Query query, String name, DataType dataType) {
-        super(name, null, dataType);
+    public TableSelect(Query query, String name) {
+        super(name, null);
         this.query = query;
     }
 
@@ -25,5 +21,4 @@ public class InnerSelect extends Column {
     public String nameWithAlias() {
         return getName();
     }
-
 }

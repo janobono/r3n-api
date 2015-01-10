@@ -7,14 +7,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import static sk.r3n.jdbc.SqlBuilder.COMMA;
 import sk.r3n.sql.Column;
+import sk.r3n.sql.ColumnSelect;
 import sk.r3n.sql.Criterion;
 import sk.r3n.sql.DataType;
 import sk.r3n.sql.Join;
 import sk.r3n.sql.JoinCriterion;
 import sk.r3n.sql.Query;
 import sk.r3n.sql.Sequence;
+import sk.r3n.sql.TableSelect;
 
 public class H2SqlBuilder extends SqlBuilder {
 
@@ -75,10 +76,10 @@ public class H2SqlBuilder extends SqlBuilder {
             sql.append(SPACE);
         }
 
-        sql.append(NEW_LINE).append("FROM ").append(query.getTable()).append(SPACE);
+        sql.append("FROM ").append(query.getTable()).append(SPACE);
 
         for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
-            sql.append(NEW_LINE).append(joinCriterion.getJoin());
+            sql.append(joinCriterion.getJoin());
             if (joinCriterion.getJoin() == Join.FULL) {
                 sql.append(" OUTER");
             }
@@ -87,12 +88,12 @@ public class H2SqlBuilder extends SqlBuilder {
         }
 
         if (query.getCriteriaManager().isCriteria()) {
-            sql.append(SPACE).append(NEW_LINE).append("WHERE ").append(NEW_LINE);
+            sql.append(SPACE).append("WHERE ");
             sql.append(toSql(query.getCriteriaManager()));
         }
 
         if (query.getGroupByColumns() != null) {
-            sql.append(SPACE).append(NEW_LINE).append("GROUP BY ");
+            sql.append(SPACE).append("GROUP BY ");
             columns = query.getGroupByColumns();
             for (int i = 0; i < columns.length; i++) {
                 sql.append(columns[i]);
@@ -103,7 +104,76 @@ public class H2SqlBuilder extends SqlBuilder {
         }
 
         if (!query.getOrderCriteria().isEmpty()) {
-            sql.append(SPACE).append(NEW_LINE).append("ORDER BY ");
+            sql.append(SPACE).append("ORDER BY ");
+            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
+                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
+                if (i < query.getOrderCriteria().size() - 1) {
+                    sql.append(COMMA);
+                }
+                sql.append(SPACE);
+            }
+        }
+
+        sql.append(") LIMIT ? OFFSET ?");
+        params().add(new SqlParam(DataType.INTEGER, query.getPageSize()));
+        params().add(new SqlParam(DataType.INTEGER, query.getFirstRow()));
+
+        return sql.toString();
+    }
+
+    @Override
+    protected String toPaginatedSubSelect(Query query) {
+        realias(query);
+
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("SELECT * FROM (SELECT ");
+
+        if (query.getDistinct()) {
+            sql.append("DISTINCT ");
+        }
+
+        Column[] columns = query.getColumns();
+        for (int i = 0; i < columns.length; i++) {
+            Column column = columns[i];
+            if (column instanceof ColumnSelect) {
+                ColumnSelect innerSelect = (ColumnSelect) column;
+                sql.append(LEFT_BRACE);
+                sql.append(toSelect(innerSelect.getQuery()));
+                sql.append(RIGHT_BRACE);
+                sql.append(" AS ").append(column.getName());
+            } else {
+                sql.append(column);
+            }
+            if (i < columns.length - 1) {
+                sql.append(COMMA);
+            }
+            sql.append(SPACE);
+        }
+
+        sql.append("FROM ").append(LEFT_BRACE);
+        TableSelect tableSelect = (TableSelect) query.getTable();
+        sql.append(toSelect(tableSelect));
+        sql.append(RIGHT_BRACE);
+
+        if (query.getCriteriaManager().isCriteria()) {
+            sql.append(SPACE).append("WHERE ");
+            sql.append(toSql(query.getCriteriaManager()));
+        }
+
+        if (query.getGroupByColumns() != null) {
+            sql.append(SPACE).append("GROUP BY ");
+            columns = query.getGroupByColumns();
+            for (int i = 0; i < columns.length; i++) {
+                sql.append(columns[i]);
+                if (i < columns.length - 1) {
+                    sql.append(COMMA).append(SPACE);
+                }
+            }
+        }
+
+        if (!query.getOrderCriteria().isEmpty()) {
+            sql.append(SPACE).append("ORDER BY ");
             for (int i = 0; i < query.getOrderCriteria().size(); i++) {
                 sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
                 if (i < query.getOrderCriteria().size() - 1) {
