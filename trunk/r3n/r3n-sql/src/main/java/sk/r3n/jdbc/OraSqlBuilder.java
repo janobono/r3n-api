@@ -12,7 +12,6 @@ import java.sql.Types;
 import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import static sk.r3n.jdbc.SqlBuilder.LEFT_BRACE;
 import sk.r3n.sql.Column;
 import sk.r3n.sql.ColumnSelect;
 import sk.r3n.sql.Criterion;
