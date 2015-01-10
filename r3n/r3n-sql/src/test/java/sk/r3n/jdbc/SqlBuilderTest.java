@@ -29,7 +29,7 @@ public class SqlBuilderTest {
 
     @Test
     public void selectTest() throws Exception {
-        SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder()};
+        SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder(), new H2SqlBuilder()};
         for (SqlBuilder sqlBuilder : sqlBuilders) {
 
             // SELECT without condition
@@ -131,20 +131,64 @@ public class SqlBuilderTest {
 
     @Test
     public void innerSelectColumnTest() throws Exception {
-        SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder()};
+        SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder(), new H2SqlBuilder()};
         for (SqlBuilder sqlBuilder : sqlBuilders) {
 
             Query innerQuery = new Query();
-            innerQuery.SELECT(new Function("COUNT({0})", DataType.INTEGER, PERSON.ID("in").nameWithAlias()))
+            innerQuery.SELECT(new ColumnFunction("COUNT({0})", DataType.INTEGER, PERSON.ID("in").nameWithAlias()))
                     .FROM(TABLE.PERSON("in"))
                     .WHERE(PERSON.BIRTH_DATE("in"), Condition.EQUALS, PERSON.BIRTH_DATE())
                     .AND(PERSON.BIRTH_DATE("in"), Condition.MORE, new Date());
 
-            InnerSelect innerSelect = new InnerSelect(innerQuery, "INNER_COUNT", DataType.INTEGER);
+            ColumnSelect columnSelect = new ColumnSelect(innerQuery, "INNER_COUNT", DataType.INTEGER);
 
             Query query = new Query();
-            query.SELECT(PERSON.FIRST_NAME(), innerSelect).FROM(TABLE.PERSON());
+            Query.Select select = query.SELECT(PERSON.FIRST_NAME(), columnSelect).FROM(TABLE.PERSON());
 
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(sqlBuilder.toSelect(query));
+                LOG.debug(sqlBuilder.params());
+            }
+
+            select.page(0, 1000);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(sqlBuilder.toSelect(query));
+                LOG.debug(sqlBuilder.params());
+            }
+        }
+    }
+
+    @Test
+    public void subSelectTest() throws Exception {
+        SqlBuilder[] sqlBuilders = new SqlBuilder[]{new PostgreSqlBuilder(), new OraSqlBuilder(), new H2SqlBuilder()};
+        for (SqlBuilder sqlBuilder : sqlBuilders) {
+            Query innerQuery = new Query();
+            innerQuery.SELECT(new ColumnFunction("COUNT({0})", DataType.INTEGER, PERSON.ID("in").nameWithAlias()))
+                    .FROM(TABLE.PERSON("in"))
+                    .WHERE(PERSON.BIRTH_DATE("in"), Condition.EQUALS, PERSON.BIRTH_DATE("sub"))
+                    .AND(PERSON.BIRTH_DATE("in"), Condition.MORE, new Date());
+
+            ColumnSelect columnSelect = new ColumnSelect(innerQuery, "INNER_COUNT", DataType.INTEGER);
+
+            Query subQuery = new Query();
+            subQuery.SELECT(PERSON.columns("sub")).DISTINCT()
+                    .FROM(TABLE.PERSON("sub"))
+                    .INNER_JOIN(TABLE.ADDRESS("subjoin"), ADDRESS.PERSON_FK("subjoin"), PERSON.ID("sub"))
+                    .WHERE(PERSON.CREATOR("sub"), Condition.EQUALS, "creator")
+                    .ORDER_BY(PERSON.FIRST_NAME("sub"), Order.ASC);
+
+            Query query = new Query();
+            Query.Select select = query.SELECT(PERSON.FIRST_NAME("sub"), columnSelect)
+                    .FROM(new TableSelect(subQuery, "SUB_SELECT"))
+                    .WHERE(PERSON.CREATED("sub"), Condition.MORE, new Date())
+                    .ORDER_BY(PERSON.FIRST_NAME("sub"), Order.ASC);
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(sqlBuilder.toSelect(query));
+                LOG.debug(sqlBuilder.params());
+            }
+
+            select.page(0, 1000);
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sqlBuilder.toSelect(query));
                 LOG.debug(sqlBuilder.params());

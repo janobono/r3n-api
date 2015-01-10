@@ -2,11 +2,11 @@ package sk.r3n.sql;
 
 import java.text.MessageFormat;
 
-public class Function extends Column {
+public class ColumnFunction extends Column {
 
     private final Object[] members;
 
-    public Function(String function, DataType dataType, String... members) {
+    public ColumnFunction(String function, DataType dataType, String... members) {
         super(function, null, dataType);
         this.members = members;
     }

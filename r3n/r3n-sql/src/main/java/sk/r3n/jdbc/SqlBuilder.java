@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sk.r3n.sql.Column;
@@ -16,17 +18,18 @@ import sk.r3n.sql.Condition;
 import sk.r3n.sql.Criteria;
 import sk.r3n.sql.CriteriaManager;
 import sk.r3n.sql.Criterion;
-import sk.r3n.sql.InnerSelect;
+import sk.r3n.sql.ColumnSelect;
 import sk.r3n.sql.Join;
 import sk.r3n.sql.JoinCriterion;
+import sk.r3n.sql.OrderCriterion;
 import sk.r3n.sql.Query;
 import sk.r3n.sql.Sequence;
+import sk.r3n.sql.TableSelect;
 
 public abstract class SqlBuilder {
 
     private static final Log LOG = LogFactory.getLog(SqlBuilder.class);
 
-    protected static final char NEW_LINE = '\n';
     protected static final char SPACE = ' ';
     protected static final char LEFT_BRACE = '(';
     protected static final char RIGHT_BRACE = ')';
@@ -213,80 +216,342 @@ public abstract class SqlBuilder {
         if (query.getPagination() && query.getCount()) {
             throw new IllegalArgumentException("Pagination and count can't be in one query!");
         }
+        String sql;
+
+        if (query.getTable() instanceof TableSelect) {
+            TableSelect tableSelect = (TableSelect) query.getTable();
+            if (tableSelect.getQuery().getQueryType() != Query.QueryType.SELECT
+                    || tableSelect.getQuery().getPagination()
+                    || tableSelect.getQuery().getCount()) {
+                throw new IllegalArgumentException("Wrong sub query for select!");
+            }
+            if (query.getPagination()) {
+                sql = toPaginatedSubSelect(query);
+            } else {
+                sql = toSubSelect(query);
+            }
+        } else {
+            if (query.getPagination()) {
+                sql = toPaginatedSelect(query);
+            } else {
+                sql = toStandardSelect(query);
+            }
+        }
+
+        return sql;
+    }
+
+    protected String toSubSelect(Query query) {
+        realias(query);
+
         StringBuilder sql = new StringBuilder();
 
-        if (query.getPagination()) {
-            sql.append(toPaginatedSelect(query));
-        } else {
-            if (query.getCount()) {
-                sql.append("SELECT COUNT(*) FROM ").append(LEFT_BRACE);
+        if (query.getCount()) {
+            sql.append("SELECT COUNT(*) FROM ").append(LEFT_BRACE);
+        }
+
+        sql.append("SELECT ");
+
+        if (query.getDistinct()) {
+            sql.append("DISTINCT ");
+        }
+
+        Column[] columns = query.getColumns();
+        for (int i = 0; i < columns.length; i++) {
+            Column column = columns[i];
+            if (column instanceof ColumnSelect) {
+                ColumnSelect innerSelect = (ColumnSelect) column;
+                sql.append(LEFT_BRACE);
+                sql.append(toSelect(innerSelect.getQuery()));
+                sql.append(RIGHT_BRACE);
+                sql.append(" AS ").append(column.getName());
+            } else {
+                sql.append(column);
             }
-
-            sql.append("SELECT ");
-
-            if (query.getDistinct()) {
-                sql.append("DISTINCT ");
+            if (i < columns.length - 1) {
+                sql.append(COMMA);
             }
+            sql.append(SPACE);
+        }
 
-            Column[] columns = query.getColumns();
+        sql.append("FROM ").append(LEFT_BRACE);
+        TableSelect tableSelect = (TableSelect) query.getTable();
+        sql.append(toSelect(tableSelect));
+        sql.append(RIGHT_BRACE);
+
+        if (query.getCriteriaManager().isCriteria()) {
+            sql.append(SPACE).append("WHERE ");
+            sql.append(toSql(query.getCriteriaManager()));
+        }
+
+        if (query.getGroupByColumns() != null) {
+            sql.append(SPACE).append("GROUP BY ");
+            columns = query.getGroupByColumns();
             for (int i = 0; i < columns.length; i++) {
-                Column column = columns[i];
-                if (column instanceof InnerSelect) {
-                    InnerSelect innerSelect = (InnerSelect) column;
-                    sql.append(LEFT_BRACE);
-                    sql.append(toSelect(innerSelect.getQuery()));
-                    sql.append(RIGHT_BRACE);
-                    sql.append(" AS ").append(column.getName());
-                } else {
-                    sql.append(column);
-                }
+                sql.append(columns[i]);
                 if (i < columns.length - 1) {
+                    sql.append(COMMA).append(SPACE);
+                }
+            }
+        }
+
+        if (!query.getOrderCriteria().isEmpty()) {
+            sql.append(SPACE).append("ORDER BY ");
+            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
+                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
+                if (i < query.getOrderCriteria().size() - 1) {
                     sql.append(COMMA);
                 }
                 sql.append(SPACE);
             }
+        }
 
-            sql.append(NEW_LINE).append("FROM ").append(query.getTable()).append(SPACE);
+        if (query.getCount()) {
+            sql.append(RIGHT_BRACE);
+        }
 
-            for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
-                sql.append(SPACE).append(NEW_LINE).append(joinCriterion.getJoin());
-                if (joinCriterion.getJoin() == Join.FULL) {
-                    sql.append(" OUTER");
+        return sql.toString();
+    }
+
+    protected void realias(Query query) {
+        TableSelect tableSelect = (TableSelect) query.getTable();
+
+        Map<Column, String> aliasMap = new HashMap<Column, String>();
+        int lastAliasNum = 0;
+
+        lastAliasNum = realias(aliasMap, lastAliasNum, tableSelect.getQuery().getColumns(), false);
+        realias(aliasMap, lastAliasNum, query.getColumns(), true);
+
+        if (query.getCriteriaManager().isCriteria()) {
+            for (int i = 0; i < query.getCriteriaManager().getCriteriaList().size(); i++) {
+                Criteria criteria = query.getCriteriaManager().getCriteriaList().get(i);
+                if (criteria.isCriteria()) {
+                    realias(aliasMap, criteria);
                 }
-                sql.append(" JOIN ").append(joinCriterion.getTable()).append(" ON ");
-                sql.append(toSql(joinCriterion.getCriteriaManager()));
             }
+        }
 
-            if (query.getCriteriaManager().isCriteria()) {
-                sql.append(SPACE).append(NEW_LINE).append("WHERE ").append(NEW_LINE);
-                sql.append(toSql(query.getCriteriaManager()));
+        if (query.getGroupByColumns() != null) {
+            Column[] columns = query.getGroupByColumns();
+            for (Column column : columns) {
+                if (!(column instanceof ColumnSelect)) {
+                    column.setAlias(aliasMap.get(column));
+                }
             }
+        }
 
-            if (query.getGroupByColumns() != null) {
-                sql.append(SPACE).append(NEW_LINE).append("GROUP BY ");
-                columns = query.getGroupByColumns();
-                for (int i = 0; i < columns.length; i++) {
-                    sql.append(columns[i]);
-                    if (i < columns.length - 1) {
-                        sql.append(COMMA).append(SPACE);
+        if (!query.getOrderCriteria().isEmpty()) {
+            for (OrderCriterion orderCriterion : query.getOrderCriteria()) {
+                orderCriterion.getColumn().setAlias(aliasMap.get(orderCriterion.getColumn()));
+            }
+        }
+    }
+
+    protected int realias(Map<Column, String> aliasMap, int lastAliasNum, Column[] columns, boolean values) {
+        for (Column column : columns) {
+            if (column instanceof ColumnSelect) {
+                ColumnSelect columnSelect = (ColumnSelect) column;
+                if (columnSelect.getQuery().getCriteriaManager().isCriteria()) {
+                    for (int i = 0; i < columnSelect.getQuery().getCriteriaManager().getCriteriaList().size(); i++) {
+                        Criteria c = columnSelect.getQuery().getCriteriaManager().getCriteriaList().get(i);
+                        if (c.isCriteria()) {
+                            realiasValues(aliasMap, c);
+                        }
                     }
                 }
+            } else {
+                if (!aliasMap.containsKey(column)) {
+                    aliasMap.put(column, "icol" + lastAliasNum++);
+                }
+                column.setAlias(aliasMap.get(column));
+                column.setAlias(aliasMap.get(column));
             }
+        }
+        return lastAliasNum;
+    }
 
-            if (!query.getOrderCriteria().isEmpty()) {
-                sql.append(SPACE).append(NEW_LINE).append("ORDER BY ");
-                for (int i = 0; i < query.getOrderCriteria().size(); i++) {
-                    sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
-                    if (i < query.getOrderCriteria().size() - 1) {
-                        sql.append(COMMA);
+    protected void realias(Map<Column, String> aliasMap, Criteria criteria) {
+        for (Object object : criteria.getContent()) {
+            if (object instanceof Criterion) {
+                Criterion criterion = (Criterion) object;
+                criterion.getColumn().setAlias(aliasMap.get(criterion.getColumn()));
+                if (criterion.getValue() != null) {
+                    if (criterion.getValue() instanceof Query) {
+                        Query query = (Query) criterion.getValue();
+                        if (query.getCriteriaManager().isCriteria()) {
+                            for (int i = 0; i < query.getCriteriaManager().getCriteriaList().size(); i++) {
+                                Criteria c = query.getCriteriaManager().getCriteriaList().get(i);
+                                if (c.isCriteria()) {
+                                    realiasValues(aliasMap, c);
+                                }
+                            }
+                        }
+                    } else if (criterion.getValue() instanceof Column) {
+                        Column column = (Column) criterion.getValue();
+                        column.setAlias(aliasMap.get(column));
                     }
-                    sql.append(SPACE);
+                } else {
+                    realias(aliasMap, (Criteria) object);
                 }
             }
+        }
+    }
 
-            if (query.getCount()) {
+    protected void realiasValues(Map<Column, String> aliasMap, Criteria criteria) {
+        for (Object object : criteria.getContent()) {
+            if (object instanceof Criterion) {
+                Criterion criterion = (Criterion) object;
+                if (criterion.getValue() != null) {
+                    if (criterion.getValue() instanceof Column) {
+                        Column column = (Column) criterion.getValue();
+                        column.setAlias(aliasMap.get(column));
+                    }
+                } else {
+                    realiasValues(aliasMap, (Criteria) object);
+                }
+            }
+        }
+    }
+
+    protected String toSelect(TableSelect tableSelect) {
+        Query query = tableSelect.getQuery();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT ");
+
+        if (query.getDistinct()) {
+            sql.append("DISTINCT ");
+        }
+
+        Column[] columns = query.getColumns();
+        for (int i = 0; i < columns.length; i++) {
+            Column column = columns[i];
+            if (column instanceof ColumnSelect) {
+                ColumnSelect innerSelect = (ColumnSelect) column;
+                sql.append(LEFT_BRACE);
+                sql.append(toSelect(innerSelect.getQuery()));
                 sql.append(RIGHT_BRACE);
+                sql.append(" AS ").append(column.getName());
+            } else {
+                sql.append(column.nameWithAlias()).append(" AS ").append(column);
             }
+            if (i < columns.length - 1) {
+                sql.append(COMMA);
+            }
+            sql.append(SPACE);
+        }
+
+        sql.append("FROM ").append(query.getTable()).append(SPACE);
+
+        for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
+            sql.append(SPACE).append(joinCriterion.getJoin());
+            if (joinCriterion.getJoin() == Join.FULL) {
+                sql.append(" OUTER");
+            }
+            sql.append(" JOIN ").append(joinCriterion.getTable()).append(" ON ");
+            sql.append(toSql(joinCriterion.getCriteriaManager()));
+        }
+
+        if (query.getCriteriaManager().isCriteria()) {
+            sql.append(SPACE).append("WHERE ");
+            sql.append(toSql(query.getCriteriaManager()));
+        }
+
+        if (query.getGroupByColumns() != null) {
+            sql.append(SPACE).append("GROUP BY ");
+            columns = query.getGroupByColumns();
+            for (int i = 0; i < columns.length; i++) {
+                sql.append(columns[i]);
+                if (i < columns.length - 1) {
+                    sql.append(COMMA).append(SPACE);
+                }
+            }
+        }
+
+        if (!query.getOrderCriteria().isEmpty()) {
+            sql.append(SPACE).append("ORDER BY ");
+            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
+                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
+                if (i < query.getOrderCriteria().size() - 1) {
+                    sql.append(COMMA);
+                }
+                sql.append(SPACE);
+            }
+        }
+        return sql.toString();
+    }
+
+    protected String toStandardSelect(Query query) {
+        StringBuilder sql = new StringBuilder();
+
+        if (query.getCount()) {
+            sql.append("SELECT COUNT(*) FROM ").append(LEFT_BRACE);
+        }
+
+        sql.append("SELECT ");
+
+        if (query.getDistinct()) {
+            sql.append("DISTINCT ");
+        }
+
+        Column[] columns = query.getColumns();
+        for (int i = 0; i < columns.length; i++) {
+            Column column = columns[i];
+            if (column instanceof ColumnSelect) {
+                ColumnSelect innerSelect = (ColumnSelect) column;
+                sql.append(LEFT_BRACE);
+                sql.append(toSelect(innerSelect.getQuery()));
+                sql.append(RIGHT_BRACE);
+                sql.append(" AS ").append(column.getName());
+            } else {
+                sql.append(column);
+            }
+            if (i < columns.length - 1) {
+                sql.append(COMMA);
+            }
+            sql.append(SPACE);
+        }
+
+        sql.append("FROM ").append(query.getTable()).append(SPACE);
+
+        for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
+            sql.append(SPACE).append(joinCriterion.getJoin());
+            if (joinCriterion.getJoin() == Join.FULL) {
+                sql.append(" OUTER");
+            }
+            sql.append(" JOIN ").append(joinCriterion.getTable()).append(" ON ");
+            sql.append(toSql(joinCriterion.getCriteriaManager()));
+        }
+
+        if (query.getCriteriaManager().isCriteria()) {
+            sql.append(SPACE).append("WHERE ");
+            sql.append(toSql(query.getCriteriaManager()));
+        }
+
+        if (query.getGroupByColumns() != null) {
+            sql.append(SPACE).append("GROUP BY ");
+            columns = query.getGroupByColumns();
+            for (int i = 0; i < columns.length; i++) {
+                sql.append(columns[i]);
+                if (i < columns.length - 1) {
+                    sql.append(COMMA).append(SPACE);
+                }
+            }
+        }
+
+        if (!query.getOrderCriteria().isEmpty()) {
+            sql.append(SPACE).append("ORDER BY ");
+            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
+                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
+                if (i < query.getOrderCriteria().size() - 1) {
+                    sql.append(COMMA);
+                }
+                sql.append(SPACE);
+            }
+        }
+
+        if (query.getCount()) {
+            sql.append(RIGHT_BRACE);
         }
 
         return sql.toString();
@@ -344,7 +609,7 @@ public abstract class SqlBuilder {
             }
         }
         if (query.getCriteriaManager().isCriteria()) {
-            sql.append(SPACE).append(NEW_LINE).append("WHERE ").append(NEW_LINE);
+            sql.append(SPACE).append("WHERE ");
             sql.append(toSql(query.getCriteriaManager()));
         }
         return sql.toString();
@@ -354,7 +619,7 @@ public abstract class SqlBuilder {
         StringBuilder sql = new StringBuilder();
         sql.append("DELETE FROM ").append(query.getTable()).append(SPACE);
         if (query.getCriteriaManager().isCriteria()) {
-            sql.append(NEW_LINE).append("WHERE ").append(NEW_LINE);
+            sql.append("WHERE ");
             sql.append(toSql(query.getCriteriaManager()));
         }
         return sql.toString();
@@ -463,6 +728,8 @@ public abstract class SqlBuilder {
     public abstract long nextVal(Connection connection, Sequence sequence) throws SQLException;
 
     protected abstract String toPaginatedSelect(Query query);
+
+    protected abstract String toPaginatedSubSelect(Query query);
 
     protected abstract String toInsertReturningValue(Query query);
 
