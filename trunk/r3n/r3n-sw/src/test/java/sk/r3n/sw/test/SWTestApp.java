@@ -9,6 +9,7 @@ import sk.r3n.sw.component.R3NButton;
 import sk.r3n.sw.frame.R3NFrame;
 import sk.r3n.sw.frame.StartupFrame;
 import sk.r3n.sw.util.SwingUtil;
+import sk.r3n.sw.util.SwingUtilConfig;
 import sk.r3n.ui.LongTermJobListener;
 import sk.r3n.ui.R3NAction;
 import sk.r3n.ui.UIActionKey;
@@ -78,6 +79,7 @@ public class SWTestApp {
                         break;
                     case REFRESH:
                         dispose();
+                        new SwingUtilConfig();
                         new TestFrame();
                         break;
                 }
