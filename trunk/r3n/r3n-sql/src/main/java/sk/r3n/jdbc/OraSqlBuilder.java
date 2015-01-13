@@ -101,7 +101,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 sql.append(", ");
             }
         }
-        sql.append("FROM ").append(query.getTable()).append(SPACE);
+        sql.append(" FROM ").append(query.getTable()).append(SPACE);
 
         for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
             sql.append(joinCriterion.getJoin());

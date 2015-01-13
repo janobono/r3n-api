@@ -19,6 +19,7 @@
         <module>r3n-maven-plugin</module>
         <module>r3n-sql</module>
         <module>r3n-util</module>
+        <module>r3n-sw</module>
     </modules>
 
     <build>
