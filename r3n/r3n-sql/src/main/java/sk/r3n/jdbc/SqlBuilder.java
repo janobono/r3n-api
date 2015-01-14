@@ -42,7 +42,7 @@ public abstract class SqlBuilder {
     public File getTmpDir() {
         if (tmpDir == null) {
             tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            LOG.warn("Default tmp dir will be used - " + tmpDir.getAbsolutePath());
+            LOG.debug("Default tmp dir will be used - " + tmpDir.getAbsolutePath());
         }
         return tmpDir;
     }
