@@ -16,7 +16,7 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
+            <version>${commons.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -28,19 +28,25 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.186</version>
+            <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
-            <version>12.1.0.1</version>
+            <version>${ora.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -12,6 +12,11 @@
     <properties>
         <targetJdk>1.6</targetJdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <commons.version>1.2</commons.version>
+        <junit.version>4.11</junit.version>
+        <h2.version>1.4.186</h2.version>
+        <ora.version>12.1.0.1</ora.version>
+        <postgres.version>9.1-901-1.jdbc4</postgres.version>
     </properties>
 
     <modules>

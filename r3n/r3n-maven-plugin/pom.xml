@@ -32,22 +32,22 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
+            <version>${commons.version}</version>
         </dependency>
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
-            <version>12.1.0.1</version>
+            <version>${ora.version}</version>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.1-901-1.jdbc4</version>
+            <version>${postgres.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.186</version>
+            <version>${h2.version}</version>
         </dependency>
         <dependency>
             <groupId>sk.r3n</groupId>
