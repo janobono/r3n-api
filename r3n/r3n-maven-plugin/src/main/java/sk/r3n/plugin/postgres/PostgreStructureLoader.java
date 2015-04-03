@@ -48,7 +48,7 @@ public class PostgreStructureLoader extends StructureLoader {
             statement.setString(1, "S");
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                Sequence sequence = new Sequence(resultSet.getString(1));
+                Sequence sequence = new Sequence(resultSet.getString(1).toUpperCase());
                 structure.getSequences().add(sequence);
                 log.info("Sequnce found: " + sequence.getName());
             }
@@ -73,7 +73,7 @@ public class PostgreStructureLoader extends StructureLoader {
             resultSet = statement.executeQuery();
             int alias = 1;
             while (resultSet.next()) {
-                Table table = new Table(resultSet.getString(1), "T" + alias++);
+                Table table = new Table(resultSet.getString(1).toUpperCase(), "T" + alias++);
                 structure.getTables().add(table);
                 log.info("Table found: " + table.getName());
             }
@@ -94,10 +94,10 @@ public class PostgreStructureLoader extends StructureLoader {
         ResultSet resultSet = null;
         try {
             statement = connection.prepareStatement("SELECT column_name, data_type FROM information_schema.columns WHERE table_name  = ? order by ordinal_position");
-            statement.setString(1, table.getName());
+            statement.setString(1, table.getName().toLowerCase());
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                Column column = new Column(resultSet.getString(1), table, getDataType(resultSet.getString(2)));
+                Column column = new Column(resultSet.getString(1).toUpperCase(), table, getDataType(resultSet.getString(2)));
                 result.add(column);
             }
 
