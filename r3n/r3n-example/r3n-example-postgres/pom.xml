@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>r3n-example</artifactId>
+        <groupId>sk.r3n</groupId>
+        <version>3.0.1</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>r3n-example-postgres</artifactId>
+   
+    <dependencies>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901-1.jdbc4</version>
+        </dependency>
+        <!--Test dependecies-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <defaultGoal>package</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>sk.r3n</groupId>
+                <artifactId>r3n-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <configuration>
+                    <targetPackage>sk.r3n.example.postgres</targetPackage>
+                    <jdbcDriver>org.postgresql.Driver</jdbcDriver>
+                    <jdbcUrl>jdbc:postgresql://localhost:5432/test</jdbcUrl>
+                    <jdbcUser>test</jdbcUser>
+                    <jdbcPassword>test</jdbcPassword>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
