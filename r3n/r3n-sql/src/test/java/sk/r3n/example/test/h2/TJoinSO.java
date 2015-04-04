@@ -1,11 +1,9 @@
-package sk.r3n.example.h2.dto;
+package sk.r3n.example.test.h2;
 
 import java.io.Serializable;
-import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "T_JOIN")
-public class TJoin implements Serializable {
+public class TJoinSO implements Serializable {
 
     @ColumnId(name = "ID")
     protected Long id;
@@ -42,7 +40,7 @@ public class TJoin implements Serializable {
 
     @Override
     public String toString() {
-        return "TJoin{" + "id=" + id + ", tBaseTypesFk=" + tBaseTypesFk + ", tJoinString=" + tJoinString + '}';
+        return "TJoinSO{" + "id=" + id + ", tBaseTypesFk=" + tBaseTypesFk + ", tJoinString=" + tJoinString + '}';
     }
 
 }

@@ -10,16 +10,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sk.r3n.sql.Column;
-import sk.r3n.sql.ColumnSelect;
-import sk.r3n.sql.Criteria;
-import sk.r3n.sql.Criterion;
-import sk.r3n.sql.OrderCriterion;
 import sk.r3n.sql.Query;
 import sk.r3n.sql.Sequence;
 import sk.r3n.sql.TableSelect;
@@ -89,9 +83,6 @@ public abstract class SqlBuilder {
             case DELETE:
                 result = toDelete(query);
                 break;
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(result);
         }
         return result;
     }

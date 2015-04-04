@@ -1,23 +1,18 @@
-package sk.r3n.example.h2.dto;
+package sk.r3n.example.test.ora;
 
 import java.io.Serializable;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.Date;
-import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "T_BASE_TYPES")
-public class TBaseTypes implements Serializable {
+public class TBaseTypesSO implements Serializable {
 
     @ColumnId(name = "ID")
     protected Long id;
 
-    @ColumnId(name = "T_SHORT_SMALLINT")
-    protected Short tShortSmallint;
-
-    @ColumnId(name = "T_SHORT_TINYINT")
-    protected Short tShortTinyint;
+    @ColumnId(name = "T_SHORT")
+    protected Short tShort;
 
     @ColumnId(name = "T_INTEGER")
     protected Integer tInteger;
@@ -28,8 +23,14 @@ public class TBaseTypes implements Serializable {
     @ColumnId(name = "T_BIG_DECIMAL")
     protected BigDecimal tBigDecimal;
 
-    @ColumnId(name = "T_STRING")
-    protected String tString;
+    @ColumnId(name = "T_STRING_CHAR")
+    protected String tStringChar;
+
+    @ColumnId(name = "T_STRING_CLOB")
+    protected String tStringClob;
+
+    @ColumnId(name = "T_STRING_VARCHAR2")
+    protected String tStringVarchar2;
 
     @ColumnId(name = "T_STRING_SCDF")
     protected String tStringScdf;
@@ -39,9 +40,6 @@ public class TBaseTypes implements Serializable {
 
     @ColumnId(name = "T_TIME_STAMP")
     protected Date tTimeStamp;
-
-    @ColumnId(name = "T_TIME")
-    protected Date tTime;
 
     @ColumnId(name = "T_DATE")
     protected Date tDate;
@@ -57,20 +55,12 @@ public class TBaseTypes implements Serializable {
         this.id = id;
     }
 
-    public Short getTShortSmallint() {
-        return tShortSmallint;
+    public Short getTShort() {
+        return tShort;
     }
 
-    public void setTShortSmallint(Short tShortSmallint) {
-        this.tShortSmallint = tShortSmallint;
-    }
-
-    public Short getTShortTinyint() {
-        return tShortTinyint;
-    }
-
-    public void setTShortTinyint(Short tShortTinyint) {
-        this.tShortTinyint = tShortTinyint;
+    public void setTShort(Short tShort) {
+        this.tShort = tShort;
     }
 
     public Integer getTInteger() {
@@ -97,12 +87,28 @@ public class TBaseTypes implements Serializable {
         this.tBigDecimal = tBigDecimal;
     }
 
-    public String getTString() {
-        return tString;
+    public String getTStringChar() {
+        return tStringChar;
     }
 
-    public void setTString(String tString) {
-        this.tString = tString;
+    public void setTStringChar(String tStringChar) {
+        this.tStringChar = tStringChar;
+    }
+
+    public String getTStringClob() {
+        return tStringClob;
+    }
+
+    public void setTStringClob(String tStringClob) {
+        this.tStringClob = tStringClob;
+    }
+
+    public String getTStringVarchar2() {
+        return tStringVarchar2;
+    }
+
+    public void setTStringVarchar2(String tStringVarchar2) {
+        this.tStringVarchar2 = tStringVarchar2;
     }
 
     public String getTStringScdf() {
@@ -129,14 +135,6 @@ public class TBaseTypes implements Serializable {
         this.tTimeStamp = tTimeStamp;
     }
 
-    public Date getTTime() {
-        return tTime;
-    }
-
-    public void setTTime(Date tTime) {
-        this.tTime = tTime;
-    }
-
     public Date getTDate() {
         return tDate;
     }
@@ -155,7 +153,10 @@ public class TBaseTypes implements Serializable {
 
     @Override
     public String toString() {
-        return "TBaseTypes{" + "id=" + id + ", tShortSmallint=" + tShortSmallint + ", tShortTinyint=" + tShortTinyint + ", tInteger=" + tInteger + ", tLong=" + tLong + ", tBigDecimal=" + tBigDecimal + ", tString=" + tString + ", tStringScdf=" + tStringScdf + ", tBlob=" + tBlob + ", tTimeStamp=" + tTimeStamp + ", tTime=" + tTime + ", tDate=" + tDate + ", tBoolean=" + tBoolean + '}';
+        return "TBaseTypesSO{" + "id=" + id + ", tShort=" + tShort + ", tInteger=" + tInteger + ", tLong=" + tLong
+                + ", tBigDecimal=" + tBigDecimal + ", tStringChar=" + tStringChar + ", tStringClob=" + tStringClob
+                + ", tStringVarchar2=" + tStringVarchar2 + ", tStringScdf=" + tStringScdf + ", tBlob=" + tBlob
+                + ", tTimeStamp=" + tTimeStamp + ", tDate=" + tDate + ", tBoolean=" + tBoolean + '}';
     }
 
 }

@@ -46,11 +46,17 @@ public class Query implements Serializable {
         }
 
         public Select firstRow(int firstRow) {
+            if (firstRow < 0) {
+                firstRow = 0;
+            }
             this.firstRow = firstRow;
             return this;
         }
 
         public Select lastRow(int lastRow) {
+            if (lastRow < 0) {
+                lastRow = -1;
+            }
             this.lastRow = lastRow;
             return this;
         }
@@ -58,17 +64,20 @@ public class Query implements Serializable {
         public Select interval(int start, int count) {
             firstRow = 0;
             lastRow = 0;
-            if (start < 0) {
+
+            if (start < 0 || count <= 0) {
                 start = 0;
             }
-            count = count - 1;
-            if (count < 0) {
-                count = 0;
+
+            if (count >= 0) {
+                count--;
+            } else {
+                count = -1;
             }
-            if (count != 0) {
-                firstRow = start;
-                lastRow = start + count;
-            }
+
+            firstRow = start;
+            lastRow = start + count;
+
             return this;
         }
 
@@ -518,7 +527,7 @@ public class Query implements Serializable {
 
     public int getPageSize() {
         int result = 0;
-        if (getLastRow() > 0) {
+        if (getLastRow() >= 0) {
             result = getLastRow() - getFirstRow();
             result++;
         }

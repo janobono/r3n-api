@@ -1,5 +1,8 @@
 package sk.r3n.jdbc;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,6 +26,7 @@ import sk.r3n.sql.OrderCriterion;
 import sk.r3n.sql.Query;
 import sk.r3n.sql.Sequence;
 import sk.r3n.sql.TableSelect;
+import sk.r3n.util.FileUtil;
 
 public class H2SqlBuilder extends SqlBuilder {
 
@@ -69,17 +73,19 @@ public class H2SqlBuilder extends SqlBuilder {
         String sql;
 
         if (query.getTable() instanceof TableSelect) {
-            if (query.getPagination()) {
-                sql = toPaginatedSubSelect(query);
-            } else {
-                sql = toSubSelect(query);
-            }
+            sql = toSubSelect(query);
         } else {
-            if (query.getPagination()) {
-                sql = toPaginatedSelect(query);
-            } else {
-                sql = toStandardSelect(query);
-            }
+            sql = toStandardSelect(query);
+        }
+
+        if (query.getPagination()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("SELECT * FROM (");
+            sb.append(sql);
+            sb.append(") OFFSET ? LIMIT ?");
+            params().add(new SqlParam(DataType.INTEGER, query.getFirstRow()));
+            params().add(new SqlParam(DataType.INTEGER, query.getPageSize()));
+            sql = sb.toString();
         }
 
         return sql;
@@ -173,74 +179,6 @@ public class H2SqlBuilder extends SqlBuilder {
         return null;
     }
 
-    private String toPaginatedSubSelect(Query query) {
-        realias(query);
-
-        StringBuilder sql = new StringBuilder();
-
-        sql.append("SELECT * FROM (SELECT ");
-
-        if (query.getDistinct()) {
-            sql.append("DISTINCT ");
-        }
-
-        Column[] columns = query.getColumns();
-        for (int i = 0; i < columns.length; i++) {
-            Column column = columns[i];
-            if (column instanceof ColumnSelect) {
-                ColumnSelect innerSelect = (ColumnSelect) column;
-                sql.append(LEFT_BRACE);
-                sql.append(toSelect(innerSelect.getQuery()));
-                sql.append(RIGHT_BRACE);
-                sql.append(" AS ").append(column.getName());
-            } else {
-                sql.append(column);
-            }
-            if (i < columns.length - 1) {
-                sql.append(COMMA);
-            }
-            sql.append(SPACE);
-        }
-
-        sql.append("FROM ").append(LEFT_BRACE);
-        TableSelect tableSelect = (TableSelect) query.getTable();
-        sql.append(toSelect(tableSelect));
-        sql.append(RIGHT_BRACE);
-
-        if (query.getCriteriaManager().isCriteria()) {
-            sql.append(SPACE).append("WHERE ");
-            sql.append(toSql(query.getCriteriaManager()));
-        }
-
-        if (query.getGroupByColumns() != null) {
-            sql.append(SPACE).append("GROUP BY ");
-            columns = query.getGroupByColumns();
-            for (int i = 0; i < columns.length; i++) {
-                sql.append(columns[i]);
-                if (i < columns.length - 1) {
-                    sql.append(COMMA).append(SPACE);
-                }
-            }
-        }
-
-        if (!query.getOrderCriteria().isEmpty()) {
-            sql.append(SPACE).append("ORDER BY ");
-            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
-                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
-                if (i < query.getOrderCriteria().size() - 1) {
-                    sql.append(COMMA);
-                }
-                sql.append(SPACE);
-            }
-        }
-
-        sql.append(") LIMIT ? OFFSET ?");
-        params().add(new SqlParam(DataType.INTEGER, query.getPageSize()));
-        params().add(new SqlParam(DataType.INTEGER, query.getFirstRow()));
-
-        return sql.toString();
-    }
-
     private String toSubSelect(Query query) {
         realias(query);
 
@@ -309,69 +247,6 @@ public class H2SqlBuilder extends SqlBuilder {
         if (query.getCount()) {
             sql.append(RIGHT_BRACE);
         }
-
-        return sql.toString();
-    }
-
-    private String toPaginatedSelect(Query query) {
-        StringBuilder sql = new StringBuilder();
-
-        sql.append("SELECT * FROM (SELECT ");
-
-        if (query.getDistinct()) {
-            sql.append("DISTINCT ");
-        }
-
-        Column[] columns = query.getColumns();
-        for (int i = 0; i < columns.length; i++) {
-            sql.append(columns[i]);
-            if (i < columns.length - 1) {
-                sql.append(COMMA);
-            }
-            sql.append(SPACE);
-        }
-
-        sql.append("FROM ").append(query.getTable()).append(SPACE);
-
-        for (JoinCriterion joinCriterion : query.getJoinCriteria()) {
-            sql.append(joinCriterion.getJoin());
-            if (joinCriterion.getJoin() == Join.FULL) {
-                sql.append(" OUTER");
-            }
-            sql.append(" JOIN ").append(joinCriterion.getTable()).append(" ON ");
-            sql.append(toSql(joinCriterion.getCriteriaManager()));
-        }
-
-        if (query.getCriteriaManager().isCriteria()) {
-            sql.append(SPACE).append("WHERE ");
-            sql.append(toSql(query.getCriteriaManager()));
-        }
-
-        if (query.getGroupByColumns() != null) {
-            sql.append(SPACE).append("GROUP BY ");
-            columns = query.getGroupByColumns();
-            for (int i = 0; i < columns.length; i++) {
-                sql.append(columns[i]);
-                if (i < columns.length - 1) {
-                    sql.append(COMMA).append(SPACE);
-                }
-            }
-        }
-
-        if (!query.getOrderCriteria().isEmpty()) {
-            sql.append(SPACE).append("ORDER BY ");
-            for (int i = 0; i < query.getOrderCriteria().size(); i++) {
-                sql.append(query.getOrderCriteria().get(i).getColumn()).append(SPACE).append(query.getOrderCriteria().get(i).getOrder());
-                if (i < query.getOrderCriteria().size() - 1) {
-                    sql.append(COMMA);
-                }
-                sql.append(SPACE);
-            }
-        }
-
-        sql.append(") LIMIT ? OFFSET ?");
-        params().add(new SqlParam(DataType.INTEGER, query.getPageSize()));
-        params().add(new SqlParam(DataType.INTEGER, query.getFirstRow()));
 
         return sql.toString();
     }
@@ -748,6 +623,37 @@ public class H2SqlBuilder extends SqlBuilder {
                 }
             }
         }
+    }
+
+    @Override
+    protected Object getColumn(ResultSet resultSet, int index, Column column, File dir) throws SQLException {
+        Object result = null;
+
+        if (resultSet.getObject(index) != null) {
+            switch (column.getDataType()) {
+                case BLOB:
+                    InputStream is = null;
+                    File file = null;
+                    try {
+                        file = File.createTempFile("SQL", ".BIN", dir);
+                        is = resultSet.getBinaryStream(index);
+                        FileUtil.streamToFile(is, file);
+                        result = file;
+                    } catch (IOException e) {
+                        if (file != null) {
+                            file.delete();
+                        }
+                        throw new SQLException(e);
+                    } finally {
+                        FileUtil.close(is);
+                    }
+                    break;
+                default:
+                    result = super.getColumn(resultSet, index, column, dir);
+                    break;
+            }
+        }
+        return result;
     }
 
 }

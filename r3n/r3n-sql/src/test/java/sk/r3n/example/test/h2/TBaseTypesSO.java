@@ -1,14 +1,12 @@
-package sk.r3n.example.h2.dto;
+package sk.r3n.example.test.h2;
 
 import java.io.Serializable;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.Date;
-import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "T_BASE_TYPES")
-public class TBaseTypes implements Serializable {
+public class TBaseTypesSO implements Serializable {
 
     @ColumnId(name = "ID")
     protected Long id;
@@ -155,7 +153,7 @@ public class TBaseTypes implements Serializable {
 
     @Override
     public String toString() {
-        return "TBaseTypes{" + "id=" + id + ", tShortSmallint=" + tShortSmallint + ", tShortTinyint=" + tShortTinyint + ", tInteger=" + tInteger + ", tLong=" + tLong + ", tBigDecimal=" + tBigDecimal + ", tString=" + tString + ", tStringScdf=" + tStringScdf + ", tBlob=" + tBlob + ", tTimeStamp=" + tTimeStamp + ", tTime=" + tTime + ", tDate=" + tDate + ", tBoolean=" + tBoolean + '}';
+        return "TBaseTypesSO{" + "id=" + id + ", tShortSmallint=" + tShortSmallint + ", tShortTinyint=" + tShortTinyint + ", tInteger=" + tInteger + ", tLong=" + tLong + ", tBigDecimal=" + tBigDecimal + ", tString=" + tString + ", tStringScdf=" + tStringScdf + ", tBlob=" + tBlob + ", tTimeStamp=" + tTimeStamp + ", tTime=" + tTime + ", tDate=" + tDate + ", tBoolean=" + tBoolean + '}';
     }
 
 }
