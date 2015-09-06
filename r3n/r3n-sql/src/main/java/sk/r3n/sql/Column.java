@@ -10,8 +10,6 @@ public class Column implements Serializable {
 
     private DataType dataType;
 
-    private String alias;
-
     public Column(String name, Table table, DataType dataType) {
         this.name = name;
         this.table = table;
@@ -20,34 +18,21 @@ public class Column implements Serializable {
 
     @Override
     public int hashCode() {
-        return nameWithAlias().hashCode();
+        StringBuilder sb = new StringBuilder();
+        if (table != null) {
+            sb.append(table.getAlias()).append(".");
+        }
+        sb.append(getName());
+        return sb.toString().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         boolean result = false;
         if (obj instanceof Column) {
-            Column queryAttributeObj = (Column) obj;
-            result = nameWithAlias().equals(queryAttributeObj.nameWithAlias());
+            result = hashCode() == ((Column) obj).hashCode();
         }
         return result;
-    }
-
-    public String nameWithAlias() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(table.getAlias());
-        sb.append(".");
-        sb.append(name);
-        return sb.toString().toLowerCase();
-    }
-
-    @Override
-    public String toString() {
-        if (alias == null) {
-            return nameWithAlias();
-        } else {
-            return alias;
-        }
     }
 
     public String getName() {
@@ -74,12 +59,9 @@ public class Column implements Serializable {
         this.dataType = dataType;
     }
 
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
+    @Override
+    public String toString() {
+        return "Column{" + "name=" + name + ", table=" + table + ", dataType=" + dataType + '}';
     }
 
 }

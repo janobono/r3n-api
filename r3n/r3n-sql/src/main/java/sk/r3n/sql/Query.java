@@ -12,11 +12,15 @@ public class Query implements Serializable {
         SELECT, INSERT, UPDATE, DELETE;
     }
 
-    public final class Select implements Serializable {
+    public class Select implements Serializable {
 
         protected Column[] columns;
 
         protected Table table;
+
+        protected Query.Select[] subSelects;
+
+        protected DataSetOperator dataSetOperator;
 
         protected List<JoinCriterion> joinCriteria;
 
@@ -25,6 +29,8 @@ public class Query implements Serializable {
         protected List<OrderCriterion> orderCriteria;
 
         protected Column[] groupByColumns;
+
+        protected Criterion havingCriterion;
 
         protected boolean count;
 
@@ -43,6 +49,10 @@ public class Query implements Serializable {
             distinct = false;
             firstRow = -1;
             lastRow = -1;
+        }
+
+        public Query getParent() {
+            return Query.this;
         }
 
         public Select firstRow(int firstRow) {
@@ -78,6 +88,7 @@ public class Query implements Serializable {
             firstRow = start;
             lastRow = start + count;
 
+            this.count = false;
             return this;
         }
 
@@ -87,6 +98,9 @@ public class Query implements Serializable {
 
         public Select COUNT() {
             count = true;
+
+            firstRow = -1;
+            lastRow = -1;
             return this;
         }
 
@@ -97,6 +111,19 @@ public class Query implements Serializable {
 
         public Select FROM(Table table) {
             this.table = table;
+
+            subSelects = null;
+            return this;
+        }
+
+        public Select FROM(Query.Select... subSelects) {
+            return FROM(DataSetOperator.UNION_ALL, subSelects);
+        }
+
+        public Select FROM(DataSetOperator dataSetOperator, Query.Select... subSelects) {
+            this.subSelects = subSelects;
+            this.dataSetOperator = dataSetOperator;
+
             return this;
         }
 
@@ -196,6 +223,76 @@ public class Query implements Serializable {
             return this;
         }
 
+        public Select HAVING(Column column, Condition condition, Object value) {
+            havingCriterion = new Criterion(column, condition, value, null, Operator.AND);
+            return this;
+        }
+
+        public Column[] getColumns() {
+            return columns;
+        }
+
+        public Table getTable() {
+            return table;
+        }
+
+        public Query.Select[] getSubSelects() {
+            return subSelects;
+        }
+
+        public DataSetOperator getDataSetOperator() {
+            return dataSetOperator;
+        }
+
+        public List<JoinCriterion> getJoinCriteria() {
+            return joinCriteria;
+        }
+
+        public List<OrderCriterion> getOrderCriteria() {
+            return orderCriteria;
+        }
+
+        public Column[] getGroupByColumns() {
+            return groupByColumns;
+        }
+
+        public Criterion getHavingCriterion() {
+            return havingCriterion;
+        }
+
+        public boolean getCount() {
+            return count;
+        }
+
+        public boolean getDistinct() {
+            return distinct;
+        }
+
+        public int getFirstRow() {
+            return firstRow;
+        }
+
+        public int getLastRow() {
+            return lastRow;
+        }
+
+        public boolean getPagination() {
+            return getFirstRow() != -1 && getLastRow() != -1;
+        }
+
+        public int getPageSize() {
+            int result = 0;
+            if (getLastRow() >= 0) {
+                result = getLastRow() - getFirstRow();
+                result++;
+            }
+            return result;
+        }
+
+        public CriteriaManager getCriteriaManager() {
+            return cm;
+        }
+
     }
 
     public class Insert implements Serializable {
@@ -207,6 +304,10 @@ public class Query implements Serializable {
         protected Object[] values;
 
         protected Column returning;
+
+        public Query getParent() {
+            return Query.this;
+        }
 
         public Insert INTO(Table table, Column... columns) {
             this.table = table;
@@ -223,6 +324,23 @@ public class Query implements Serializable {
             this.returning = returning;
             return this;
         }
+
+        public Table getTable() {
+            return table;
+        }
+
+        public Column[] getColumns() {
+            return columns;
+        }
+
+        public Object[] getValues() {
+            return values;
+        }
+
+        public Column getReturning() {
+            return returning;
+        }
+
     }
 
     public class Update implements Serializable {
@@ -234,6 +352,10 @@ public class Query implements Serializable {
         protected Column[] columns;
 
         protected Object[] values;
+
+        public Query getParent() {
+            return Query.this;
+        }
 
         public Update(Table table) {
             cm = new CriteriaManager();
@@ -320,6 +442,22 @@ public class Query implements Serializable {
             return this;
         }
 
+        public Table getTable() {
+            return table;
+        }
+
+        public Column[] getColumns() {
+            return columns;
+        }
+
+        public Object[] getValues() {
+            return values;
+        }
+
+        public CriteriaManager getCriteriaManager() {
+            return cm;
+        }
+
     }
 
     public class Delete implements Serializable {
@@ -327,6 +465,10 @@ public class Query implements Serializable {
         protected CriteriaManager cm;
 
         protected Table table;
+
+        public Query getParent() {
+            return Query.this;
+        }
 
         public Delete FROM(Table from) {
             cm = new CriteriaManager();
@@ -389,6 +531,13 @@ public class Query implements Serializable {
             return this;
         }
 
+        public Table getTable() {
+            return table;
+        }
+
+        public CriteriaManager getCriteriaManager() {
+            return cm;
+        }
     }
 
     private QueryType queryType;
@@ -399,175 +548,8 @@ public class Query implements Serializable {
         return queryType;
     }
 
-    public CriteriaManager getCriteriaManager() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).cm;
-                case UPDATE:
-                    return ((Update) queryObject).cm;
-                case DELETE:
-                    return ((Delete) queryObject).cm;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return null;
-    }
-
-    public Table getTable() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).table;
-                case INSERT:
-                    return ((Insert) queryObject).table;
-                case UPDATE:
-                    return ((Update) queryObject).table;
-                case DELETE:
-                    return ((Delete) queryObject).table;
-            }
-        }
-        return null;
-    }
-
-    public Column[] getColumns() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).columns;
-                case INSERT:
-                    return ((Insert) queryObject).columns;
-                case UPDATE:
-                    return ((Update) queryObject).columns;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return null;
-    }
-
-    public Object[] getValues() {
-        if (queryType != null) {
-            switch (queryType) {
-                case INSERT:
-                    return ((Insert) queryObject).values;
-                case UPDATE:
-                    return ((Update) queryObject).values;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return null;
-    }
-
-    public Column[] getGroupByColumns() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).groupByColumns;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return null;
-    }
-
-    public boolean getCount() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).count;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return false;
-    }
-
-    public boolean getDistinct() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).distinct;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return false;
-    }
-
-    public boolean getPagination() {
-        return getFirstRow() != -1 && getLastRow() != -1;
-    }
-
-    public int getFirstRow() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).firstRow;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return -1;
-    }
-
-    public int getLastRow() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).lastRow;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return -1;
-    }
-
-    public int getPageSize() {
-        int result = 0;
-        if (getLastRow() >= 0) {
-            result = getLastRow() - getFirstRow();
-            result++;
-        }
-        return result;
-    }
-
-    public List<JoinCriterion> getJoinCriteria() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).joinCriteria;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return null;
-    }
-
-    public List<OrderCriterion> getOrderCriteria() {
-        if (queryType != null) {
-            switch (queryType) {
-                case SELECT:
-                    return ((Select) queryObject).orderCriteria;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return null;
-    }
-
-    public Column getReturning() {
-        if (queryType != null) {
-            switch (queryType) {
-                case INSERT:
-                    return ((Insert) queryObject).returning;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-        return null;
+    public Object getQueryObject() {
+        return queryObject;
     }
 
     public Select SELECT(Column... columns) {

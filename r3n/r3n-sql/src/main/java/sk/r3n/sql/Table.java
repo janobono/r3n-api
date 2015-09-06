@@ -15,30 +15,18 @@ public class Table implements Serializable {
 
     @Override
     public int hashCode() {
-        return nameWithAlias().hashCode();
+        StringBuilder sb = new StringBuilder();
+        sb.append(getName()).append(" ").append(getAlias());
+        return sb.toString().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         boolean result = false;
         if (obj instanceof Table) {
-            Table queryTableObj = (Table) obj;
-            result = nameWithAlias().equals(queryTableObj.nameWithAlias());
+            result = hashCode() == ((Table) obj).hashCode();
         }
         return result;
-    }
-
-    public String nameWithAlias() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(name);
-        sb.append(" ");
-        sb.append(alias);
-        return sb.toString().toLowerCase();
-    }
-
-    @Override
-    public String toString() {
-        return nameWithAlias();
     }
 
     public String getName() {
@@ -55,6 +43,11 @@ public class Table implements Serializable {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    @Override
+    public String toString() {
+        return "Table{" + "name=" + name + ", alias=" + alias + '}';
     }
 
 }

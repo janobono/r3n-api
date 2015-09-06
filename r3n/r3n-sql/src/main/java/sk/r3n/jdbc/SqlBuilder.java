@@ -2,6 +2,7 @@ package sk.r3n.jdbc;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,9 +15,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sk.r3n.sql.Column;
+import sk.r3n.sql.DataType;
 import sk.r3n.sql.Query;
 import sk.r3n.sql.Sequence;
-import sk.r3n.sql.TableSelect;
 import sk.r3n.util.FileUtil;
 
 public abstract class SqlBuilder {
@@ -29,6 +30,41 @@ public abstract class SqlBuilder {
     protected static final char QUESTION_MARK = '?';
     protected static final char EQUALS = '=';
     protected static final char COMMA = ',';
+    protected static final char DOT = '.';
+
+    public class SqlParam implements Serializable {
+
+        private DataType dataType;
+
+        private Object value;
+
+        public SqlParam(DataType dataType, Object value) {
+            this.dataType = dataType;
+            this.value = value;
+        }
+
+        public DataType getDataType() {
+            return dataType;
+        }
+
+        public void setDataType(DataType dataType) {
+            this.dataType = dataType;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public void setValue(Object value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "SqlParam{" + "dataType=" + dataType + ", value=" + value + '}';
+        }
+
+    }
 
     private File tmpDir;
 
@@ -61,27 +97,16 @@ public abstract class SqlBuilder {
         String result = null;
         switch (query.getQueryType()) {
             case SELECT:
-                if (query.getPagination() && query.getCount()) {
-                    throw new IllegalArgumentException("Pagination and count can't be in one query!");
-                }
-                if (query.getTable() instanceof TableSelect) {
-                    TableSelect tableSelect = (TableSelect) query.getTable();
-                    if (tableSelect.getQuery().getQueryType() != Query.QueryType.SELECT
-                            || tableSelect.getQuery().getPagination()
-                            || tableSelect.getQuery().getCount()) {
-                        throw new IllegalArgumentException("Wrong sub query for select!");
-                    }
-                }
-                result = toSelect(query);
+                result = toSelect((Query.Select) query.getQueryObject());
                 break;
             case INSERT:
-                result = toInsert(query);
+                result = toInsert((Query.Insert) query.getQueryObject());
                 break;
             case UPDATE:
-                result = toUpdate(query);
+                result = toUpdate((Query.Update) query.getQueryObject());
                 break;
             case DELETE:
-                result = toDelete(query);
+                result = toDelete((Query.Delete) query.getQueryObject());
                 break;
         }
         return result;
@@ -110,10 +135,10 @@ public abstract class SqlBuilder {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Object[] row;
-                if (query.getCount()) {
+                if (((Query.Select) query.getQueryObject()).getCount()) {
                     row = new Object[]{resultSet.getInt(1)};
                 } else {
-                    row = getRow(resultSet, query.getColumns());
+                    row = getRow(resultSet, ((Query.Select) query.getQueryObject()).getColumns());
                 }
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("ROW:" + Arrays.toString(row));
@@ -133,13 +158,13 @@ public abstract class SqlBuilder {
 
     public abstract Object executeUpdate(Connection connection, Query query) throws SQLException;
 
-    protected abstract String toSelect(Query query);
+    protected abstract String toSelect(Query.Select select);
 
-    protected abstract String toInsert(Query query);
+    protected abstract String toInsert(Query.Insert insert);
 
-    protected abstract String toUpdate(Query query);
+    protected abstract String toUpdate(Query.Update update);
 
-    protected abstract String toDelete(Query query);
+    protected abstract String toDelete(Query.Delete delete);
 
     protected Object[] getRow(ResultSet resultSet, Column... columns) throws SQLException {
         Object[] result = new Object[columns.length];
@@ -250,5 +275,5 @@ public abstract class SqlBuilder {
             SqlUtil.close(preparedStatement);
         }
     }
- 
+
 }

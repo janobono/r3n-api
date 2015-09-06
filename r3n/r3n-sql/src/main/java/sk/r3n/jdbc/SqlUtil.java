@@ -172,4 +172,22 @@ public class SqlUtil {
             }
         }
     }
+
+    public static void rollback(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+            }
+        }
+    }
+
+    public static void enableAutoCommit(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+            }
+        }
+    }
 }

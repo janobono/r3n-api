@@ -1,19 +1,33 @@
 package sk.r3n.sql;
 
-import java.text.MessageFormat;
-
 public class ColumnFunction extends Column {
 
-    private final Object[] members;
+    private final Column[] members;
 
-    public ColumnFunction(String function, DataType dataType, String... members) {
+    private final Object hashObj;
+
+    public ColumnFunction(String function, DataType dataType, Column... members) {
         super(function, null, dataType);
         this.members = members;
+        hashObj = new Object();
+    }
+
+    public Column[] getMembers() {
+        return members;
     }
 
     @Override
-    public String nameWithAlias() {
-        return MessageFormat.format(getName(), members);
+    public int hashCode() {
+        return hashObj.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean result = false;
+        if (obj instanceof Column) {
+            result = hashCode() == ((Column) obj).hashCode();
+        }
+        return result;
     }
 
 }
