@@ -192,11 +192,17 @@ public class H2SqlBuilder extends SqlBuilder {
             if (criterion.getCondition() == Condition.DIRECT) {
                 sql.append(criterion.getValue());
             } else {
-                if (criterion.getValue() instanceof Query.Select) {
+                if (criterion.getValue() instanceof Query.Select || criterion.getValue() instanceof Query) {
+                    Query.Select select;
+                    if (criterion.getValue() instanceof Query.Select) {
+                        select = (Query.Select) criterion.getValue();
+                    } else {
+                        select = (Query.Select) ((Query) criterion.getValue()).getQueryObject();
+                    }
                     sql.append(toSql(criterion.getColumn()));
                     sql.append(criterion.getCondition().condition());
                     sql.append(LEFT_BRACE);
-                    sql.append(toSelect((Query.Select) criterion.getValue()));
+                    sql.append(toSelect(select));
                     sql.append(RIGHT_BRACE);
                 } else if (criterion.getValue() instanceof Column) {
                     if (criterion.getRepresentation() == null) {
@@ -464,11 +470,17 @@ public class H2SqlBuilder extends SqlBuilder {
             if (criterion.getCondition() == Condition.DIRECT) {
                 sql.append(criterion.getValue());
             } else {
-                if (criterion.getValue() instanceof Query.Select) {
+                if (criterion.getValue() instanceof Query.Select || criterion.getValue() instanceof Query) {
+                    Query.Select select;
+                    if (criterion.getValue() instanceof Query.Select) {
+                        select = (Query.Select) criterion.getValue();
+                    } else {
+                        select = (Query.Select) ((Query) criterion.getValue()).getQueryObject();
+                    }
                     sql.append(toSql(criterion.getColumn()));
                     sql.append(criterion.getCondition().condition());
                     sql.append(LEFT_BRACE);
-                    sql.append(toSql((Query.Select) criterion.getValue()));
+                    sql.append(toSelect(select));
                     sql.append(RIGHT_BRACE);
                 } else if (criterion.getValue() instanceof Column) {
                     if (criterion.getRepresentation() == null) {
