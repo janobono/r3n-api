@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sk.r3n.sql.Column;
 import sk.r3n.sql.ColumnFunction;
+import sk.r3n.sql.ColumnSelect;
 import sk.r3n.sql.Condition;
 import sk.r3n.sql.Criteria;
 import sk.r3n.sql.CriteriaManager;
@@ -214,7 +215,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
                     } else {
                         sql.append(MessageFormat.format(criterion.getRepresentation(),
                                 toSql(criterion.getColumn()), criterion.getCondition().condition(),
-                                criterion.getValue().toString()));
+                                toSql((Column) criterion.getValue())));
                     }
                 } else {
                     if (criterion.getRepresentation() == null) {
@@ -273,6 +274,11 @@ public class PostgreSqlBuilder extends SqlBuilder {
                     membersList.add(toSql(member));
                 }
                 result.append(MessageFormat.format(columnFunction.getName(), membersList.toArray(new Object[membersList.size()])));
+            } else if (column instanceof ColumnSelect) {
+                ColumnSelect columnSelect = (ColumnSelect) column;
+                result.append(LEFT_BRACE);
+                result.append(toSelect(columnSelect.getSelect()));
+                result.append(RIGHT_BRACE);
             } else {
                 if (!onlyName) {
                     result.append(column.getTable().getAlias().toLowerCase()).append(DOT);
@@ -484,7 +490,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
                     } else {
                         sql.append(MessageFormat.format(criterion.getRepresentation(),
                                 toSql(criterion.getColumn()), criterion.getCondition().condition(),
-                                criterion.getValue().toString()));
+                                toSql((Column) criterion.getValue())));
                     }
                 } else {
                     if (criterion.getRepresentation() == null) {

@@ -1,21 +1,19 @@
 package sk.r3n.sql;
 
-import java.util.Arrays;
+public class ColumnSelect extends Column {
 
-public class ColumnFunction extends Column {
-
-    private final Column[] members;
+    private final Query.Select select;
 
     private final Object hashObj;
 
-    public ColumnFunction(String function, DataType dataType, Column... members) {
-        super(function, null, dataType);
-        this.members = members;
+    public ColumnSelect(Query.Select select, DataType dataType) {
+        super(null, null, dataType);
+        this.select = select;
         hashObj = new Object();
     }
 
-    public Column[] getMembers() {
-        return members;
+    public Query.Select getSelect() {
+        return select;
     }
 
     @Override
@@ -34,7 +32,6 @@ public class ColumnFunction extends Column {
 
     @Override
     public String toString() {
-        return "ColumnFunction{" + "function=" + getName() + ", members=" + Arrays.toString(members) + ", dataType=" + getDataType() + '}';
+        return "ColumnSelect{" + "select=" + select + ", dataType=" + getDataType() + '}';
     }
-
 }

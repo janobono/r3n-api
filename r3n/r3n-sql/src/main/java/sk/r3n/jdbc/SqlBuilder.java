@@ -2,7 +2,6 @@ package sk.r3n.jdbc;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +14,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sk.r3n.sql.Column;
-import sk.r3n.sql.DataType;
 import sk.r3n.sql.Query;
 import sk.r3n.sql.Sequence;
 import sk.r3n.util.FileUtil;
@@ -31,40 +29,6 @@ public abstract class SqlBuilder {
     protected static final char EQUALS = '=';
     protected static final char COMMA = ',';
     protected static final char DOT = '.';
-
-    public class SqlParam implements Serializable {
-
-        private DataType dataType;
-
-        private Object value;
-
-        public SqlParam(DataType dataType, Object value) {
-            this.dataType = dataType;
-            this.value = value;
-        }
-
-        public DataType getDataType() {
-            return dataType;
-        }
-
-        public void setDataType(DataType dataType) {
-            this.dataType = dataType;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public void setValue(Object value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return "SqlParam{" + "dataType=" + dataType + ", value=" + value + '}';
-        }
-
-    }
 
     private File tmpDir;
 
