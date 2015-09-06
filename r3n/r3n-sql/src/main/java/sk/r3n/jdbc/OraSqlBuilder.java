@@ -255,11 +255,15 @@ public class OraSqlBuilder extends SqlBuilder {
 
             if (column instanceof ColumnFunction) {
                 ColumnFunction columnFunction = (ColumnFunction) column;
-                List<Object> membersList = new ArrayList<Object>();
-                for (Column member : columnFunction.getMembers()) {
-                    membersList.add(toSql(member));
+                if (columnFunction.getMembers() != null) {
+                    List<Object> membersList = new ArrayList<Object>();
+                    for (Column member : columnFunction.getMembers()) {
+                        membersList.add(toSql(member));
+                    }
+                    result.append(MessageFormat.format(columnFunction.getName(), membersList.toArray(new Object[membersList.size()])));
+                } else {
+                    result.append(columnFunction.getName());
                 }
-                result.append(MessageFormat.format(columnFunction.getName(), membersList.toArray(new Object[membersList.size()])));
             } else if (column instanceof ColumnSelect) {
                 ColumnSelect columnSelect = (ColumnSelect) column;
                 result.append(LEFT_BRACE);
