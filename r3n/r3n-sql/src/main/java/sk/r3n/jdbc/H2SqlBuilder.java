@@ -272,7 +272,10 @@ public class H2SqlBuilder extends SqlBuilder {
                 result.append(toSelect(columnSelect.getSelect()));
                 result.append(RIGHT_BRACE);
             } else {
-                result.append(column.getTable().getAlias()).append(DOT).append(column.getName());
+                if (column.getTable() != null) {
+                    result.append(column.getTable().getAlias()).append(DOT);
+                }
+                result.append(column.getName());
             }
             return result.toString();
         }

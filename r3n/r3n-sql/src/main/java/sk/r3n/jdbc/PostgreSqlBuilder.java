@@ -284,7 +284,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
                 result.append(toSelect(columnSelect.getSelect()));
                 result.append(RIGHT_BRACE);
             } else {
-                if (!onlyName) {
+                if (!onlyName && column.getTable() != null) {
                     result.append(column.getTable().getAlias().toLowerCase()).append(DOT);
                 }
                 result.append(column.getName().toLowerCase());
