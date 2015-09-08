@@ -101,6 +101,17 @@ public class OraSqlBuilder extends SqlBuilder {
                 sql.append(toSql(select.getHavingCriterion()));
             }
 
+            if (!select.getOrderCriteria().isEmpty()) {
+                sql.append(SPACE).append("ORDER BY ");
+                for (int i = 0; i < select.getOrderCriteria().size(); i++) {
+                    sql.append(toSql(select.getOrderCriteria().get(i).getColumn())).append(SPACE).append(select.getOrderCriteria().get(i).getOrder());
+                    if (i < select.getOrderCriteria().size() - 1) {
+                        sql.append(COMMA);
+                    }
+                    sql.append(SPACE);
+                }
+            }
+
             if (select.getCount()) {
                 sql.append(RIGHT_BRACE);
             }
@@ -363,6 +374,17 @@ public class OraSqlBuilder extends SqlBuilder {
             if (select.getHavingCriterion() != null) {
                 sql.append(SPACE).append("HAVING ");
                 sql.append(toSql(select.getHavingCriterion()));
+            }
+
+            if (!select.getOrderCriteria().isEmpty()) {
+                sql.append(SPACE).append("ORDER BY ");
+                for (int i = 0; i < select.getOrderCriteria().size(); i++) {
+                    sql.append(toSql(select.getOrderCriteria().get(i).getColumn())).append(SPACE).append(select.getOrderCriteria().get(i).getOrder());
+                    if (i < select.getOrderCriteria().size() - 1) {
+                        sql.append(COMMA);
+                    }
+                    sql.append(SPACE);
+                }
             }
 
             if (select.getCount()) {
