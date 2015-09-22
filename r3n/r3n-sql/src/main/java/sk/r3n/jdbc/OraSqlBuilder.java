@@ -322,8 +322,11 @@ public class OraSqlBuilder extends SqlBuilder {
             if (select.getPagination()) {
                 sql.append("SELECT * FROM ").append(LEFT_BRACE).append("SELECT ");
 
-                for (int i = 0; i < columns.length; i++) {
-                    sql.append("col").append(i).append(", ");
+                for (Column column : columns) {
+                    if (indexMap.get(column) == null) {
+                        createIndex(column);
+                    }
+                    sql.append("col").append(indexMap.get(column)).append(", ");
                 }
                 sql.append("ROWNUM rnm").append(" FROM ").append(LEFT_BRACE);
 
