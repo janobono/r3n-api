@@ -1,5 +1,9 @@
 #target dir
 target
-
-#target dir content
 target/
+
+#.idea dir
+.idea
+
+#*.iml
+**/*.iml
