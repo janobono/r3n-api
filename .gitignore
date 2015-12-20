@@ -1,0 +1,10 @@
+#target dir
+target
+target/
+
+#.idea dir
+.idea
+r3n-idea
+
+#*.iml
+**/*.iml
