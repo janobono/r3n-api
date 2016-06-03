@@ -1,9 +1,10 @@
 package sk.r3n.sql;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CriteriaManager {
+public class CriteriaManager implements Serializable {
 
     private Criteria criteria;
 

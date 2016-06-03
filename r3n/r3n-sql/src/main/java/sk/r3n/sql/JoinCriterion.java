@@ -1,6 +1,8 @@
 package sk.r3n.sql;
 
-public class JoinCriterion {
+import java.io.Serializable;
+
+public class JoinCriterion implements Serializable {
 
     private Join join;
 
