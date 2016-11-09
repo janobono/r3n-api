@@ -151,7 +151,7 @@ public class OraSqlBuilder extends SqlBuilder {
             for (Object object : criteria.getContent()) {
                 if (object instanceof Criterion) {
                     if (lastObject != null) {
-                        if (object instanceof Criterion && criteriaSequence) {
+                        if (criteriaSequence) {
                             sql.append(RIGHT_BRACE);
                             criteriaSequence = false;
                         }
@@ -168,10 +168,6 @@ public class OraSqlBuilder extends SqlBuilder {
                 } else {
                     if (((Criteria) object).isCriteria()) {
                         if (lastObject != null) {
-                            if (object instanceof Criterion && criteriaSequence) {
-                                sql.append(RIGHT_BRACE);
-                                criteriaSequence = false;
-                            }
                             sql.append(SPACE);
                             if (lastObject instanceof Criterion) {
                                 sql.append(((Criterion) lastObject).getOperator());
