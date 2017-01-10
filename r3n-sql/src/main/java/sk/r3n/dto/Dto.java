@@ -4,24 +4,22 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import sk.r3n.sql.Column;
 
 public class Dto {
 
     public void objToObj(Object source, Object target) {
-        Map<String, Field> sourceFieldMap = new HashMap<>();
-        fillFieldMap(source.getClass(), sourceFieldMap);
+        List<Field> sourceFieldList = new ArrayList<>();
+        fillFieldList(source.getClass(), sourceFieldList);
 
-        Map<String, Field> targetFieldMap = new HashMap<>();
-        fillFieldMap(target.getClass(), targetFieldMap);
+        List<Field> targetFieldList = new ArrayList<>();
+        fillFieldList(target.getClass(), targetFieldList);
 
-        sourceFieldMap.keySet().forEach((key) -> {
-            Field sourceField = sourceFieldMap.get(key);
-            Field targetField = targetFieldMap.get(key);
-            if (targetField != null) {
+        targetFieldList.forEach((targetField) -> {
+            ColumnId targetColumnId = targetField.getAnnotation(ColumnId.class);
+            Field sourceField = getField(targetColumnId.table(), targetColumnId.column(), sourceFieldList);
+            if (sourceField != null) {
                 setValue(target, targetField, getValue(source, sourceField));
             }
         });
@@ -30,61 +28,30 @@ public class Dto {
     public Object[] toArray(Object object, Column... columns) {
         List<Object> result = new ArrayList<>();
 
-        TableId tableId = object.getClass().getAnnotation(TableId.class);
-
-        Map<String, Field> fieldMap = new HashMap<>();
-        fillFieldMap(object.getClass(), tableId, fieldMap);
+        List<Field> fieldList = new ArrayList<>();
+        fillFieldList(object.getClass(), fieldList);
 
         for (Column column : columns) {
-            result.add(getValue(object, column, fieldMap));
+            result.add(getValue(object, column, fieldList));
         }
 
         return result.toArray();
     }
 
     public void fill(Object object, Object[] values, Column... columns) {
-        TableId tableId = object.getClass().getAnnotation(TableId.class);
-
-        Map<String, Field> fieldMap = new HashMap<>();
-        fillFieldMap(object.getClass(), tableId, fieldMap);
+        List<Field> fieldList = new ArrayList<>();
+        fillFieldList(object.getClass(), fieldList);
 
         int index = 0;
         for (Column column : columns) {
             Object value = values[index++];
-            setValue(object, column, value, fieldMap);
+            setValue(object, column, value, fieldList);
         }
 
     }
 
-    private void fillFieldMap(Class aClass, Map<String, Field> map) {
-        Field[] declaredFields = aClass.getDeclaredFields();
-        for (Field field : declaredFields) {
-            ColumnId columnId = field.getAnnotation(ColumnId.class);
-            if (columnId != null) {
-                map.put(columnId.name(), field);
-            }
-        }
-        if (aClass.getSuperclass() != null) {
-            fillFieldMap(aClass.getSuperclass(), map);
-        }
-    }
-
-    private void fillFieldMap(Class aClass, TableId tableId, Map<String, Field> map) {
-        Field[] declaredFields = aClass.getDeclaredFields();
-        for (Field field : declaredFields) {
-            ColumnId columnId = field.getAnnotation(ColumnId.class);
-            if (columnId != null) {
-                map.put(tableId.name() + "." + columnId.name(), field);
-            }
-        }
-        if (aClass.getSuperclass() != null) {
-            fillFieldMap(aClass.getSuperclass(), tableId, map);
-        }
-    }
-
-    private void setValue(Object object, Column column, Object value, Map<String, Field> fieldMap) {
-        String key = column.getTable().getName() + "." + column.getName();
-        Field field = fieldMap.get(key);
+    private void setValue(Object object, Column column, Object value, List<Field> fieldList) {
+        Field field = getField(column.getTable().getName(), column.getName(), fieldList);
         if (field != null) {
             setValue(object, field, value);
         }
@@ -92,19 +59,18 @@ public class Dto {
 
     private void setValue(Object object, Field field, Object value) {
         try {
-            String methodName = "set" + Character.toString(field.getName().charAt(0)).toUpperCase() + field.getName().substring(1);
-            Method method = object.getClass().getMethod(methodName, field.getType());
+            StringBuilder sb = new StringBuilder();
+            sb.append("set").append(Character.toString(field.getName().charAt(0)).toUpperCase()).append(field.getName().substring(1));
+            Method method = object.getClass().getMethod(sb.toString(), field.getType());
             method.invoke(object, value);
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Object getValue(Object object, Column column, Map<String, Field> fieldMap) {
+    private Object getValue(Object object, Column column, List<Field> fieldList) {
         Object result = null;
-
-        String key = column.getTable().getName() + "." + column.getName();
-        Field field = fieldMap.get(key);
+        Field field = getField(column.getTable().getName(), column.getName(), fieldList);
         if (field != null) {
             result = getValue(object, field);
         }
@@ -114,13 +80,37 @@ public class Dto {
     private Object getValue(Object object, Field field) {
         Object result = null;
         try {
-            String methodName = "get" + Character.toString(field.getName().charAt(0)).toUpperCase() + field.getName().substring(1);
-            Method method = object.getClass().getMethod(methodName);
+            StringBuilder sb = new StringBuilder();
+            sb.append("get").append(Character.toString(field.getName().charAt(0)).toUpperCase()).append(field.getName().substring(1));
+            Method method = object.getClass().getMethod(sb.toString());
             result = method.invoke(object);
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
         return result;
+    }
+
+    private void fillFieldList(Class aClass, List<Field> fieldList) {
+        Field[] declaredFields = aClass.getDeclaredFields();
+        for (Field field : declaredFields) {
+            ColumnId columnId = field.getAnnotation(ColumnId.class);
+            if (columnId != null) {
+                fieldList.add(field);
+            }
+        }
+        if (aClass.getSuperclass() != null) {
+            fillFieldList(aClass.getSuperclass(), fieldList);
+        }
+    }
+
+    private Field getField(String table, String column, List<Field> fieldList) {
+        for (Field field : fieldList) {
+            ColumnId columnId = field.getAnnotation(ColumnId.class);
+            if (columnId.table().equals(table) && columnId.column().equals(column)) {
+                return field;
+            }
+        }
+        return null;
     }
 
 }

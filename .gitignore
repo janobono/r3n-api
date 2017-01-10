@@ -2,9 +2,5 @@
 target
 target/
 
-#.idea dir
-.idea
-r3n-idea
-
-#*.iml
-**/*.iml
+r3n-example/r3n-example-ora/src/main/
+r3n-example/r3n-example-postgres/src/main/

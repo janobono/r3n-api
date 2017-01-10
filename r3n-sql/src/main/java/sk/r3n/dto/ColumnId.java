@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface ColumnId {
 
-    String name();
+    String table() default "";
+
+    String column() default "";
 
 }

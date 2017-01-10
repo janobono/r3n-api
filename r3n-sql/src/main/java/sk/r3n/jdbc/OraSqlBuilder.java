@@ -30,7 +30,6 @@ import sk.r3n.sql.Criterion;
 import sk.r3n.sql.DataType;
 import sk.r3n.sql.Delete;
 import sk.r3n.sql.Insert;
-import sk.r3n.sql.JoinCriterion;
 import sk.r3n.sql.OrderCriterion;
 import sk.r3n.sql.Select;
 import sk.r3n.sql.Sequence;
@@ -145,7 +144,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 Select subSelect = select.getSubSelects()[i];
                 sw.append(selectSQL(subSelect, result));
                 if (i < select.getSubSelects().length - 1) {
-                    sw.append(" ").append(select.getDataSetOperator().name().replaceAll("_", " ").toLowerCase()).append(" ");
+                    sw.append(" ").append(select.getDataSetOperator().name().replaceAll("_", " ")).append(" ");
                 }
             }
 
@@ -175,7 +174,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 sw.append(" order by ");
                 for (int i = 0; i < select.getOrderCriteria().size(); i++) {
                     OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
-                    sw.append(columnSQL(false, orderCriterion.getColumn(), result, indexMap)).append(" ").append(orderCriterion.getOrder().name().toLowerCase());
+                    sw.append(columnSQL(false, orderCriterion.getColumn(), result, indexMap)).append(" ").append(orderCriterion.getOrder().name());
                     if (i < select.getOrderCriteria().size() - 1) {
                         sw.append(",");
                     }
@@ -243,7 +242,7 @@ public class OraSqlBuilder extends SqlBuilder {
         sw.append("from ").append(tableSQL(false, select.getTable())).append(" ");
 
         select.getJoinCriteria().stream().map((joinCriterion) -> {
-            sw.append(" ").append(joinCriterion.getJoin().name().replaceAll("_", " ").toLowerCase());
+            sw.append(" ").append(joinCriterion.getJoin().name().replaceAll("_", " "));
             return joinCriterion;
         }).map((joinCriterion) -> {
             sw.append(" join ").append(tableSQL(false, joinCriterion.getTable())).append(" on ");
@@ -276,7 +275,7 @@ public class OraSqlBuilder extends SqlBuilder {
             sw.append(" order by ");
             for (int i = 0; i < select.getOrderCriteria().size(); i++) {
                 OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
-                sw.append(columnSQL(false, orderCriterion.getColumn(), qr, null)).append(" ").append(orderCriterion.getOrder().name().toLowerCase());
+                sw.append(columnSQL(false, orderCriterion.getColumn(), qr, null)).append(" ").append(orderCriterion.getOrder().name());
                 if (i < select.getOrderCriteria().size() - 1) {
                     sw.append(",");
                 }
@@ -368,7 +367,7 @@ public class OraSqlBuilder extends SqlBuilder {
         for (Criteria criteria : criteriaManager.getCriteriaList()) {
             if (criteria.isCriteria()) {
                 if (lastCriteria != null) {
-                    sw.append(" ").append(lastCriteria.getOperator().name().toLowerCase()).append(" ");
+                    sw.append(" ").append(lastCriteria.getOperator().name()).append(" ");
                 }
                 sw.append(criteriaSQL(onlyName, criteria, qr, indexMap));
                 lastCriteria = criteria;
@@ -392,7 +391,7 @@ public class OraSqlBuilder extends SqlBuilder {
                         sw.append(")");
                         criteriaSequence = false;
                     }
-                    sw.append(" ").append(lastCriteriaContent.getOperator().name().toLowerCase()).append(" ");
+                    sw.append(" ").append(lastCriteriaContent.getOperator().name()).append(" ");
                 }
                 sw.append(criterionSQL(onlyName, (Criterion) criteriaContent, qr, indexMap));
                 lastCriteriaContent = criteriaContent;
@@ -400,7 +399,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 Criteria subCriteria = (Criteria) criteriaContent;
                 if (subCriteria.isCriteria()) {
                     if (lastCriteriaContent != null) {
-                        sw.append(" ").append(lastCriteriaContent.getOperator().name().toLowerCase()).append(" ");
+                        sw.append(" ").append(lastCriteriaContent.getOperator().name()).append(" ");
                     }
                     if (!criteriaSequence) {
                         sw.append("(");

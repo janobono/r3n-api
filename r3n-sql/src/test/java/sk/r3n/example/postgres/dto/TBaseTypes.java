@@ -4,59 +4,57 @@ import java.io.Serializable;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.Date;
-import sk.r3n.dto.TableId;
 import sk.r3n.dto.ColumnId;
 
-@TableId(name = "T_BASE_TYPES")
 public class TBaseTypes implements Serializable {
 
-    @ColumnId(name = "ID")
+    @ColumnId(table = "t_base_types", column = "id")
     protected Long id;
 
-    @ColumnId(name = "T_SHORT")
+    @ColumnId(table = "t_base_types", column = "t_short")
     protected Short tShort;
 
-    @ColumnId(name = "T_INTEGER")
+    @ColumnId(table = "t_base_types", column = "t_integer")
     protected Integer tInteger;
 
-    @ColumnId(name = "T_LONG")
+    @ColumnId(table = "t_base_types", column = "t_long")
     protected Long tLong;
 
-    @ColumnId(name = "T_BIG_DECIMAL")
+    @ColumnId(table = "t_base_types", column = "t_big_decimal")
     protected BigDecimal tBigDecimal;
 
-    @ColumnId(name = "T_STRING_CHAR")
+    @ColumnId(table = "t_base_types", column = "t_string_char")
     protected String tStringChar;
 
-    @ColumnId(name = "T_STRING_TEXT")
+    @ColumnId(table = "t_base_types", column = "t_string_text")
     protected String tStringText;
 
-    @ColumnId(name = "T_STRING_VARCHAR")
+    @ColumnId(table = "t_base_types", column = "t_string_varchar")
     protected String tStringVarchar;
 
-    @ColumnId(name = "T_STRING_SCDF")
+    @ColumnId(table = "t_base_types", column = "t_string_scdf")
     protected String tStringScdf;
 
-    @ColumnId(name = "T_BLOB")
+    @ColumnId(table = "t_base_types", column = "t_blob")
     protected File tBlob;
 
-    @ColumnId(name = "T_TIME_STAMP")
+    @ColumnId(table = "t_base_types", column = "t_time_stamp")
     protected Date tTimeStamp;
 
-    @ColumnId(name = "T_TIME")
+    @ColumnId(table = "t_base_types", column = "t_time")
     protected Date tTime;
 
-    @ColumnId(name = "T_DATE")
+    @ColumnId(table = "t_base_types", column = "t_date")
     protected Date tDate;
 
-    @ColumnId(name = "T_BOOLEAN")
+    @ColumnId(table = "t_base_types", column = "t_boolean")
     protected Boolean tBoolean;
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Long id){
         this.id = id;
     }
 
@@ -64,7 +62,7 @@ public class TBaseTypes implements Serializable {
         return tShort;
     }
 
-    public void setTShort(Short tShort) {
+    public void setTShort(Short tShort){
         this.tShort = tShort;
     }
 
@@ -72,7 +70,7 @@ public class TBaseTypes implements Serializable {
         return tInteger;
     }
 
-    public void setTInteger(Integer tInteger) {
+    public void setTInteger(Integer tInteger){
         this.tInteger = tInteger;
     }
 
@@ -80,7 +78,7 @@ public class TBaseTypes implements Serializable {
         return tLong;
     }
 
-    public void setTLong(Long tLong) {
+    public void setTLong(Long tLong){
         this.tLong = tLong;
     }
 
@@ -88,7 +86,7 @@ public class TBaseTypes implements Serializable {
         return tBigDecimal;
     }
 
-    public void setTBigDecimal(BigDecimal tBigDecimal) {
+    public void setTBigDecimal(BigDecimal tBigDecimal){
         this.tBigDecimal = tBigDecimal;
     }
 
@@ -96,7 +94,7 @@ public class TBaseTypes implements Serializable {
         return tStringChar;
     }
 
-    public void setTStringChar(String tStringChar) {
+    public void setTStringChar(String tStringChar){
         this.tStringChar = tStringChar;
     }
 
@@ -104,7 +102,7 @@ public class TBaseTypes implements Serializable {
         return tStringText;
     }
 
-    public void setTStringText(String tStringText) {
+    public void setTStringText(String tStringText){
         this.tStringText = tStringText;
     }
 
@@ -112,7 +110,7 @@ public class TBaseTypes implements Serializable {
         return tStringVarchar;
     }
 
-    public void setTStringVarchar(String tStringVarchar) {
+    public void setTStringVarchar(String tStringVarchar){
         this.tStringVarchar = tStringVarchar;
     }
 
@@ -120,7 +118,7 @@ public class TBaseTypes implements Serializable {
         return tStringScdf;
     }
 
-    public void setTStringScdf(String tStringScdf) {
+    public void setTStringScdf(String tStringScdf){
         this.tStringScdf = tStringScdf;
     }
 
@@ -128,7 +126,7 @@ public class TBaseTypes implements Serializable {
         return tBlob;
     }
 
-    public void setTBlob(File tBlob) {
+    public void setTBlob(File tBlob){
         this.tBlob = tBlob;
     }
 
@@ -136,7 +134,7 @@ public class TBaseTypes implements Serializable {
         return tTimeStamp;
     }
 
-    public void setTTimeStamp(Date tTimeStamp) {
+    public void setTTimeStamp(Date tTimeStamp){
         this.tTimeStamp = tTimeStamp;
     }
 
@@ -144,7 +142,7 @@ public class TBaseTypes implements Serializable {
         return tTime;
     }
 
-    public void setTTime(Date tTime) {
+    public void setTTime(Date tTime){
         this.tTime = tTime;
     }
 
@@ -152,7 +150,7 @@ public class TBaseTypes implements Serializable {
         return tDate;
     }
 
-    public void setTDate(Date tDate) {
+    public void setTDate(Date tDate){
         this.tDate = tDate;
     }
 
@@ -160,16 +158,8 @@ public class TBaseTypes implements Serializable {
         return tBoolean;
     }
 
-    public void setTBoolean(Boolean tBoolean) {
+    public void setTBoolean(Boolean tBoolean){
         this.tBoolean = tBoolean;
-    }
-
-    @Override
-    public String toString() {
-        return "TBaseTypes{" + "id=" + id + ", tShort=" + tShort + ", tInteger=" + tInteger + ", tLong=" + tLong
-                + ", tBigDecimal=" + tBigDecimal + ", tStringChar=" + tStringChar + ", tStringText=" + tStringText
-                + ", tStringVarchar=" + tStringVarchar + ", tStringScdf=" + tStringScdf + ", tBlob=" + tBlob
-                + ", tTimeStamp=" + tTimeStamp + ", tTime=" + tTime + ", tDate=" + tDate + ", tBoolean=" + tBoolean + '}';
     }
 
 }

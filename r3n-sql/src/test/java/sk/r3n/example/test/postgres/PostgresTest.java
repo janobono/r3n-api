@@ -47,7 +47,7 @@ public class PostgresTest {
         Connection connection = null;
         try {
             Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection("jdbc:postgresql://10.0.0.8:5432/test", "test", "test");
+            connection = DriverManager.getConnection("jdbc:postgresql://10.0.0.8:5432/test", "postgres", "postgres");
 
             SqlUtil.runSqlScript(connection, PostgresTest.class.getResourceAsStream("/clean_postgres.sql"));
             SqlUtil.runSqlScript(connection, PostgresTest.class.getResourceAsStream("/install_postgres.sql"));
@@ -64,7 +64,7 @@ public class PostgresTest {
         Connection connection = null;
         try {
             Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection("jdbc:postgresql://10.0.0.8:5432/test", "test", "test");
+            connection = DriverManager.getConnection("jdbc:postgresql://10.0.0.8:5432/test", "postgres", "postgres");
 
             assertTrue(connection.getAutoCommit());
 

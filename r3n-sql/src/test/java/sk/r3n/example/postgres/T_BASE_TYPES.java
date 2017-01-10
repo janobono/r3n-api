@@ -7,115 +7,115 @@ import sk.r3n.sql.DataType;
 public class T_BASE_TYPES implements Serializable {
 
     public static Column ID() {
-        return new Column("ID", TABLE.T_BASE_TYPES(), DataType.LONG);
+        return new Column("id", TABLE.T_BASE_TYPES(), DataType.LONG);
     }
 
     public static Column ID(String alias) {
-        return new Column("ID", TABLE.T_BASE_TYPES(alias), DataType.LONG);
+        return new Column("id", TABLE.T_BASE_TYPES(alias), DataType.LONG);
     }
 
     public static Column T_SHORT() {
-        return new Column("T_SHORT", TABLE.T_BASE_TYPES(), DataType.SHORT);
+        return new Column("t_short", TABLE.T_BASE_TYPES(), DataType.SHORT);
     }
 
     public static Column T_SHORT(String alias) {
-        return new Column("T_SHORT", TABLE.T_BASE_TYPES(alias), DataType.SHORT);
+        return new Column("t_short", TABLE.T_BASE_TYPES(alias), DataType.SHORT);
     }
 
     public static Column T_INTEGER() {
-        return new Column("T_INTEGER", TABLE.T_BASE_TYPES(), DataType.INTEGER);
+        return new Column("t_integer", TABLE.T_BASE_TYPES(), DataType.INTEGER);
     }
 
     public static Column T_INTEGER(String alias) {
-        return new Column("T_INTEGER", TABLE.T_BASE_TYPES(alias), DataType.INTEGER);
+        return new Column("t_integer", TABLE.T_BASE_TYPES(alias), DataType.INTEGER);
     }
 
     public static Column T_LONG() {
-        return new Column("T_LONG", TABLE.T_BASE_TYPES(), DataType.LONG);
+        return new Column("t_long", TABLE.T_BASE_TYPES(), DataType.LONG);
     }
 
     public static Column T_LONG(String alias) {
-        return new Column("T_LONG", TABLE.T_BASE_TYPES(alias), DataType.LONG);
+        return new Column("t_long", TABLE.T_BASE_TYPES(alias), DataType.LONG);
     }
 
     public static Column T_BIG_DECIMAL() {
-        return new Column("T_BIG_DECIMAL", TABLE.T_BASE_TYPES(), DataType.BIG_DECIMAL);
+        return new Column("t_big_decimal", TABLE.T_BASE_TYPES(), DataType.BIG_DECIMAL);
     }
 
     public static Column T_BIG_DECIMAL(String alias) {
-        return new Column("T_BIG_DECIMAL", TABLE.T_BASE_TYPES(alias), DataType.BIG_DECIMAL);
+        return new Column("t_big_decimal", TABLE.T_BASE_TYPES(alias), DataType.BIG_DECIMAL);
     }
 
     public static Column T_STRING_CHAR() {
-        return new Column("T_STRING_CHAR", TABLE.T_BASE_TYPES(), DataType.STRING);
+        return new Column("t_string_char", TABLE.T_BASE_TYPES(), DataType.STRING);
     }
 
     public static Column T_STRING_CHAR(String alias) {
-        return new Column("T_STRING_CHAR", TABLE.T_BASE_TYPES(alias), DataType.STRING);
+        return new Column("t_string_char", TABLE.T_BASE_TYPES(alias), DataType.STRING);
     }
 
     public static Column T_STRING_TEXT() {
-        return new Column("T_STRING_TEXT", TABLE.T_BASE_TYPES(), DataType.STRING);
+        return new Column("t_string_text", TABLE.T_BASE_TYPES(), DataType.STRING);
     }
 
     public static Column T_STRING_TEXT(String alias) {
-        return new Column("T_STRING_TEXT", TABLE.T_BASE_TYPES(alias), DataType.STRING);
+        return new Column("t_string_text", TABLE.T_BASE_TYPES(alias), DataType.STRING);
     }
 
     public static Column T_STRING_VARCHAR() {
-        return new Column("T_STRING_VARCHAR", TABLE.T_BASE_TYPES(), DataType.STRING);
+        return new Column("t_string_varchar", TABLE.T_BASE_TYPES(), DataType.STRING);
     }
 
     public static Column T_STRING_VARCHAR(String alias) {
-        return new Column("T_STRING_VARCHAR", TABLE.T_BASE_TYPES(alias), DataType.STRING);
+        return new Column("t_string_varchar", TABLE.T_BASE_TYPES(alias), DataType.STRING);
     }
 
     public static Column T_STRING_SCDF() {
-        return new Column("T_STRING_SCDF", TABLE.T_BASE_TYPES(), DataType.STRING);
+        return new Column("t_string_scdf", TABLE.T_BASE_TYPES(), DataType.STRING);
     }
 
     public static Column T_STRING_SCDF(String alias) {
-        return new Column("T_STRING_SCDF", TABLE.T_BASE_TYPES(alias), DataType.STRING);
+        return new Column("t_string_scdf", TABLE.T_BASE_TYPES(alias), DataType.STRING);
     }
 
     public static Column T_BLOB() {
-        return new Column("T_BLOB", TABLE.T_BASE_TYPES(), DataType.BLOB);
+        return new Column("t_blob", TABLE.T_BASE_TYPES(), DataType.BLOB);
     }
 
     public static Column T_BLOB(String alias) {
-        return new Column("T_BLOB", TABLE.T_BASE_TYPES(alias), DataType.BLOB);
+        return new Column("t_blob", TABLE.T_BASE_TYPES(alias), DataType.BLOB);
     }
 
     public static Column T_TIME_STAMP() {
-        return new Column("T_TIME_STAMP", TABLE.T_BASE_TYPES(), DataType.TIME_STAMP);
+        return new Column("t_time_stamp", TABLE.T_BASE_TYPES(), DataType.TIME_STAMP);
     }
 
     public static Column T_TIME_STAMP(String alias) {
-        return new Column("T_TIME_STAMP", TABLE.T_BASE_TYPES(alias), DataType.TIME_STAMP);
+        return new Column("t_time_stamp", TABLE.T_BASE_TYPES(alias), DataType.TIME_STAMP);
     }
 
     public static Column T_TIME() {
-        return new Column("T_TIME", TABLE.T_BASE_TYPES(), DataType.TIME);
+        return new Column("t_time", TABLE.T_BASE_TYPES(), DataType.TIME);
     }
 
     public static Column T_TIME(String alias) {
-        return new Column("T_TIME", TABLE.T_BASE_TYPES(alias), DataType.TIME);
+        return new Column("t_time", TABLE.T_BASE_TYPES(alias), DataType.TIME);
     }
 
     public static Column T_DATE() {
-        return new Column("T_DATE", TABLE.T_BASE_TYPES(), DataType.DATE);
+        return new Column("t_date", TABLE.T_BASE_TYPES(), DataType.DATE);
     }
 
     public static Column T_DATE(String alias) {
-        return new Column("T_DATE", TABLE.T_BASE_TYPES(alias), DataType.DATE);
+        return new Column("t_date", TABLE.T_BASE_TYPES(alias), DataType.DATE);
     }
 
     public static Column T_BOOLEAN() {
-        return new Column("T_BOOLEAN", TABLE.T_BASE_TYPES(), DataType.BOOLEAN);
+        return new Column("t_boolean", TABLE.T_BASE_TYPES(), DataType.BOOLEAN);
     }
 
     public static Column T_BOOLEAN(String alias) {
-        return new Column("T_BOOLEAN", TABLE.T_BASE_TYPES(alias), DataType.BOOLEAN);
+        return new Column("t_boolean", TABLE.T_BASE_TYPES(alias), DataType.BOOLEAN);
     }
 
     public static Column[] columns() {

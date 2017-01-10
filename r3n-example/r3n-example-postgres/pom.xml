@@ -34,9 +34,9 @@
                 <configuration>
                     <targetPackage>sk.r3n.example.postgres</targetPackage>
                     <jdbcDriver>org.postgresql.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:postgresql://localhost:5432/test</jdbcUrl>
-                    <jdbcUser>test</jdbcUser>
-                    <jdbcPassword>test</jdbcPassword>
+                    <jdbcUrl>jdbc:postgresql://10.0.0.8:5432/test</jdbcUrl>
+                    <jdbcUser>postgres</jdbcUser>
+                    <jdbcPassword>postgres</jdbcPassword>
                 </configuration>
             </plugin>
         </plugins>

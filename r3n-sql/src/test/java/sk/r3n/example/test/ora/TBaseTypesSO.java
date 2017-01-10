@@ -8,43 +8,43 @@ import sk.r3n.dto.ColumnId;
 
 public class TBaseTypesSO implements Serializable {
 
-    @ColumnId(name = "ID")
+    @ColumnId(table = "t_base_types", column = "id")
     protected Long id;
 
-    @ColumnId(name = "T_SHORT")
+    @ColumnId(table = "t_base_types", column = "t_short")
     protected Short tShort;
 
-    @ColumnId(name = "T_INTEGER")
+    @ColumnId(table = "t_base_types", column = "t_integer")
     protected Integer tInteger;
 
-    @ColumnId(name = "T_LONG")
+    @ColumnId(table = "t_base_types", column = "t_long")
     protected Long tLong;
 
-    @ColumnId(name = "T_BIG_DECIMAL")
+    @ColumnId(table = "t_base_types", column = "t_big_decimal")
     protected BigDecimal tBigDecimal;
 
-    @ColumnId(name = "T_STRING_CHAR")
+    @ColumnId(table = "t_base_types", column = "t_string_char")
     protected String tStringChar;
 
-    @ColumnId(name = "T_STRING_CLOB")
+    @ColumnId(table = "t_base_types", column = "t_string_clob")
     protected String tStringClob;
 
-    @ColumnId(name = "T_STRING_VARCHAR2")
+    @ColumnId(table = "t_base_types", column = "t_string_varchar2")
     protected String tStringVarchar2;
 
-    @ColumnId(name = "T_STRING_SCDF")
+    @ColumnId(table = "t_base_types", column = "t_string_scdf")
     protected String tStringScdf;
 
-    @ColumnId(name = "T_BLOB")
+    @ColumnId(table = "t_base_types", column = "t_blob")
     protected File tBlob;
 
-    @ColumnId(name = "T_TIME_STAMP")
+    @ColumnId(table = "t_base_types", column = "t_time_stamp")
     protected Date tTimeStamp;
 
-    @ColumnId(name = "T_DATE")
+    @ColumnId(table = "t_base_types", column = "t_date")
     protected Date tDate;
 
-    @ColumnId(name = "T_BOOLEAN")
+    @ColumnId(table = "t_base_types", column = "t_boolean")
     protected Boolean tBoolean;
 
     public Long getId() {
