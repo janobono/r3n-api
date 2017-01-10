@@ -4,18 +4,13 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>3.0.2</version>
+        <version>4.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-example</artifactId>
     <packaging>pom</packaging>
    
     <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${commons.version}</version>
-        </dependency>
         <dependency>
             <groupId>sk.r3n</groupId>
             <artifactId>r3n-sql</artifactId>
@@ -24,7 +19,6 @@
     </dependencies>
     
     <modules>
-        <module>r3n-example-h2</module>
         <module>r3n-example-ora</module>
         <module>r3n-example-postgres</module>
     </modules>

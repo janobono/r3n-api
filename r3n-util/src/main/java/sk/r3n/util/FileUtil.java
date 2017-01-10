@@ -25,14 +25,10 @@ public class FileUtil {
     }
 
     public static void append(File file, byte[] data) {
-        OutputStream os = null;
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(file, true));
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file, true))) {
             os.write(data, 0, data.length);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            close(os);
         }
     }
 
@@ -41,12 +37,9 @@ public class FileUtil {
     }
 
     private static void fileStreaming(File source, File target, boolean append) {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(source));
+                OutputStream os = new BufferedOutputStream(new FileOutputStream(target, append))) {
             byte[] buffer = new byte[1024];
-            is = new BufferedInputStream(new FileInputStream(source));
-            os = new BufferedOutputStream(new FileOutputStream(target, append));
             int bytesRead = 0;
             while (bytesRead != -1) {
                 bytesRead = is.read(buffer);
@@ -54,21 +47,15 @@ public class FileUtil {
                     os.write(buffer, 0, bytesRead);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            close(is);
-            close(os);
         }
     }
 
     public static void fileToStream(File source, OutputStream target) {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(source));
+                OutputStream os = new BufferedOutputStream(target)) {
             byte[] buffer = new byte[1024];
-            is = new BufferedInputStream(new FileInputStream(source));
-            os = new BufferedOutputStream(target);
             int bytesRead = 0;
             while (bytesRead != -1) {
                 bytesRead = is.read(buffer);
@@ -78,19 +65,13 @@ public class FileUtil {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            close(is);
-            close(os);
         }
     }
 
     public static void streamToStream(InputStream source, OutputStream target) {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
+        try (InputStream is = new BufferedInputStream(source);
+                OutputStream os = new BufferedOutputStream(target)) {
             byte[] buffer = new byte[1024];
-            is = new BufferedInputStream(source);
-            os = new BufferedOutputStream(target);
             int bytesRead = 0;
             while (bytesRead != -1) {
                 bytesRead = is.read(buffer);
@@ -100,19 +81,13 @@ public class FileUtil {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            close(is);
-            close(os);
         }
     }
 
     public static void streamToFile(InputStream source, File target) {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
+        try (InputStream is = new BufferedInputStream(source);
+                OutputStream os = new BufferedOutputStream(new FileOutputStream(target, false))) {
             byte[] buffer = new byte[1024];
-            is = new BufferedInputStream(source);
-            os = new BufferedOutputStream(new FileOutputStream(target, false));
             int bytesRead = 0;
             while (bytesRead != -1) {
                 bytesRead = is.read(buffer);
@@ -122,9 +97,6 @@ public class FileUtil {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            close(is);
-            close(os);
         }
     }
 
@@ -138,12 +110,9 @@ public class FileUtil {
     }
 
     public static byte[] read(File file) {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(file));
+                OutputStream os = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[1024];
-            is = new BufferedInputStream(new FileInputStream(file));
-            os = new ByteArrayOutputStream();
             int bytesRead = 0;
             while (bytesRead != -1) {
                 bytesRead = is.read(buffer);
@@ -154,46 +123,31 @@ public class FileUtil {
             return ((ByteArrayOutputStream) os).toByteArray();
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            close(is);
-            close(os);
         }
     }
 
     public static Object readObject(File file) {
-        ObjectInputStream is = null;
-        try {
-            is = new ObjectInputStream(new FileInputStream(file));
+        try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(file))) {
             return is.readObject();
-        } catch (Exception e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally {
-            close(is);
         }
     }
 
     public static void write(File file, byte[] data) {
-        OutputStream os = null;
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(file, false));
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file, false))) {
             os.write(data, 0, data.length);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            close(os);
         }
     }
 
     public static void writeObject(File file, Object object) {
-        ObjectOutputStream outputStream = null;
-        try {
-            outputStream = new ObjectOutputStream(new FileOutputStream(file));
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file))) {
             outputStream.writeObject(object);
             outputStream.flush();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            close(outputStream);
         }
     }
 
@@ -249,25 +203,21 @@ public class FileUtil {
     }
 
     public static void zip(File zipFile, File[] files) {
-        ZipOutputStream zos = null;
         byte[] buffer = new byte[1024];
-        try {
-            zos = new ZipOutputStream(new FileOutputStream(zipFile));
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
             for (File file : files) {
                 ZipEntry ze = new ZipEntry(file.getName());
                 zos.putNextEntry(ze);
-                FileInputStream in = new FileInputStream(file);
-                int len;
-                while ((len = in.read(buffer)) > 0) {
-                    zos.write(buffer, 0, len);
+                try (FileInputStream in = new FileInputStream(file)) {
+                    int len;
+                    while ((len = in.read(buffer)) > 0) {
+                        zos.write(buffer, 0, len);
+                    }
                 }
-                in.close();
             }
             zos.closeEntry();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            close(zos);
         }
     }
 }

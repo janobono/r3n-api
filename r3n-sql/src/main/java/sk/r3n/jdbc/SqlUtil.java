@@ -8,12 +8,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SqlUtil {
 
-    private static final Log LOG = LogFactory.getLog(SqlUtil.class);
+    private static final Logger LOGGER = Logger.getLogger(SqlUtil.class.getCanonicalName());
 
     private static final String DEFAULT_DELIMITER = ";";
 
@@ -47,7 +47,7 @@ public class SqlUtil {
     }
 
     private static List<String> getSqlCommands(Reader reader, String commandsDelimiter) throws Exception {
-        List<String> commands = new ArrayList<String>();
+        List<String> commands = new ArrayList<>();
 
         LineNumberReader lineReader = new LineNumberReader(reader);
         String line;
@@ -75,15 +75,16 @@ public class SqlUtil {
     }
 
     private static List<String> adaptSql(List<String> sqls, Map<String, String> stringsToReplaceMap) {
-        List<String> adaptedSqls = new ArrayList<String>();
+        List<String> adaptedSqls = new ArrayList<>();
 
-        for (String sql : sqls) {
-            String adaptedSql = sql;
+        sqls.stream().map((sql) -> sql).map((adaptedSql) -> {
             for (Map.Entry<String, String> entry : stringsToReplaceMap.entrySet()) {
                 adaptedSql = adaptedSql.replace(entry.getKey(), entry.getValue());
             }
+            return adaptedSql;
+        }).forEachOrdered((adaptedSql) -> {
             adaptedSqls.add(adaptedSql);
-        }
+        });
 
         return adaptedSqls;
     }
@@ -94,7 +95,7 @@ public class SqlUtil {
             try {
                 execute(connection, command);
             } catch (SQLException e) {
-                LOG.warn(e, e);
+                LOGGER.log(Level.WARNING, e.toString(), e);
                 if (se == null) {
                     se = e;
                 }

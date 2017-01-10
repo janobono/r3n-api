@@ -13,22 +13,6 @@ public class Table implements Serializable {
         this.alias = alias;
     }
 
-    @Override
-    public int hashCode() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getName()).append(" ").append(getAlias());
-        return sb.toString().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        boolean result = false;
-        if (obj instanceof Table) {
-            result = hashCode() == ((Table) obj).hashCode();
-        }
-        return result;
-    }
-
     public String getName() {
         return name;
     }

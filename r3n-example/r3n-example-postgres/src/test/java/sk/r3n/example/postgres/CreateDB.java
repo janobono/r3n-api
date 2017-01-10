@@ -1,21 +1,18 @@
 package sk.r3n.example.postgres;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.logging.LogManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import sk.r3n.jdbc.SqlUtil;
 
 public class CreateDB {
 
-    private static final Log LOG = LogFactory.getLog(CreateDB.class);
-
     public CreateDB() {
         try {
             LogManager.getLogManager().readConfiguration(getClass().getResourceAsStream("/logging.properties"));
-        } catch (Exception ex) {
+        } catch (IOException | SecurityException ex) {
             throw new RuntimeException(ex);
         }
     }

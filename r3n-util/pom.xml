@@ -4,20 +4,10 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>3.0.2</version>
+        <version>4.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-util</artifactId>
 
     <description>Utils lib.</description>
-    
-    <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${commons.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-    
 </project>

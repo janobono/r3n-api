@@ -5,5 +5,5 @@ public enum Join {
     INNER,
     LEFT,
     RIGHT,
-    FULL;
+    FULL_OUTER;
 }

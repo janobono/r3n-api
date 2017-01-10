@@ -32,6 +32,7 @@ public class PluginMojo extends AbstractMojo {
     @Parameter
     private String jdbcPassword;
 
+    @Override
     public void execute() {
         baseDir = new File(baseDir, "/" + targetPackage.replaceAll("\\.", "/"));
         baseDir.mkdirs();

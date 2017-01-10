@@ -19,7 +19,7 @@ public class Structure implements Serializable {
 
     public List<Sequence> getSequences() {
         if (sequences == null) {
-            sequences = new ArrayList<Sequence>();
+            sequences = new ArrayList<>();
         }
         return sequences;
     }
@@ -30,7 +30,7 @@ public class Structure implements Serializable {
 
     public List<Table> getTables() {
         if (tables == null) {
-            tables = new ArrayList<Table>();
+            tables = new ArrayList<>();
         }
         return tables;
     }
@@ -41,7 +41,7 @@ public class Structure implements Serializable {
 
     public Map<String, List<Column>> getColumns() {
         if (columns == null) {
-            columns = new HashMap<String, List<Column>>();
+            columns = new HashMap<>();
         }
         return columns;
     }

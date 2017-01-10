@@ -1,8 +1,6 @@
 package sk.r3n.sql;
 
-import java.io.Serializable;
-
-public class Criterion implements Serializable {
+public class Criterion implements CriteriaContent {
 
     private Column column;
 
@@ -54,6 +52,7 @@ public class Criterion implements Serializable {
         this.representation = representation;
     }
 
+    @Override
     public Operator getOperator() {
         return operator;
     }

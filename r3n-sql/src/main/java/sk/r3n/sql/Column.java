@@ -16,23 +16,13 @@ public class Column implements Serializable {
         this.dataType = dataType;
     }
 
-    @Override
-    public int hashCode() {
+    public String getColumnId() {
         StringBuilder sb = new StringBuilder();
         if (table != null) {
             sb.append(table.getAlias()).append(".");
         }
-        sb.append(getName());
-        return sb.toString().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        boolean result = false;
-        if (obj instanceof Column) {
-            result = hashCode() == ((Column) obj).hashCode();
-        }
-        return result;
+        sb.append(name);
+        return sb.toString();
     }
 
     public String getName() {

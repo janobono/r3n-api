@@ -88,7 +88,7 @@ public class PostgreStructureLoader extends StructureLoader {
 
     private List<Column> loadColumns(Log log, Connection connection, Table table) throws SQLException {
         log.info("Columns loading: " + table);
-        List<Column> result = new ArrayList<Column>();
+        List<Column> result = new ArrayList<>();
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;

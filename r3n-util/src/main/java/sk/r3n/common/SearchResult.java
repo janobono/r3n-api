@@ -22,7 +22,7 @@ public class SearchResult<T> implements Serializable {
 
     public List<T> getResults() {
         if (results == null) {
-            results = new ArrayList<T>();
+            results = new ArrayList<>();
         }
         return results;
     }

@@ -2,6 +2,7 @@ package sk.r3n.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -22,7 +23,7 @@ public class CloneSerializable {
             Object clone = is.readObject();
 
             return clone;
-        } catch (Exception e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             FileUtil.close(bos);

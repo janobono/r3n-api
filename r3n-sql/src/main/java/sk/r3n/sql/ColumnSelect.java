@@ -2,32 +2,23 @@ package sk.r3n.sql;
 
 public class ColumnSelect extends Column {
 
-    private final Query.Select select;
+    private final String columnId;
 
-    private final Object hashObj;
+    private final Select select;
 
-    public ColumnSelect(Query.Select select, DataType dataType) {
+    public ColumnSelect(String columnId, Select select, DataType dataType) {
         super(null, null, dataType);
+        this.columnId = columnId;
         this.select = select;
-        hashObj = new Object();
     }
 
-    public Query.Select getSelect() {
+    @Override
+    public String getColumnId() {
+        return columnId;
+    }
+
+    public Select getSelect() {
         return select;
-    }
-
-    @Override
-    public int hashCode() {
-        return hashObj.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        boolean result = false;
-        if (obj instanceof Column) {
-            result = hashCode() == ((Column) obj).hashCode();
-        }
-        return result;
     }
 
     @Override

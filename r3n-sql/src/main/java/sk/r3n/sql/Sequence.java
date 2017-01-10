@@ -10,21 +10,6 @@ public class Sequence implements Serializable {
         this.name = name;
     }
 
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        boolean result = false;
-        if (obj instanceof Sequence) {
-            Sequence sequenceObj = (Sequence) obj;
-            result = sequenceObj.name.equals(name);
-        }
-        return result;
-    }
-
     public String getName() {
         return name;
     }

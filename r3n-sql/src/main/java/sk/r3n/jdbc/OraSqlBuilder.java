@@ -5,579 +5,76 @@ import java.io.IOException;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sk.r3n.sql.Column;
 import sk.r3n.sql.ColumnFunction;
 import sk.r3n.sql.ColumnSelect;
 import sk.r3n.sql.Condition;
+import sk.r3n.sql.CriteriaContent;
 import sk.r3n.sql.Criteria;
 import sk.r3n.sql.CriteriaManager;
 import sk.r3n.sql.Criterion;
 import sk.r3n.sql.DataType;
-import sk.r3n.sql.Join;
+import sk.r3n.sql.Delete;
+import sk.r3n.sql.Insert;
 import sk.r3n.sql.JoinCriterion;
-import sk.r3n.sql.Query;
+import sk.r3n.sql.OrderCriterion;
+import sk.r3n.sql.Select;
 import sk.r3n.sql.Sequence;
 import sk.r3n.sql.Table;
+import sk.r3n.sql.Update;
 import sk.r3n.util.FileUtil;
 
 public class OraSqlBuilder extends SqlBuilder {
 
-    private class BaseSql {
-
-        private String toSql(Query.Select select) {
-            StringBuilder sql = new StringBuilder();
-
-            if (select.getCount()) {
-                sql.append("SELECT COUNT(*) FROM ").append(LEFT_BRACE);
-            }
-
-            Column[] columns = select.getColumns();
-
-            if (select.getPagination()) {
-                sql.append("SELECT * FROM ").append(LEFT_BRACE).append("SELECT ");
-
-                for (int i = 0; i < columns.length; i++) {
-                    sql.append("col").append(i).append(", ");
-                }
-                sql.append("ROWNUM rnm").append(" FROM ").append(LEFT_BRACE);
-
-            }
-
-            sql.append("SELECT ");
-            if (select.getDistinct()) {
-                sql.append("DISTINCT ");
-            }
-            for (int i = 0; i < columns.length; i++) {
-                Column column = columns[i];
-                sql.append(toSql(column));
-                sql.append(" AS col").append(i);
-                if (i < columns.length - 1) {
-                    sql.append(COMMA);
-                }
-                sql.append(SPACE);
-            }
-
-            sql.append("FROM ").append(toSql(select.getTable())).append(SPACE);
-
-            for (JoinCriterion joinCriterion : select.getJoinCriteria()) {
-                sql.append(SPACE).append(joinCriterion.getJoin());
-                if (joinCriterion.getJoin() == Join.FULL) {
-                    sql.append(" OUTER");
-                }
-                sql.append(" JOIN ").append(toSql(joinCriterion.getTable())).append(" ON ");
-                sql.append(toSql(joinCriterion.getCriteriaManager()));
-            }
-
-            if (select.getCriteriaManager().isCriteria()) {
-                sql.append(SPACE).append("WHERE ");
-                sql.append(toSql(select.getCriteriaManager()));
-            }
-
-            if (select.getGroupByColumns() != null) {
-                sql.append(SPACE).append("GROUP BY ");
-                columns = select.getGroupByColumns();
-                for (int i = 0; i < columns.length; i++) {
-                    sql.append(toSql(columns[i]));
-                    if (i < columns.length - 1) {
-                        sql.append(COMMA).append(SPACE);
-                    }
-                }
-            }
-
-            if (select.getHavingCriterion() != null) {
-                sql.append(SPACE).append("HAVING ");
-                sql.append(toSql(select.getHavingCriterion()));
-            }
-
-            if (!select.getOrderCriteria().isEmpty()) {
-                sql.append(SPACE).append("ORDER BY ");
-                for (int i = 0; i < select.getOrderCriteria().size(); i++) {
-                    sql.append(toSql(select.getOrderCriteria().get(i).getColumn())).append(SPACE).append(select.getOrderCriteria().get(i).getOrder());
-                    if (i < select.getOrderCriteria().size() - 1) {
-                        sql.append(COMMA);
-                    }
-                    sql.append(SPACE);
-                }
-            }
-
-            if (select.getCount()) {
-                sql.append(RIGHT_BRACE);
-            }
-
-            if (select.getPagination()) {
-                sql.append(RIGHT_BRACE).append(" WHERE ROWNUM <= ? ").append(RIGHT_BRACE).append(" WHERE rnm >= ?");
-                params().add(new SqlParam(DataType.INTEGER, select.getLastRow() + 1));
-                params().add(new SqlParam(DataType.INTEGER, select.getFirstRow() + 1));
-            }
-
-            return sql.toString();
-        }
-
-        private String toSql(CriteriaManager criteriaManager) {
-            StringBuilder sql = new StringBuilder();
-            Criteria lastCriteria = null;
-            for (int i = 0; i < criteriaManager.getCriteriaList().size(); i++) {
-                Criteria criteria = criteriaManager.getCriteriaList().get(i);
-                if (criteria.isCriteria()) {
-                    if (lastCriteria != null) {
-                        sql.append(SPACE);
-                        sql.append(lastCriteria.getOperator());
-                        sql.append(SPACE);
-                    }
-                    sql.append(toSql(criteria));
-                    lastCriteria = criteria;
-                }
-            }
-            return sql.toString();
-        }
-
-        private String toSql(Criteria criteria) {
-            StringBuilder sql = new StringBuilder();
-            sql.append(LEFT_BRACE);
-            Object lastObject = null;
-            boolean criteriaSequence = false;
-            for (Object object : criteria.getContent()) {
-                if (object instanceof Criterion) {
-                    if (lastObject != null) {
-                        if (criteriaSequence) {
-                            sql.append(RIGHT_BRACE);
-                            criteriaSequence = false;
-                        }
-                        sql.append(SPACE);
-                        if (lastObject instanceof Criterion) {
-                            sql.append(((Criterion) lastObject).getOperator());
-                        } else {
-                            sql.append(((Criteria) lastObject).getOperator());
-                        }
-                        sql.append(SPACE);
-                    }
-                    sql.append(toSql((Criterion) object));
-                    lastObject = object;
-                } else {
-                    if (((Criteria) object).isCriteria()) {
-                        if (lastObject != null) {
-                            sql.append(SPACE);
-                            if (lastObject instanceof Criterion) {
-                                sql.append(((Criterion) lastObject).getOperator());
-                            } else {
-                                sql.append(((Criteria) lastObject).getOperator());
-                            }
-                            sql.append(SPACE);
-                        }
-                        if (!criteriaSequence) {
-                            sql.append(LEFT_BRACE);
-                            criteriaSequence = true;
-                        }
-                        sql.append(toSql((Criteria) object));
-                        lastObject = object;
-                    }
-                }
-            }
-            if (criteriaSequence) {
-                sql.append(RIGHT_BRACE);
-            }
-            sql.append(RIGHT_BRACE);
-            return sql.toString();
-        }
-
-        private String toSql(Criterion criterion) {
-            StringBuilder sql = new StringBuilder();
-            if (criterion.getCondition() == Condition.DIRECT) {
-                sql.append(criterion.getValue());
-            } else {
-                if (criterion.getValue() instanceof Query.Select || criterion.getValue() instanceof Query) {
-                    Query.Select select;
-                    if (criterion.getValue() instanceof Query.Select) {
-                        select = (Query.Select) criterion.getValue();
-                    } else {
-                        select = (Query.Select) ((Query) criterion.getValue()).getQueryObject();
-                    }
-                    sql.append(toSql(criterion.getColumn()));
-                    sql.append(criterion.getCondition().condition());
-                    sql.append(LEFT_BRACE);
-                    sql.append(toSelect(select));
-                    sql.append(RIGHT_BRACE);
-                } else if (criterion.getValue() instanceof Column) {
-                    if (criterion.getRepresentation() == null) {
-                        sql.append(toSql(criterion.getColumn()));
-                        sql.append(criterion.getCondition().condition());
-                        sql.append(toSql((Column) criterion.getValue()));
-                    } else {
-                        sql.append(MessageFormat.format(criterion.getRepresentation(),
-                                toSql(criterion.getColumn()), criterion.getCondition().condition(),
-                                toSql((Column) criterion.getValue())));
-                    }
-                } else {
-                    if (criterion.getRepresentation() == null) {
-                        sql.append(toSql(criterion.getColumn()));
-                        sql.append(criterion.getCondition().condition());
-                        if (criterion.getValue() != null) {
-                            if (criterion.getValue() instanceof List<?> || criterion.getValue() instanceof Object[]) {
-                                Object[] array;
-                                if (criterion.getValue() instanceof List<?>) {
-                                    array = ((List<?>) criterion.getValue()).toArray();
-                                } else {
-                                    array = (Object[]) criterion.getValue();
-                                }
-                                sql.append(LEFT_BRACE);
-                                for (int i = 0; i < array.length; i++) {
-                                    sql.append(QUESTION_MARK);
-                                    params().add(new SqlParam(criterion.getColumn().getDataType(), array[i]));
-                                    if (i < array.length - 1) {
-                                        sql.append(COMMA);
-                                    }
-                                }
-                                sql.append(RIGHT_BRACE);
-                            } else {
-                                sql.append(QUESTION_MARK);
-                                params().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
-                            }
-                        }
-                    } else {
-                        sql.append(MessageFormat.format(criterion.getRepresentation(),
-                                toSql(criterion.getColumn()), criterion.getCondition().condition()));
-                        if (criterion.getValue() != null) {
-                            params().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
-                        }
-                    }
-                }
-            }
-            return sql.toString();
-        }
-
-        private String toSql(Table table) {
-            StringBuilder result = new StringBuilder();
-            result.append(table.getName()).append(SPACE).append(table.getAlias());
-            return result.toString();
-        }
-
-        private String toSql(Column column) {
-            StringBuilder result = new StringBuilder();
-
-            if (column instanceof ColumnFunction) {
-                ColumnFunction columnFunction = (ColumnFunction) column;
-                if (columnFunction.getMembers() != null) {
-                    List<Object> membersList = new ArrayList<Object>();
-                    for (Column member : columnFunction.getMembers()) {
-                        membersList.add(toSql(member));
-                    }
-                    result.append(MessageFormat.format(columnFunction.getName(), membersList.toArray(new Object[membersList.size()])));
-                } else {
-                    result.append(columnFunction.getName());
-                }
-            } else if (column instanceof ColumnSelect) {
-                ColumnSelect columnSelect = (ColumnSelect) column;
-                result.append(LEFT_BRACE);
-                result.append(toSelect(columnSelect.getSelect()));
-                result.append(RIGHT_BRACE);
-            } else {
-                if (column.getTable() != null) {
-                    result.append(column.getTable().getAlias()).append(DOT);
-                }
-                result.append(column.getName());
-            }
-
-            return result.toString();
-        }
-    }
-
-    private class UnionSql {
-
-        private final Map<Column, Integer> indexMap = new HashMap<Column, Integer>();
-
-        private String toSql(Query.Select select) {
-            StringBuilder sql = new StringBuilder();
-
-            if (select.getCount()) {
-                sql.append("SELECT COUNT(*) FROM ").append(LEFT_BRACE);
-            }
-
-            Query.Select[] subSelects = select.getSubSelects();
-            for (Query.Select subSelect : subSelects) {
-                int index = 0;
-                for (Column column : subSelect.getColumns()) {
-                    indexMap.put(column, index);
-                    index++;
-                }
-            }
-
-            Column[] columns = select.getColumns();
-
-            if (select.getPagination()) {
-                sql.append("SELECT * FROM ").append(LEFT_BRACE).append("SELECT ");
-
-                for (Column column : columns) {
-                    if (indexMap.get(column) == null) {
-                        createIndex(column);
-                    }
-                    sql.append("col").append(indexMap.get(column)).append(", ");
-                }
-                sql.append("ROWNUM rnm").append(" FROM ").append(LEFT_BRACE);
-
-            }
-
-            sql.append("SELECT ");
-            if (select.getDistinct()) {
-                sql.append("DISTINCT ");
-            }
-            for (int i = 0; i < columns.length; i++) {
-                if (indexMap.get(columns[i]) == null) {
-                    createIndex(columns[i]);
-                }
-                sql.append("col").append(indexMap.get(columns[i]));
-                if (i < columns.length - 1) {
-                    sql.append(COMMA);
-                }
-                sql.append(SPACE);
-            }
-
-            sql.append("FROM ").append(LEFT_BRACE);
-
-            for (int i = 0; i < subSelects.length; i++) {
-                sql.append(LEFT_BRACE).append(toSelect(subSelects[i])).append(RIGHT_BRACE);
-                if (i < subSelects.length - 1) {
-                    sql.append(SPACE).append(select.getDataSetOperator().name().replaceAll("_", " ")).append(SPACE);
-                }
-            }
-
-            sql.append(RIGHT_BRACE);
-
-            if (select.getCriteriaManager().isCriteria()) {
-                sql.append(SPACE).append("WHERE ");
-                sql.append(toSql(select.getCriteriaManager()));
-            }
-
-            if (select.getGroupByColumns() != null) {
-                sql.append(SPACE).append("GROUP BY ");
-                columns = select.getGroupByColumns();
-                for (int i = 0; i < columns.length; i++) {
-                    sql.append(toSql(columns[i]));
-                    if (i < columns.length - 1) {
-                        sql.append(COMMA).append(SPACE);
-                    }
-                }
-            }
-
-            if (select.getHavingCriterion() != null) {
-                sql.append(SPACE).append("HAVING ");
-                sql.append(toSql(select.getHavingCriterion()));
-            }
-
-            if (!select.getOrderCriteria().isEmpty()) {
-                sql.append(SPACE).append("ORDER BY ");
-                for (int i = 0; i < select.getOrderCriteria().size(); i++) {
-                    sql.append(toSql(select.getOrderCriteria().get(i).getColumn())).append(SPACE).append(select.getOrderCriteria().get(i).getOrder());
-                    if (i < select.getOrderCriteria().size() - 1) {
-                        sql.append(COMMA);
-                    }
-                    sql.append(SPACE);
-                }
-            }
-
-            if (select.getCount()) {
-                sql.append(RIGHT_BRACE);
-            }
-
-            if (select.getPagination()) {
-                sql.append(RIGHT_BRACE).append(" WHERE ROWNUM <= ? ").append(RIGHT_BRACE).append(" WHERE rnm >= ?");
-                params().add(new SqlParam(DataType.INTEGER, select.getLastRow() + 1));
-                params().add(new SqlParam(DataType.INTEGER, select.getFirstRow() + 1));
-            }
-
-            return sql.toString();
-        }
-
-        private void createIndex(Column column) {
-            int max = 0;
-            for (Integer val : indexMap.values()) {
-                if (val > max) {
-                    max = val;
-                }
-            }
-            indexMap.put(column, max + 1);
-        }
-
-        private String toSql(CriteriaManager criteriaManager) {
-            StringBuilder sql = new StringBuilder();
-            Criteria lastCriteria = null;
-            for (int i = 0; i < criteriaManager.getCriteriaList().size(); i++) {
-                Criteria criteria = criteriaManager.getCriteriaList().get(i);
-                if (criteria.isCriteria()) {
-                    if (lastCriteria != null) {
-                        sql.append(SPACE);
-                        sql.append(lastCriteria.getOperator());
-                        sql.append(SPACE);
-                    }
-                    sql.append(toSql(criteria));
-                    lastCriteria = criteria;
-                }
-            }
-            return sql.toString();
-        }
-
-        private String toSql(Criteria criteria) {
-            StringBuilder sql = new StringBuilder();
-            sql.append(LEFT_BRACE);
-            Object lastObject = null;
-            boolean criteriaSequence = false;
-            for (Object object : criteria.getContent()) {
-                if (object instanceof Criterion) {
-                    if (lastObject != null) {
-                        if (object instanceof Criterion && criteriaSequence) {
-                            sql.append(RIGHT_BRACE);
-                            criteriaSequence = false;
-                        }
-                        sql.append(SPACE);
-                        if (lastObject instanceof Criterion) {
-                            sql.append(((Criterion) lastObject).getOperator());
-                        } else {
-                            sql.append(((Criteria) lastObject).getOperator());
-                        }
-                        sql.append(SPACE);
-                    }
-                    sql.append(toSql((Criterion) object));
-                    lastObject = object;
-                } else {
-                    if (((Criteria) object).isCriteria()) {
-                        if (lastObject != null) {
-                            if (object instanceof Criterion && criteriaSequence) {
-                                sql.append(RIGHT_BRACE);
-                                criteriaSequence = false;
-                            }
-                            sql.append(SPACE);
-                            if (lastObject instanceof Criterion) {
-                                sql.append(((Criterion) lastObject).getOperator());
-                            } else {
-                                sql.append(((Criteria) lastObject).getOperator());
-                            }
-                            sql.append(SPACE);
-                        }
-                        if (!criteriaSequence) {
-                            sql.append(LEFT_BRACE);
-                            criteriaSequence = true;
-                        }
-                        sql.append(toSql((Criteria) object));
-                        lastObject = object;
-                    }
-                }
-            }
-            if (criteriaSequence) {
-                sql.append(RIGHT_BRACE);
-            }
-            sql.append(RIGHT_BRACE);
-            return sql.toString();
-        }
-
-        private String toSql(Criterion criterion) {
-            StringBuilder sql = new StringBuilder();
-            if (criterion.getCondition() == Condition.DIRECT) {
-                sql.append(criterion.getValue());
-            } else {
-                if (criterion.getValue() instanceof Query.Select || criterion.getValue() instanceof Query) {
-                    Query.Select select;
-                    if (criterion.getValue() instanceof Query.Select) {
-                        select = (Query.Select) criterion.getValue();
-                    } else {
-                        select = (Query.Select) ((Query) criterion.getValue()).getQueryObject();
-                    }
-                    sql.append(toSql(criterion.getColumn()));
-                    sql.append(criterion.getCondition().condition());
-                    sql.append(LEFT_BRACE);
-                    sql.append(toSelect(select));
-                    sql.append(RIGHT_BRACE);
-                } else if (criterion.getValue() instanceof Column) {
-                    if (criterion.getRepresentation() == null) {
-                        sql.append(toSql(criterion.getColumn()));
-                        sql.append(criterion.getCondition().condition());
-                        sql.append(toSql((Column) criterion.getValue()));
-                    } else {
-                        sql.append(MessageFormat.format(criterion.getRepresentation(),
-                                toSql(criterion.getColumn()), criterion.getCondition().condition(),
-                                toSql((Column) criterion.getValue())));
-                    }
-                } else {
-                    if (criterion.getRepresentation() == null) {
-                        sql.append(toSql(criterion.getColumn()));
-                        sql.append(criterion.getCondition().condition());
-                        if (criterion.getValue() != null) {
-                            if (criterion.getValue() instanceof List<?> || criterion.getValue() instanceof Object[]) {
-                                Object[] array;
-                                if (criterion.getValue() instanceof List<?>) {
-                                    array = ((List<?>) criterion.getValue()).toArray();
-                                } else {
-                                    array = (Object[]) criterion.getValue();
-                                }
-                                sql.append(LEFT_BRACE);
-                                for (int i = 0; i < array.length; i++) {
-                                    sql.append(QUESTION_MARK);
-                                    params().add(new SqlParam(criterion.getColumn().getDataType(), array[i]));
-                                    if (i < array.length - 1) {
-                                        sql.append(COMMA);
-                                    }
-                                }
-                                sql.append(RIGHT_BRACE);
-                            } else {
-                                sql.append(QUESTION_MARK);
-                                params().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
-                            }
-                        }
-                    } else {
-                        sql.append(MessageFormat.format(criterion.getRepresentation(),
-                                toSql(criterion.getColumn()), criterion.getCondition().condition()));
-                        if (criterion.getValue() != null) {
-                            params().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
-                        }
-                    }
-                }
-            }
-            return sql.toString();
-        }
-
-        private String toSql(Column column) {
-            return "col" + indexMap.get(column);
-        }
-
-    }
-
-    private static final Log LOG = LogFactory.getLog(OraSqlBuilder.class);
+    private static final Logger LOGGER = Logger.getLogger(OraSqlBuilder.class.getCanonicalName());
 
     @Override
-    public String nextVal(Sequence sequence) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(sequence.getName());
-        sb.append(".");
-        sb.append("NEXTVAL");
-        return sb.toString();
+    public QueryResult nextVal(Sequence sequence) {
+        QueryResult result = new QueryResult();
+
+        StringBuilder sw = new StringBuilder();
+        sw.append("select ").append(sequenceSQL(sequence)).append(" from dual");
+
+        result.setQuery(sw.toString());
+        return result;
+    }
+
+    private String sequenceSQL(Sequence sequence) {
+        StringBuilder sw = new StringBuilder();
+        sw.append(sequence.getName());
+        sw.append(".");
+        sw.append("nextval");
+        return sw.toString();
     }
 
     @Override
     public long nextVal(Connection connection, Sequence sequence) throws SQLException {
-        Statement statement = null;
-        ResultSet resultSet = null;
+        long result;
 
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT ").append(nextVal(sequence)).append(" FROM DUAL");
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(sql);
+        QueryResult queryResult = nextVal(sequence);
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest(queryResult.toString());
         }
 
-        long result;
+        Statement statement = null;
+        ResultSet resultSet = null;
         try {
             statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql.toString());
+            resultSet = statement.executeQuery(queryResult.getQuery());
             resultSet.next();
             result = resultSet.getLong(1);
         } finally {
@@ -585,163 +82,507 @@ public class OraSqlBuilder extends SqlBuilder {
             SqlUtil.close(statement);
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("RESULT:" + Long.toString(result));
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.log(Level.FINEST, "RESULT:{0}", Long.toString(result));
         }
         return result;
     }
 
     @Override
-    public Object executeUpdate(Connection connection, Query query) throws SQLException {
-        if (query.getQueryType() == Query.QueryType.SELECT) {
-            throw new IllegalArgumentException("Wrong query type!");
-        }
+    public QueryResult select(Select select) {
+        QueryResult result = new QueryResult();
+        StringBuilder sw = new StringBuilder();
 
-        Object result = null;
-        params().clear();
-        String sql = toSql(query);
+        if (select.getSubSelects() != null && select.getSubSelects().length > 0) {
+            Map<String, Integer> indexMap = new HashMap<>();
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(sql);
-            LOG.debug(params());
-        }
+            if (select.getCount()) {
+                sw.append("select count(*) from (");
+            }
 
-        switch (query.getQueryType()) {
-            case INSERT:
-                if (((Query.Insert) query.getQueryObject()).getReturning() != null) {
-                    result = executeUpdate(connection, sql, ((Query.Insert) query.getQueryObject()).getColumns(), ((Query.Insert) query.getQueryObject()).getReturning());
-                } else {
-                    executeUpdate(connection, sql);
+            if (select.getPagination()) {
+                sw.append("select ");
+                for (int index = 0; index < select.getColumns().length; index++) {
+                    sw.append("col").append(index);
+                    if (index < select.getColumns().length - 1) {
+                        sw.append(", ");
+                    }
                 }
-                break;
-            default:
-                executeUpdate(connection, sql);
-                break;
+                sw.append(" from ( select ");
+                for (int index = 0; index < select.getColumns().length; index++) {
+                    sw.append("col").append(index).append(", ");
+                }
+                sw.append("rownum rnm").append(" from (");
+            }
+
+            for (Select subSelect : select.getSubSelects()) {
+                int index = 0;
+                for (Column column : subSelect.getColumns()) {
+                    indexMap.put(column.getColumnId(), index);
+                    index++;
+                }
+            }
+
+            sw.append("select ");
+
+            if (select.getDistinct()) {
+                sw.append("distinct ");
+            }
+
+            for (int i = 0; i < select.getColumns().length; i++) {
+                Column column = select.getColumns()[i];
+                indexMap.put(column.getColumnId(), i);
+                sw.append("col").append(indexMap.get(column.getColumnId()));
+                if (i < select.getColumns().length - 1) {
+                    sw.append(",");
+                }
+                sw.append(" ");
+            }
+
+            sw.append(" from (");
+
+            for (int i = 0; i < select.getSubSelects().length; i++) {
+                Select subSelect = select.getSubSelects()[i];
+                sw.append(selectSQL(subSelect, result));
+                if (i < select.getSubSelects().length - 1) {
+                    sw.append(" ").append(select.getDataSetOperator().name().replaceAll("_", " ").toLowerCase()).append(" ");
+                }
+            }
+
+            sw.append(")");
+
+            if (select.getCriteriaManager().isCriteria()) {
+                sw.append(" where ").append(criteriaManagerSQL(false, select.getCriteriaManager(), result, indexMap));
+            }
+
+            if (select.getGroupByColumns() != null && select.getGroupByColumns().length > 0) {
+                sw.append(" group by ");
+                for (int i = 0; i < select.getGroupByColumns().length; i++) {
+                    Column column = select.getGroupByColumns()[i];
+                    sw.append(columnSQL(false, column, result, indexMap));
+                    if (i < select.getGroupByColumns().length - 1) {
+                        sw.append(",");
+                    }
+                    sw.append(" ");
+                }
+            }
+
+            if (select.getHavingCriterion() != null) {
+                sw.append(" having ").append(criterionSQL(false, select.getHavingCriterion(), result, indexMap));
+            }
+
+            if (!select.getOrderCriteria().isEmpty()) {
+                sw.append(" order by ");
+                for (int i = 0; i < select.getOrderCriteria().size(); i++) {
+                    OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
+                    sw.append(columnSQL(false, orderCriterion.getColumn(), result, indexMap)).append(" ").append(orderCriterion.getOrder().name().toLowerCase());
+                    if (i < select.getOrderCriteria().size() - 1) {
+                        sw.append(",");
+                    }
+                    sw.append(" ");
+                }
+            }
+
+            if (select.getCount()) {
+                sw.append(")");
+            }
+
+            if (select.getPagination()) {
+                result.getParams().add(new SqlParam(DataType.INTEGER, select.getLastRow() + 1));
+                sw.append(") where rownum <= ?");
+
+                result.getParams().add(new SqlParam(DataType.INTEGER, select.getFirstRow() + 1));
+                sw.append(") where rnm >= ?");
+            }
+
+        } else {
+            sw.append(selectSQL(select, result));
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("RESULT:" + result);
+        result.setQuery(sw.toString());
+        return result;
+    }
+
+    private String selectSQL(Select select, QueryResult qr) {
+        StringBuilder sw = new StringBuilder();
+
+        if (select.getCount()) {
+            sw.append("select count(*) from (");
+        }
+
+        if (select.getPagination()) {
+            sw.append("select ");
+            for (int index = 0; index < select.getColumns().length; index++) {
+                sw.append("col").append(index);
+                if (index < select.getColumns().length - 1) {
+                    sw.append(", ");
+                }
+            }
+            sw.append(" from ( select ");
+            for (int index = 0; index < select.getColumns().length; index++) {
+                sw.append("col").append(index).append(", ");
+            }
+            sw.append("rownum rnm").append(" from (");
+        }
+
+        sw.append("select ");
+
+        if (select.getDistinct()) {
+            sw.append("distinct ");
+        }
+
+        for (int index = 0; index < select.getColumns().length; index++) {
+            Column column = select.getColumns()[index];
+            sw.append(columnSQL(false, column, qr, null)).append(" as col").append(index);
+            if (index < select.getColumns().length - 1) {
+                sw.append(",");
+            }
+            sw.append(" ");
+        }
+
+        sw.append("from ").append(tableSQL(false, select.getTable())).append(" ");
+
+        select.getJoinCriteria().stream().map((joinCriterion) -> {
+            sw.append(" ").append(joinCriterion.getJoin().name().replaceAll("_", " ").toLowerCase());
+            return joinCriterion;
+        }).map((joinCriterion) -> {
+            sw.append(" join ").append(tableSQL(false, joinCriterion.getTable())).append(" on ");
+            return joinCriterion;
+        }).forEachOrdered((joinCriterion) -> {
+            sw.append(criteriaManagerSQL(false, joinCriterion.getCriteriaManager(), qr, null));
+        });
+
+        if (select.getCriteriaManager().isCriteria()) {
+            sw.append(" where ").append(criteriaManagerSQL(false, select.getCriteriaManager(), qr, null));
+        }
+
+        if (select.getGroupByColumns() != null && select.getGroupByColumns().length > 0) {
+            sw.append(" group by ");
+            for (int i = 0; i < select.getGroupByColumns().length; i++) {
+                Column column = select.getGroupByColumns()[i];
+                sw.append(columnSQL(false, column, qr, null));
+                if (i < select.getGroupByColumns().length - 1) {
+                    sw.append(",");
+                }
+                sw.append(" ");
+            }
+        }
+
+        if (select.getHavingCriterion() != null) {
+            sw.append(" having ").append(criterionSQL(false, select.getHavingCriterion(), qr, null));
+        }
+
+        if (!select.getOrderCriteria().isEmpty()) {
+            sw.append(" order by ");
+            for (int i = 0; i < select.getOrderCriteria().size(); i++) {
+                OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
+                sw.append(columnSQL(false, orderCriterion.getColumn(), qr, null)).append(" ").append(orderCriterion.getOrder().name().toLowerCase());
+                if (i < select.getOrderCriteria().size() - 1) {
+                    sw.append(",");
+                }
+                sw.append(" ");
+            }
+        }
+
+        if (select.getCount()) {
+            sw.append(")");
+        }
+
+        if (select.getPagination()) {
+            qr.getParams().add(new SqlParam(DataType.INTEGER, select.getLastRow() + 1));
+            sw.append(") where rownum <= ?");
+
+            qr.getParams().add(new SqlParam(DataType.INTEGER, select.getFirstRow() + 1));
+            sw.append(") where rnm >= ?");
+        }
+
+        return sw.toString();
+    }
+
+    private String tableSQL(boolean onlyName, Table table) {
+        StringBuilder sw = new StringBuilder();
+
+        sw.append(table.getName());
+        if (!onlyName) {
+            sw.append(" ").append(table.getAlias());
+        }
+
+        return sw.toString();
+    }
+
+    private String columnSQL(boolean onlyName, Column column, QueryResult qr, Map<String, Integer> indexMap) {
+        StringBuilder sw = new StringBuilder();
+
+        if (indexMap != null) {
+            sw.append("col").append(indexMap.get(column.getColumnId()));
+        } else {
+            if (column instanceof ColumnFunction) {
+                ColumnFunction columnFunction = (ColumnFunction) column;
+                if (columnFunction.getMembers() != null) {
+                    List<Object> membersList = new ArrayList<>();
+                    for (Column member : columnFunction.getMembers()) {
+                        membersList.add(columnSQL(onlyName, member, qr, indexMap));
+                    }
+                    sw.append(MessageFormat.format(columnFunction.getName(), membersList.toArray(new Object[membersList.size()])));
+                } else {
+                    sw.append(columnFunction.getName());
+                }
+            } else if (column instanceof ColumnSelect) {
+                ColumnSelect columnSelect = (ColumnSelect) column;
+                sw.append("(").append(selectSQL(columnSelect.getSelect(), qr)).append(")");
+
+            } else {
+                if (!onlyName && column.getTable() != null) {
+                    sw.append(column.getTable().getAlias()).append(".");
+                }
+                sw.append(column.getName());
+            }
+        }
+
+        return sw.toString();
+    }
+
+    private String valueSQL(boolean onlyName, Column column, Object value, QueryResult qr, Map<String, Integer> indexMap) {
+        StringBuilder sw = new StringBuilder();
+
+        if (value instanceof Sequence) {
+            sw.append(sequenceSQL((Sequence) value));
+        } else if (value instanceof Column) {
+            sw.append(columnSQL(onlyName, (Column) value, qr, indexMap));
+        } else {
+            if (value != null) {
+                qr.getParams().add(new SqlParam(column.getDataType(), value));
+                sw.append("?");
+            } else {
+                sw.append("null");
+            }
+        }
+
+        return sw.toString();
+    }
+
+    private String criteriaManagerSQL(boolean onlyName, CriteriaManager criteriaManager, QueryResult qr, Map<String, Integer> indexMap) {
+        StringBuilder sw = new StringBuilder();
+
+        Criteria lastCriteria = null;
+        for (Criteria criteria : criteriaManager.getCriteriaList()) {
+            if (criteria.isCriteria()) {
+                if (lastCriteria != null) {
+                    sw.append(" ").append(lastCriteria.getOperator().name().toLowerCase()).append(" ");
+                }
+                sw.append(criteriaSQL(onlyName, criteria, qr, indexMap));
+                lastCriteria = criteria;
+            }
+        }
+
+        return sw.toString();
+    }
+
+    private String criteriaSQL(boolean onlyName, Criteria criteria, QueryResult qr, Map<String, Integer> indexMap) {
+        StringBuilder sw = new StringBuilder();
+
+        CriteriaContent lastCriteriaContent = null;
+        boolean criteriaSequence = false;
+
+        sw.append("(");
+        for (CriteriaContent criteriaContent : criteria.getContent()) {
+            if (criteriaContent instanceof Criterion) {
+                if (lastCriteriaContent != null) {
+                    if (criteriaSequence) {
+                        sw.append(")");
+                        criteriaSequence = false;
+                    }
+                    sw.append(" ").append(lastCriteriaContent.getOperator().name().toLowerCase()).append(" ");
+                }
+                sw.append(criterionSQL(onlyName, (Criterion) criteriaContent, qr, indexMap));
+                lastCriteriaContent = criteriaContent;
+            } else {
+                Criteria subCriteria = (Criteria) criteriaContent;
+                if (subCriteria.isCriteria()) {
+                    if (lastCriteriaContent != null) {
+                        sw.append(" ").append(lastCriteriaContent.getOperator().name().toLowerCase()).append(" ");
+                    }
+                    if (!criteriaSequence) {
+                        sw.append("(");
+                        criteriaSequence = true;
+                    }
+                    sw.append(criteriaSQL(onlyName, subCriteria, qr, indexMap));
+                    lastCriteriaContent = subCriteria;
+                }
+            }
+        }
+        if (criteriaSequence) {
+            sw.append(")");
+        }
+        sw.append(")");
+
+        return sw.toString();
+    }
+
+    private String criterionSQL(boolean onlyName, Criterion criterion, QueryResult qr, Map<String, Integer> indexMap) {
+        StringBuilder sw = new StringBuilder();
+
+        if (criterion.getCondition() == Condition.DIRECT) {
+            sw.append(criterion.getValue());
+        } else {
+            if (criterion.getValue() instanceof Select) {
+                sw.append(columnSQL(onlyName, criterion.getColumn(), qr, indexMap)).append(" ").append(criterion.getCondition().condition());
+                sw.append(" (").append(selectSQL((Select) criterion.getValue(), qr)).append(")");
+            } else if (criterion.getValue() instanceof Column) {
+                Column valueColumn = (Column) criterion.getValue();
+                if (criterion.getRepresentation() == null) {
+                    sw.append(columnSQL(onlyName, criterion.getColumn(), qr, indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
+                    sw.append(columnSQL(onlyName, valueColumn, qr, indexMap));
+                } else {
+                    sw.append(MessageFormat.format(criterion.getRepresentation(),
+                            columnSQL(onlyName, criterion.getColumn(), qr, indexMap), criterion.getCondition().condition(), columnSQL(onlyName, valueColumn, qr, indexMap)));
+                }
+            } else {
+                if (criterion.getRepresentation() == null) {
+                    sw.append(columnSQL(onlyName, criterion.getColumn(), qr, indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
+                    if (criterion.getValue() != null) {
+                        if (criterion.getValue() instanceof List<?> || criterion.getValue() instanceof Object[]) {
+                            Object[] valueArray;
+                            if (criterion.getValue() instanceof List<?>) {
+                                valueArray = ((List<?>) criterion.getValue()).toArray();
+                            } else {
+                                valueArray = (Object[]) criterion.getValue();
+                            }
+                            sw.append("(");
+                            for (int index = 0; index < valueArray.length; index++) {
+                                Object val = valueArray[index];
+                                qr.getParams().add(new SqlParam(criterion.getColumn().getDataType(), val));
+                                sw.append("?");
+                                if (index < valueArray.length - 1) {
+                                    sw.append(", ");
+                                }
+                            }
+                            sw.append(")");
+                        } else {
+                            qr.getParams().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
+                            sw.append("?");
+                        }
+                    }
+                } else {
+                    if (criterion.getValue() != null) {
+                        qr.getParams().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
+                        sw.append(MessageFormat.format(criterion.getRepresentation(), columnSQL(onlyName, criterion.getColumn(), qr, indexMap), criterion.getCondition().condition(), "?"));
+                    } else {
+                        sw.append(MessageFormat.format(criterion.getRepresentation(), columnSQL(onlyName, criterion.getColumn(), qr, indexMap), criterion.getCondition().condition()));
+                    }
+                }
+            }
+        }
+        return sw.toString();
+    }
+
+    @Override
+    public List<Object[]> select(Connection connection, Select select) throws SQLException {
+        List<Object[]> result = new ArrayList<>();
+
+        QueryResult queryResult = select(select);
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest(queryResult.getQuery());
+            LOGGER.finest(Arrays.toString(queryResult.getParams().toArray()));
+        }
+
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = connection.prepareStatement(queryResult.getQuery());
+            setParams(connection, preparedStatement, queryResult.getParams().toArray(new SqlParam[queryResult.getParams().size()]));
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Object[] row;
+                if (select.getCount()) {
+                    row = new Object[]{resultSet.getInt(1)};
+                } else {
+                    row = getRow(resultSet, select.getColumns());
+                }
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.log(Level.FINEST, "ROW:{0}", Arrays.toString(row));
+                }
+                result.add(row);
+            }
+        } finally {
+            SqlUtil.close(resultSet);
+            SqlUtil.close(preparedStatement);
+        }
+
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.log(Level.FINEST, "RESULT SIZE:{0}", result.size());
         }
         return result;
     }
 
     @Override
-    protected String toSelect(Query.Select select) {
-        if (select.getSubSelects() == null) {
-            return new BaseSql().toSql(select);
-        }
-        return new UnionSql().toSql(select);
-    }
-
-    @Override
-    protected String toInsert(Query.Insert insert) {
-        StringBuilder sql = new StringBuilder();
+    public QueryResult insert(Insert insert) {
+        QueryResult result = new QueryResult();
+        StringBuilder sw = new StringBuilder();
 
         if (insert.getReturning() != null) {
-            sql.append("BEGIN INSERT INTO ").append(insert.getTable().getName()).append(SPACE).append(LEFT_BRACE);
-            Column[] columns = insert.getColumns();
-            for (int i = 0; i < columns.length; i++) {
-                sql.append(columns[i].getName());
-                if (i < columns.length - 1) {
-                    sql.append(COMMA).append(SPACE);
-                }
+            sw.append("begin ");
+        }
+
+        sw.append("insert into ").append(tableSQL(true, insert.getTable())).append(" (");
+
+        for (int index = 0; index < insert.getColumns().length; index++) {
+            Column column = insert.getColumns()[index];
+
+            sw.append(columnSQL(true, column, result, null));
+            if (index < insert.getColumns().length - 1) {
+                sw.append(", ");
             }
-            sql.append(RIGHT_BRACE).append(" VALUES ").append(LEFT_BRACE);
-            Object[] values = insert.getValues();
-            for (int i = 0; i < columns.length; i++) {
-                if (values[i] instanceof Sequence) {
-                    sql.append(nextVal((Sequence) values[i]));
-                } else if (values[i] instanceof Column) {
-                    sql.append(((Column) values[i]).getName());
-                } else {
-                    sql.append(QUESTION_MARK);
-                    params().add(new SqlParam(columns[i].getDataType(), values[i]));
-                }
-                if (i < columns.length - 1) {
-                    sql.append(COMMA).append(SPACE);
-                }
+        }
+
+        sw.append(") values (");
+
+        for (int index = 0; index < insert.getColumns().length; index++) {
+            Column column = insert.getColumns()[index];
+            Object value = insert.getValues()[index];
+            sw.append(valueSQL(true, column, value, result, null));
+            if (index < insert.getColumns().length - 1) {
+                sw.append(", ");
             }
-            sql.append(RIGHT_BRACE).append(" RETURNING ").append(insert.getReturning().getName()).append(" INTO ?; END;");
+        }
+        sw.append(")");
+
+        if (insert.getReturning() != null) {
+            sw.append(" returning ").append(columnSQL(true, insert.getReturning(), result, null)).append(" into ?;end;");
+        }
+
+        result.setQuery(sw.toString());
+        return result;
+    }
+
+    @Override
+    public Object insert(Connection connection, Insert insert) throws SQLException {
+        Object result = null;
+
+        QueryResult queryResult = insert(insert);
+
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest(queryResult.getQuery());
+            LOGGER.finest(Arrays.toString(queryResult.getParams().toArray()));
+        }
+
+        if (insert.getReturning() == null) {
+            execute(connection, queryResult.getQuery(), queryResult.getParams());
         } else {
-            sql.append("INSERT INTO ").append(insert.getTable().getName()).append(SPACE).append(LEFT_BRACE);
-            Column[] columns = insert.getColumns();
-            for (int i = 0; i < columns.length; i++) {
-                sql.append(columns[i].getName());
-                if (i < columns.length - 1) {
-                    sql.append(COMMA).append(SPACE);
-                }
-            }
-            sql.append(RIGHT_BRACE).append(" VALUES ").append(LEFT_BRACE);
-            Object[] values = insert.getValues();
-            for (int i = 0; i < columns.length; i++) {
-                if (values[i] instanceof Sequence) {
-                    sql.append(nextVal((Sequence) values[i]));
-                } else if (values[i] instanceof Column) {
-                    sql.append(((Column) values[i]).getName());
-                } else {
-                    sql.append(QUESTION_MARK);
-                    params().add(new SqlParam(columns[i].getDataType(), values[i]));
-                }
-                if (i < columns.length - 1) {
-                    sql.append(COMMA).append(SPACE);
-                }
-            }
-            sql.append(RIGHT_BRACE);
+            result = insert(connection, queryResult, insert.getReturning());
         }
 
-        return sql.toString();
+        return result;
     }
 
-    @Override
-    protected String toUpdate(Query.Update update) {
-        StringBuilder sql = new StringBuilder();
-        BaseSql baseSql = new BaseSql();
-
-        sql.append("UPDATE ").append(baseSql.toSql(update.getTable())).append(" SET ");
-        Column[] columns = update.getColumns();
-        Object[] values = update.getValues();
-        for (int i = 0; i < columns.length; i++) {
-            sql.append(baseSql.toSql(columns[i])).append(EQUALS);
-            if (values[i] instanceof Sequence) {
-                sql.append(nextVal((Sequence) values[i]));
-            } else if (values[i] instanceof Column) {
-                sql.append(baseSql.toSql((Column) values[i]));
-            } else {
-                sql.append(QUESTION_MARK);
-                params().add(new SqlParam(columns[i].getDataType(), values[i]));
-            }
-            if (i < columns.length - 1) {
-                sql.append(COMMA).append(SPACE);
-            }
-        }
-        if (update.getCriteriaManager().isCriteria()) {
-            sql.append(SPACE).append("WHERE ");
-            sql.append(baseSql.toSql(update.getCriteriaManager()));
-        }
-        return sql.toString();
-    }
-
-    @Override
-    protected String toDelete(Query.Delete delete) {
-        StringBuilder sql = new StringBuilder();
-        BaseSql baseSql = new BaseSql();
-
-        sql.append("DELETE FROM ").append(baseSql.toSql(delete.getTable()));
-        if (delete.getCriteriaManager().isCriteria()) {
-            sql.append(" WHERE ");
-            sql.append(baseSql.toSql(delete.getCriteriaManager()));
-        }
-        return sql.toString();
-    }
-
-    private Object executeUpdate(Connection connection, String sql, Column[] columns, Column returning) throws SQLException {
+    private Object insert(Connection connection, QueryResult queryResult, Column returning) throws SQLException {
         Object result = null;
         CallableStatement callableStatement = null;
         try {
-            int index = params().size() + 1;
+            int index = queryResult.getParams().size() + 1;
 
-            callableStatement = connection.prepareCall(sql);
-            setParams(connection, callableStatement, params().toArray(new SqlParam[params().size()]));
+            callableStatement = connection.prepareCall(queryResult.getQuery());
+            setParams(connection, callableStatement, queryResult.getParams().toArray(new SqlParam[queryResult.getParams().size()]));
 
             switch (returning.getDataType()) {
                 case BOOLEAN:
@@ -830,4 +671,171 @@ public class OraSqlBuilder extends SqlBuilder {
         return result;
     }
 
+    @Override
+    public QueryResult update(Update update) {
+        QueryResult result = new QueryResult();
+        StringBuilder sw = new StringBuilder();
+
+        sw.append("update ").append(tableSQL(true, update.getTable())).append(" set ");
+        for (int index = 0; index < update.getColumns().length; index++) {
+            Column column = update.getColumns()[index];
+            Object value = update.getValues()[index];
+
+            sw.append(columnSQL(true, column, result, null)).append(" = ").append(valueSQL(true, column, value, result, null));
+            if (index < update.getColumns().length - 1) {
+                sw.append(", ");
+            }
+        }
+        if (update.getCriteriaManager().isCriteria()) {
+            sw.append(" where ").append(criteriaManagerSQL(true, update.getCriteriaManager(), result, null));
+        }
+
+        result.setQuery(sw.toString());
+        return result;
+    }
+
+    @Override
+    public void update(Connection connection, Update update) throws SQLException {
+        QueryResult queryResult = update(update);
+        execute(connection, queryResult.getQuery(), queryResult.getParams());
+    }
+
+    @Override
+    public QueryResult delete(Delete delete) {
+        QueryResult result = new QueryResult();
+        StringBuilder sw = new StringBuilder();
+
+        sw.append("delete from ").append(tableSQL(true, delete.getTable()));
+        if (delete.getCriteriaManager().isCriteria()) {
+            sw.append(" where ").append(criteriaManagerSQL(true, delete.getCriteriaManager(), result, null));
+        }
+
+        result.setQuery(sw.toString());
+        return result;
+    }
+
+    @Override
+    public void delete(Connection connection, Delete delete) throws SQLException {
+        QueryResult queryResult = delete(delete);
+        execute(connection, queryResult.getQuery(), queryResult.getParams());
+    }
+
+    private Object[] getRow(ResultSet resultSet, Column... columns) throws SQLException {
+        Object[] result = new Object[columns.length];
+
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getColumn(resultSet, i + 1, columns[i], getTmpDir());
+        }
+
+        return result;
+    }
+
+    private Object getColumn(ResultSet resultSet, int index, Column column, File dir) throws SQLException {
+        Object result = null;
+
+        if (resultSet.getObject(index) != null) {
+            switch (column.getDataType()) {
+                case BOOLEAN:
+                    result = resultSet.getBoolean(index);
+                    break;
+                case STRING:
+                    result = resultSet.getString(index);
+                    break;
+                case SHORT:
+                    result = resultSet.getShort(index);
+                    break;
+                case INTEGER:
+                    result = resultSet.getInt(index);
+                    break;
+                case LONG:
+                    result = resultSet.getLong(index);
+                    break;
+                case BIG_DECIMAL:
+                    result = resultSet.getBigDecimal(index);
+                    break;
+                case DATE:
+                    java.sql.Date date = resultSet.getDate(index);
+                    result = new java.util.Date(date.getTime());
+                    break;
+                case TIME:
+                    java.sql.Time time = resultSet.getTime(index);
+                    result = new java.util.Date(time.getTime());
+                    break;
+                case TIME_STAMP:
+                    java.sql.Timestamp timestamp = resultSet.getTimestamp(index);
+                    result = new java.util.Date(timestamp.getTime());
+                    break;
+                case BLOB:
+                    File file = null;
+                    try {
+                        file = File.createTempFile("SQL", ".BIN", dir);
+                        Blob blob = resultSet.getBlob(index);
+                        if (blob.length() > 0) {
+                            FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);
+                        }
+                        result = file;
+                    } catch (IOException e) {
+                        if (file != null) {
+                            file.delete();
+                        }
+                        throw new SQLException(e);
+                    }
+                    break;
+            }
+        }
+        return result;
+    }
+
+    private void setParams(Connection connection, PreparedStatement preparedStatement, SqlParam[] params) throws SQLException {
+        int i = 1;
+        for (SqlParam param : params) {
+            setParam(connection, preparedStatement, i++, param);
+        }
+    }
+
+    private void setParam(Connection connection, PreparedStatement preparedStatement, int index, SqlParam param) throws SQLException {
+        if (param.getValue() != null) {
+            switch (param.getDataType()) {
+                case BLOB:
+                    Blob blob = connection.createBlob();
+                    FileUtil.fileToStream((File) param.getValue(), blob.setBinaryStream(1));
+                    preparedStatement.setBlob(index, blob);
+                    break;
+                case DATE:
+                    preparedStatement.setDate(index, new java.sql.Date(((java.util.Date) param.getValue()).getTime()));
+                    break;
+                case TIME:
+                    preparedStatement.setTime(index, new java.sql.Time(((java.util.Date) param.getValue()).getTime()));
+                    break;
+                case TIME_STAMP:
+                    preparedStatement.setTimestamp(index, new java.sql.Timestamp(((java.util.Date) param.getValue()).getTime()));
+                    break;
+                default:
+                    preparedStatement.setObject(index, param.getValue());
+                    break;
+            }
+        } else {
+            preparedStatement.setNull(index, Types.NULL);
+        }
+    }
+
+    private void execute(Connection connection, String sql, List<SqlParam> params) throws SQLException {
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest(sql);
+            LOGGER.finest(Arrays.toString(params.toArray()));
+        }
+
+        if (params.isEmpty()) {
+            SqlUtil.execute(connection, sql);
+        } else {
+            PreparedStatement preparedStatement = null;
+            try {
+                preparedStatement = connection.prepareStatement(sql);
+                setParams(connection, preparedStatement, params.toArray(new SqlParam[params.size()]));
+                preparedStatement.executeUpdate();
+            } finally {
+                SqlUtil.close(preparedStatement);
+            }
+        }
+    }
 }

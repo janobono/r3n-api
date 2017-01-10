@@ -8,12 +8,12 @@ public enum Condition {
     EQUALS_NOT(" != "),
     MORE(" > "),
     LESS(" < "),
-    LIKE(" LIKE "),
-    NOT_LIKE(" NOT LIKE "),
-    IS_NULL(" IS NULL "),
-    IS_NOT_NULL(" IS NOT NULL "),
-    IN(" IN "),
-    NOT_IN(" NOT IN "),
+    LIKE(" like "),
+    NOT_LIKE(" not like "),
+    IS_NULL(" is null "),
+    IS_NOT_NULL(" is not null "),
+    IN(" in "),
+    NOT_IN(" not in "),
     DIRECT("");
 
     private final String condition;

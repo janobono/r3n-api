@@ -1,12 +1,11 @@
 package sk.r3n.sql;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Criteria implements Serializable {
+public class Criteria implements CriteriaContent {
 
-    private final List<Object> content;
+    private final List<CriteriaContent> content;
 
     private Operator operator;
 
@@ -14,7 +13,7 @@ public class Criteria implements Serializable {
 
     public Criteria() {
         super();
-        content = new ArrayList<Object>();
+        content = new ArrayList<>();
         operator = Operator.AND;
     }
 
@@ -49,7 +48,7 @@ public class Criteria implements Serializable {
         boolean result = false;
         for (Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
-                result |= ((Criterion) contentObject).getColumn().equals(column);
+                result |= ((Criterion) contentObject).getColumn().getColumnId().equals(column.getColumnId());
             } else {
                 result |= contains((Criteria) contentObject, column);
             }
@@ -68,7 +67,7 @@ public class Criteria implements Serializable {
         boolean result = false;
         for (Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
-                result |= ((Criterion) contentObject).getColumn().getTable().equals(table);
+                result |= ((Criterion) contentObject).getColumn().getTable().getName().equals(table.getName());
             } else {
                 result |= contains((Criteria) contentObject, table);
             }
@@ -80,13 +79,13 @@ public class Criteria implements Serializable {
     }
 
     public List<String> aliasList(String tableName) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         aliasList(this, tableName, result);
         return result;
     }
 
     private void aliasList(Criteria criteria, String tableName, List<String> aliasList) {
-        for (Object contentObject : criteria.getContent()) {
+        criteria.getContent().forEach((contentObject) -> {
             if (contentObject instanceof Criterion) {
                 if (((Criterion) contentObject).getColumn().getTable().getName().equals(tableName)) {
                     if (!aliasList.contains(((Criterion) contentObject).getColumn().getTable().getAlias())) {
@@ -96,13 +95,14 @@ public class Criteria implements Serializable {
             } else {
                 aliasList((Criteria) contentObject, tableName, aliasList);
             }
-        }
+        });
     }
 
-    public List<Object> getContent() {
+    public List<CriteriaContent> getContent() {
         return content;
     }
 
+    @Override
     public Operator getOperator() {
         return operator;
     }

@@ -30,7 +30,7 @@ public abstract class SearchCriteria implements Serializable {
 
     public List<Sort> getSort() {
         if (sort == null) {
-            sort = new ArrayList<Sort>();
+            sort = new ArrayList<>();
         }
         return sort;
     }

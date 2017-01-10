@@ -1,6 +1,7 @@
 package sk.r3n.dto;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,27 +12,27 @@ import sk.r3n.sql.Column;
 public class Dto {
 
     public void objToObj(Object source, Object target) {
-        Map<String, Field> sourceFieldMap = new HashMap<String, Field>();
+        Map<String, Field> sourceFieldMap = new HashMap<>();
         fillFieldMap(source.getClass(), sourceFieldMap);
 
-        Map<String, Field> targetFieldMap = new HashMap<String, Field>();
+        Map<String, Field> targetFieldMap = new HashMap<>();
         fillFieldMap(target.getClass(), targetFieldMap);
 
-        for (String key : sourceFieldMap.keySet()) {
+        sourceFieldMap.keySet().forEach((key) -> {
             Field sourceField = sourceFieldMap.get(key);
             Field targetField = targetFieldMap.get(key);
             if (targetField != null) {
                 setValue(target, targetField, getValue(source, sourceField));
             }
-        }
+        });
     }
 
     public Object[] toArray(Object object, Column... columns) {
-        List<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<>();
 
         TableId tableId = object.getClass().getAnnotation(TableId.class);
 
-        Map<String, Field> fieldMap = new HashMap<String, Field>();
+        Map<String, Field> fieldMap = new HashMap<>();
         fillFieldMap(object.getClass(), tableId, fieldMap);
 
         for (Column column : columns) {
@@ -44,7 +45,7 @@ public class Dto {
     public void fill(Object object, Object[] values, Column... columns) {
         TableId tableId = object.getClass().getAnnotation(TableId.class);
 
-        Map<String, Field> fieldMap = new HashMap<String, Field>();
+        Map<String, Field> fieldMap = new HashMap<>();
         fillFieldMap(object.getClass(), tableId, fieldMap);
 
         int index = 0;
@@ -94,7 +95,7 @@ public class Dto {
             String methodName = "set" + Character.toString(field.getName().charAt(0)).toUpperCase() + field.getName().substring(1);
             Method method = object.getClass().getMethod(methodName, field.getType());
             method.invoke(object, value);
-        } catch (Exception e) {
+        } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -116,7 +117,7 @@ public class Dto {
             String methodName = "get" + Character.toString(field.getName().charAt(0)).toUpperCase() + field.getName().substring(1);
             Method method = object.getClass().getMethod(methodName);
             result = method.invoke(object);
-        } catch (Exception e) {
+        } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
         return result;

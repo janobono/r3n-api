@@ -17,10 +17,10 @@ public class ThrowableUtil {
 
     public static String getStackTrace(Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-        throwable.printStackTrace(printWriter);
-        printWriter.flush();
-        printWriter.close();
+        try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
+            throwable.printStackTrace(printWriter);
+            printWriter.flush();
+        }
         return stringWriter.toString();
     }
 }

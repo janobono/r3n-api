@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.LogManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,20 +23,21 @@ import sk.r3n.jdbc.OraSqlBuilder;
 import sk.r3n.jdbc.SqlUtil;
 import sk.r3n.sql.ColumnFunction;
 import sk.r3n.sql.Condition;
+import sk.r3n.sql.Delete;
+import sk.r3n.sql.Insert;
 import sk.r3n.sql.Order;
-import sk.r3n.sql.Query;
+import sk.r3n.sql.Select;
+import sk.r3n.sql.Update;
 import sk.r3n.util.DateUtil;
 import sk.r3n.util.FileUtil;
 import sk.r3n.util.ScDf;
 
 public class OraTest {
 
-    private static final Log LOG = LogFactory.getLog(OraTest.class);
-
     public OraTest() {
         try {
             LogManager.getLogManager().readConfiguration(getClass().getResourceAsStream("/logging.properties"));
-        } catch (Exception ex) {
+        } catch (IOException | SecurityException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -77,7 +76,7 @@ public class OraTest {
 
             deleteTest(connection);
 
-        } catch (Exception e) {
+        } catch (IOException | ClassNotFoundException | SQLException e) {
             fail(e.getMessage());
         } finally {
             SqlUtil.close(connection);
@@ -109,9 +108,9 @@ public class OraTest {
             Object[] row = dto.toArray(tBaseTypes, T_BASE_TYPES.columns());
             row[0] = SEQUENCE.TEST_SEQUENCE();
 
-            Query query = new Query();
-            query.INSERT().INTO(TABLE.T_BASE_TYPES(), T_BASE_TYPES.columns()).VALUES(row).RETURNING(T_BASE_TYPES.ID());
-            Long id = (Long) sqlBuilder.executeUpdate(connection, query);
+            Insert insert = new Insert();
+            insert.INTO(TABLE.T_BASE_TYPES(), T_BASE_TYPES.columns()).VALUES(row).RETURNING(T_BASE_TYPES.ID());
+            Long id = (Long) sqlBuilder.insert(connection, insert);
 
             for (int j = 0; j < 10; j++) {
                 TJoinSO tJoinSO = new TJoinSO();
@@ -124,9 +123,9 @@ public class OraTest {
                 row = dto.toArray(tJoin, T_JOIN.columns());
                 row[0] = SEQUENCE.TEST_SEQUENCE();
 
-                query = new Query();
-                query.INSERT().INTO(TABLE.T_JOIN(), T_JOIN.columns()).VALUES(row);
-                sqlBuilder.executeUpdate(connection, query);
+                insert = new Insert();
+                insert.INTO(TABLE.T_JOIN(), T_JOIN.columns()).VALUES(row);
+                sqlBuilder.insert(connection, insert);
             }
         }
     }
@@ -143,96 +142,88 @@ public class OraTest {
     private void paginatedSubSelectTest(Connection connection) throws SQLException {
         OraSqlBuilder sqlBuilder = new OraSqlBuilder();
 
-        Query query = new Query();
-        query.SELECT(T_BASE_TYPES.columns()).page(0, 5)
-                .FROM(new Query().SELECT(T_BASE_TYPES.columns()).FROM(TABLE.T_BASE_TYPES()))
+        Select select = new Select(T_BASE_TYPES.columns()).page(0, 5)
+                .FROM(new Select(T_BASE_TYPES.columns()).FROM(TABLE.T_BASE_TYPES()))
                 .ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC);
 
-        List<Object[]> rows = sqlBuilder.executeQuery(connection, query);
+        List<Object[]> rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 5);
 
-        query = new Query();
-        query.SELECT(T_BASE_TYPES.columns()).page(0, 5)
-                .FROM(new Query().SELECT(T_BASE_TYPES.columns())
+        select = new Select(T_BASE_TYPES.columns()).page(0, 5)
+                .FROM(new Select(T_BASE_TYPES.columns())
                         .FROM(TABLE.T_BASE_TYPES())
                         .INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID()))
                 .ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC);
 
-        rows = sqlBuilder.executeQuery(connection, query);
+        rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 5);
     }
 
     private void subSelectTest(Connection connection) throws SQLException {
         OraSqlBuilder sqlBuilder = new OraSqlBuilder();
 
-        Query query = new Query();
-        query.SELECT(T_BASE_TYPES.columns())
-                .FROM(new Query().SELECT(T_BASE_TYPES.columns()).FROM(TABLE.T_BASE_TYPES()))
+        Select select = new Select(T_BASE_TYPES.columns())
+                .FROM(new Select(T_BASE_TYPES.columns()).FROM(TABLE.T_BASE_TYPES()))
                 .ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC);
 
-        List<Object[]> rows = sqlBuilder.executeQuery(connection, query);
+        List<Object[]> rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 10);
 
-        query = new Query();
-        query.SELECT(T_BASE_TYPES.columns())
-                .FROM(new Query().SELECT(T_BASE_TYPES.columns())
+        select = new Select(T_BASE_TYPES.columns())
+                .FROM(new Select(T_BASE_TYPES.columns())
                         .FROM(TABLE.T_BASE_TYPES())
                         .INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID()))
                 .ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC);
 
-        rows = sqlBuilder.executeQuery(connection, query);
+        rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 100);
     }
 
     private void paginatedUnionSelectTest(Connection connection) throws SQLException {
         OraSqlBuilder sqlBuilder = new OraSqlBuilder();
 
-        Query query = new Query();
-        query.SELECT(T_BASE_TYPES.columns("tst1")).page(0, 5)
+        Select select = new Select(T_BASE_TYPES.columns("tst1")).page(0, 5)
                 .FROM(
-                        new Query().SELECT(T_BASE_TYPES.columns("tst1")).FROM(TABLE.T_BASE_TYPES("tst1")),
-                        new Query().SELECT(T_BASE_TYPES.columns("tst2")).FROM(TABLE.T_BASE_TYPES("tst2"))
+                        new Select(T_BASE_TYPES.columns("tst1")).FROM(TABLE.T_BASE_TYPES("tst1")),
+                        new Select(T_BASE_TYPES.columns("tst2")).FROM(TABLE.T_BASE_TYPES("tst2"))
                 )
                 .ORDER_BY(T_BASE_TYPES.T_INTEGER("tst1"), Order.ASC);
 
-        List<Object[]> rows = sqlBuilder.executeQuery(connection, query);
+        List<Object[]> rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 5);
 
-        query = new Query();
-        query.SELECT(T_BASE_TYPES.columns("tst1")).page(0, 5)
+        select = new Select(T_BASE_TYPES.columns("tst1")).page(0, 5)
                 .FROM(
-                        new Query().SELECT(T_BASE_TYPES.columns("tst1")).FROM(TABLE.T_BASE_TYPES("tst1")).INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID("tst1")),
-                        new Query().SELECT(T_BASE_TYPES.columns("tst2")).FROM(TABLE.T_BASE_TYPES("tst2")).INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID("tst2"))
+                        new Select(T_BASE_TYPES.columns("tst1")).FROM(TABLE.T_BASE_TYPES("tst1")).INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID("tst1")),
+                        new Select(T_BASE_TYPES.columns("tst2")).FROM(TABLE.T_BASE_TYPES("tst2")).INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID("tst2"))
                 )
                 .ORDER_BY(T_BASE_TYPES.T_INTEGER("tst1"), Order.ASC);
 
-        rows = sqlBuilder.executeQuery(connection, query);
+        rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 5);
     }
 
     private void unionSelectTest(Connection connection) throws SQLException {
         OraSqlBuilder sqlBuilder = new OraSqlBuilder();
 
-        Query query = new Query();
-        query.SELECT(T_BASE_TYPES.columns("tst1"))
+        Select select = new Select(T_BASE_TYPES.columns("tst1"))
                 .FROM(
-                        new Query().SELECT(T_BASE_TYPES.columns("tst1")).FROM(TABLE.T_BASE_TYPES("tst1")),
-                        new Query().SELECT(T_BASE_TYPES.columns("tst2")).FROM(TABLE.T_BASE_TYPES("tst2"))
+                        new Select(T_BASE_TYPES.columns("tst1")).FROM(TABLE.T_BASE_TYPES("tst1")),
+                        new Select(T_BASE_TYPES.columns("tst2")).FROM(TABLE.T_BASE_TYPES("tst2"))
                 )
                 .ORDER_BY(T_BASE_TYPES.T_INTEGER("tst1"), Order.ASC);
 
-        List<Object[]> rows = sqlBuilder.executeQuery(connection, query);
+        List<Object[]> rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 20);
 
-        query = new Query();
-        query.SELECT(T_BASE_TYPES.columns("tst1"))
+        select = new Select(T_BASE_TYPES.columns("tst1"))
                 .FROM(
-                        new Query().SELECT(T_BASE_TYPES.columns("tst1")).FROM(TABLE.T_BASE_TYPES("tst1")).INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID("tst1")),
-                        new Query().SELECT(T_BASE_TYPES.columns("tst2")).FROM(TABLE.T_BASE_TYPES("tst2")).INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID("tst2"))
+                        new Select(T_BASE_TYPES.columns("tst1")).FROM(TABLE.T_BASE_TYPES("tst1")).INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID("tst1")),
+                        new Select(T_BASE_TYPES.columns("tst2")).FROM(TABLE.T_BASE_TYPES("tst2")).INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID("tst2"))
                 )
                 .ORDER_BY(T_BASE_TYPES.T_INTEGER("tst1"), Order.ASC);
 
-        rows = sqlBuilder.executeQuery(connection, query);
+        rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 200);
     }
 
@@ -240,10 +231,9 @@ public class OraTest {
         OraSqlBuilder sqlBuilder = new OraSqlBuilder();
         Dto dto = new Dto();
 
-        Query query = new Query();
-        query.SELECT(T_BASE_TYPES.columns()).page(0, 1).FROM(TABLE.T_BASE_TYPES()).ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC);
+        Select select = new Select(T_BASE_TYPES.columns()).page(0, 1).FROM(TABLE.T_BASE_TYPES()).ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC);
 
-        List<Object[]> rows = sqlBuilder.executeQuery(connection, query);
+        List<Object[]> rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 1);
         TBaseTypes tBaseTypes = new TBaseTypes();
         dto.fill(tBaseTypes, rows.get(0), T_BASE_TYPES.columns());
@@ -253,14 +243,13 @@ public class OraTest {
         assertTrue(tBaseTypesSO.getTInteger() == 0);
 
         for (int i = 0; i < 10; i++) {
-            query = new Query();
-            query.SELECT(T_BASE_TYPES.columns()).page(i, 10)
+            select = new Select(T_BASE_TYPES.columns()).page(i, 10)
                     .FROM(TABLE.T_BASE_TYPES())
                     .INNER_JOIN(TABLE.T_JOIN(), T_JOIN.T_BASE_TYPES_FK(), T_BASE_TYPES.ID())
                     .ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC)
                     .ORDER_BY(T_JOIN.T_JOIN_STRING(), Order.ASC);
 
-            rows = sqlBuilder.executeQuery(connection, query);
+            rows = sqlBuilder.select(connection, select);
             assertTrue(rows.size() == 10);
         }
     }
@@ -268,17 +257,15 @@ public class OraTest {
     private void selectTest(Connection connection) throws SQLException {
         OraSqlBuilder sqlBuilder = new OraSqlBuilder();
 
-        Query query = new Query();
-        query.SELECT(T_BASE_TYPES.columns()).COUNT()
+        Select select = new Select(T_BASE_TYPES.columns()).COUNT()
                 .FROM(TABLE.T_BASE_TYPES());
-        List<Object[]> rows = sqlBuilder.executeQuery(connection, query);
+        List<Object[]> rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 1);
         assertTrue(((Integer) rows.get(0)[0]) == 10);
 
-        query = new Query();
-        query.SELECT(new ColumnFunction("MAX({0})", T_BASE_TYPES.T_INTEGER().getDataType(), T_BASE_TYPES.T_INTEGER()))
+        select = new Select(new ColumnFunction("FUNC1", "MAX({0})", T_BASE_TYPES.T_INTEGER().getDataType(), T_BASE_TYPES.T_INTEGER()))
                 .FROM(TABLE.T_BASE_TYPES());
-        rows = sqlBuilder.executeQuery(connection, query);
+        rows = sqlBuilder.select(connection, select);
         assertTrue(rows.size() == 1);
         assertTrue(((Integer) rows.get(0)[0]) == 9);
     }
@@ -288,39 +275,31 @@ public class OraTest {
 
         Date date = new Date();
 
-        Query query = new Query();
-
-        query.UPDATE(TABLE.T_BASE_TYPES())
+        Update update = new Update(TABLE.T_BASE_TYPES())
                 .SET(T_BASE_TYPES.T_TIME_STAMP(), date)
                 .WHERE(T_BASE_TYPES.T_INTEGER(), Condition.MORE, 5);
-        sqlBuilder.executeUpdate(connection, query);
+        sqlBuilder.update(connection, update);
 
-        query = new Query();
-
-        query.UPDATE(TABLE.T_BASE_TYPES())
+        update = new Update(TABLE.T_BASE_TYPES())
                 .SET(T_BASE_TYPES.T_TIME_STAMP(), date)
-                .WHERE(T_BASE_TYPES.ID(), Condition.IN, new Query().SELECT(T_BASE_TYPES.ID()).FROM(TABLE.T_BASE_TYPES())
+                .WHERE(T_BASE_TYPES.ID(), Condition.IN, new Select(T_BASE_TYPES.ID()).FROM(TABLE.T_BASE_TYPES())
                         .WHERE(T_BASE_TYPES.T_TIME_STAMP(), Condition.LESS, date));
 
-        sqlBuilder.executeUpdate(connection, query);
+        sqlBuilder.update(connection, update);
     }
 
     private void deleteTest(Connection connection) throws SQLException {
         OraSqlBuilder sqlBuilder = new OraSqlBuilder();
 
-        Query query = new Query();
-
-        query.DELETE().FROM(TABLE.T_BASE_TYPES())
+        Delete delete = new Delete().FROM(TABLE.T_BASE_TYPES())
                 .WHERE(T_BASE_TYPES.T_INTEGER(), Condition.MORE, 5);
-        sqlBuilder.executeUpdate(connection, query);
+        sqlBuilder.delete(connection, delete);
 
-        query = new Query();
-
-        query.DELETE().FROM(TABLE.T_BASE_TYPES())
-                .WHERE(T_BASE_TYPES.ID(), Condition.IN, new Query().SELECT(T_BASE_TYPES.ID()).FROM(TABLE.T_BASE_TYPES())
+        delete = new Delete().FROM(TABLE.T_BASE_TYPES())
+                .WHERE(T_BASE_TYPES.ID(), Condition.IN, new Select(T_BASE_TYPES.ID()).FROM(TABLE.T_BASE_TYPES())
                         .WHERE(T_BASE_TYPES.T_INTEGER(), Condition.EQUALS_LESS, 5));
 
-        sqlBuilder.executeUpdate(connection, query);
+        sqlBuilder.delete(connection, delete);
     }
 
     private File createFile(int i) throws IOException {

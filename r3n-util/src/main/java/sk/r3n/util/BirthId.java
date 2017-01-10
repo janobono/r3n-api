@@ -32,7 +32,7 @@ public class BirthId {
             if (day < 1 || day > 31) {
                 return false;
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             return false;
         }
         return true;

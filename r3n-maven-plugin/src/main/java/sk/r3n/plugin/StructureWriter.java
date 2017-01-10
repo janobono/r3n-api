@@ -25,7 +25,7 @@ public class StructureWriter implements Serializable {
             sb.append("\n");
             for (Sequence sequence : structure.getSequences()) {
                 sb.append("    public static Sequence ").append(sequence.getName().toUpperCase()).append("() {\n");
-                sb.append("        return new Sequence(\"").append(sequence.getName()).append("\");\n");
+                sb.append("        return new Sequence(\"").append(sequence.getName().toLowerCase()).append("\");\n");
                 sb.append("    }\n");
             }
             sb.append("\n");
@@ -48,11 +48,11 @@ public class StructureWriter implements Serializable {
             for (Table table : structure.getTables()) {
                 sb.append("\n");
                 sb.append("    public static Table ").append(table.getName().toUpperCase()).append("() {\n");
-                sb.append("        return new Table(\"").append(table.getName()).append("\", \"").append(table.getAlias()).append("\");\n");
+                sb.append("        return new Table(\"").append(table.getName().toLowerCase()).append("\", \"").append(table.getAlias().toLowerCase()).append("\");\n");
                 sb.append("    }\n");
                 sb.append("\n");
                 sb.append("    public static Table ").append(table.getName().toUpperCase()).append("(String alias) {\n");
-                sb.append("        return new Table(\"").append(table.getName()).append("\", alias);\n");
+                sb.append("        return new Table(\"").append(table.getName().toLowerCase()).append("\", alias);\n");
                 sb.append("    }\n");
             }
             sb.append("\n");
@@ -76,11 +76,11 @@ public class StructureWriter implements Serializable {
                 for (Column column : structure.getColumns(table)) {
                     sb.append("\n");
                     sb.append("    public static Column ").append(column.getName().toUpperCase()).append("() {\n");
-                    sb.append("        return new Column(\"").append(column.getName()).append("\", TABLE.").append(table.getName().toUpperCase()).append("(), DataType.").append(column.getDataType()).append(");\n");
+                    sb.append("        return new Column(\"").append(column.getName().toLowerCase()).append("\", TABLE.").append(table.getName().toUpperCase()).append("(), DataType.").append(column.getDataType()).append(");\n");
                     sb.append("    }\n");
                     sb.append("\n");
                     sb.append("    public static Column ").append(column.getName().toUpperCase()).append("(String alias) {\n");
-                    sb.append("        return new Column(\"").append(column.getName()).append("\", TABLE.").append(table.getName().toUpperCase()).append("(alias), DataType.").append(column.getDataType()).append(");\n");
+                    sb.append("        return new Column(\"").append(column.getName().toLowerCase()).append("\", TABLE.").append(table.getName().toUpperCase()).append("(alias), DataType.").append(column.getDataType()).append(");\n");
                     sb.append("    }\n");
                 }
                 sb.append("\n");

@@ -12,7 +12,7 @@ public class CriteriaManager implements Serializable {
 
     public CriteriaManager() {
         super();
-        criteriaList = new ArrayList<Criteria>();
+        criteriaList = new ArrayList<>();
         criteria = new Criteria();
         criteriaList.add(criteria);
     }
