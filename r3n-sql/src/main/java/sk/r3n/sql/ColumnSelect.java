@@ -4,9 +4,9 @@ public class ColumnSelect extends Column {
 
     private final String columnId;
 
-    private final Select select;
+    private final Query.Select select;
 
-    public ColumnSelect(String columnId, Select select, DataType dataType) {
+    public ColumnSelect(String columnId, Query.Select select, DataType dataType) {
         super(null, null, dataType);
         this.columnId = columnId;
         this.select = select;
@@ -17,7 +17,7 @@ public class ColumnSelect extends Column {
         return columnId;
     }
 
-    public Select getSelect() {
+    public Query.Select getSelect() {
         return select;
     }
 

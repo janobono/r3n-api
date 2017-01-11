@@ -3,14 +3,16 @@ package sk.r3n.jdbc;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sk.r3n.sql.Delete;
-import sk.r3n.sql.Insert;
-import sk.r3n.sql.Select;
+import sk.r3n.dto.Dto;
+import sk.r3n.sql.Query.Delete;
+import sk.r3n.sql.Query.Insert;
+import sk.r3n.sql.Query.Select;
+import sk.r3n.sql.Query.Update;
 import sk.r3n.sql.Sequence;
-import sk.r3n.sql.Update;
 
 public abstract class SqlBuilder {
 
@@ -39,6 +41,23 @@ public abstract class SqlBuilder {
     public abstract QueryResult select(Select select);
 
     public abstract List<Object[]> select(Connection connection, Select select) throws SQLException;
+
+    public <T> List<T> select(Connection connection, Select select, Class<T> clazz) throws SQLException, InstantiationException, IllegalAccessException {
+        List<T> result = new ArrayList<>();
+
+        List<Object[]> rows = select(connection, select);
+        Dto dto = new Dto();
+        for (Object[] row : rows) {
+            T t = clazz.newInstance();
+            dto.fill(t, row, select.getColumns());
+            result.add(t);
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.log(Level.FINEST, t.toString());
+            }
+        }
+
+        return result;
+    }
 
     public abstract QueryResult insert(Insert insert);
 

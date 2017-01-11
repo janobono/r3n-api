@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.maven.plugin.logging.Log;
-import sk.r3n.dto.Dto;
 import sk.r3n.sql.Column;
 import sk.r3n.sql.DataType;
 import sk.r3n.sql.Sequence;
@@ -68,9 +67,9 @@ public class StructureWriter implements Serializable {
             sb.append("import sk.r3n.sql.Table;\n");
             sb.append("\n");
             sb.append("public class TABLE implements Serializable {\n");
-            for (Table table : structure.getTables()) {
+            structure.getTables().forEach((table) -> {
                 sb.append(tableJava(table));
-            }
+            });
             sb.append("\n");
             sb.append("}\n");
             FileUtil.write(file, sb.toString().getBytes());
@@ -89,9 +88,9 @@ public class StructureWriter implements Serializable {
                 sb.append("import sk.r3n.sql.DataType;\n");
                 sb.append("\n");
                 sb.append("public class ").append(table.getName().toUpperCase()).append(" implements Serializable {\n");
-                for (Column column : structure.getColumns(table)) {
+                structure.getColumns(table).forEach((column) -> {
                     sb.append(columnJava(table, column));
-                }
+                });
                 sb.append("\n");
                 sb.append("    public static Column[] columns() {\n");
                 sb.append("        return new Column[]{");
@@ -199,6 +198,22 @@ public class StructureWriter implements Serializable {
                 });
 
                 sb.append("\n");
+                sb.append("    @Override\n");
+                sb.append("    public String toString() {\n");
+                sb.append("        return \"").append(className).append("{\"");
+                List<Column> columns = structure.getColumns(table);
+                for (int i = 0; i < columns.size(); i++) {
+                    Column column = columns.get(i);
+                    String fieldName = toCamelCase(true, column.getName(), "_");
+                    sb.append(" + \"");
+                    if (i < fields.size() && i > 0) {
+                        sb.append(",");
+                    }
+                    sb.append(" ").append(fieldName).append("=\" + ").append(fieldName);
+                }
+                sb.append(" + '}';\n");
+                sb.append("    }\n");
+                sb.append("\n");
                 sb.append("}\n");
                 FileUtil.write(file, sb.toString().getBytes());
             } else {
@@ -258,7 +273,7 @@ public class StructureWriter implements Serializable {
         sb.append("    }\n");
         sb.append("\n");
         sb.append("    public void set").append(Character.toString(fieldName.charAt(0)).toUpperCase()).append(fieldName.substring(1))
-                .append("(").append(type).append(" ").append(fieldName).append("){\n");
+                .append("(").append(type).append(" ").append(fieldName).append(") {\n");
         sb.append("        this.").append(fieldName).append(" = ").append(fieldName).append(";\n");
         sb.append("    }\n");
         methods.add(sb.toString());

@@ -18,7 +18,7 @@ public class TJoin implements Serializable {
         return id;
     }
 
-    public void setId(Long id){
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -26,7 +26,7 @@ public class TJoin implements Serializable {
         return tBaseTypesFk;
     }
 
-    public void setTBaseTypesFk(Long tBaseTypesFk){
+    public void setTBaseTypesFk(Long tBaseTypesFk) {
         this.tBaseTypesFk = tBaseTypesFk;
     }
 
@@ -34,8 +34,13 @@ public class TJoin implements Serializable {
         return tJoinString;
     }
 
-    public void setTJoinString(String tJoinString){
+    public void setTJoinString(String tJoinString) {
         this.tJoinString = tJoinString;
+    }
+
+    @Override
+    public String toString() {
+        return "TJoin{" + " id=" + id + ", tBaseTypesFk=" + tBaseTypesFk + ", tJoinString=" + tJoinString + '}';
     }
 
 }

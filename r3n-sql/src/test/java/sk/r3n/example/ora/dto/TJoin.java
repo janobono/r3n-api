@@ -38,4 +38,9 @@ public class TJoin implements Serializable {
         this.tJoinString = tJoinString;
     }
 
+    @Override
+    public String toString() {
+        return "TJoin{" + " id=" + id + ", tBaseTypesFk=" + tBaseTypesFk + ", tJoinString=" + tJoinString + '}';
+    }
+
 }

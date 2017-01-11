@@ -27,13 +27,13 @@ import sk.r3n.sql.CriteriaContent;
 import sk.r3n.sql.CriteriaManager;
 import sk.r3n.sql.Criterion;
 import sk.r3n.sql.DataType;
-import sk.r3n.sql.Delete;
-import sk.r3n.sql.Insert;
 import sk.r3n.sql.OrderCriterion;
-import sk.r3n.sql.Select;
+import sk.r3n.sql.Query.Delete;
+import sk.r3n.sql.Query.Insert;
+import sk.r3n.sql.Query.Select;
+import sk.r3n.sql.Query.Update;
 import sk.r3n.sql.Sequence;
 import sk.r3n.sql.Table;
-import sk.r3n.sql.Update;
 import sk.r3n.util.FileUtil;
 
 public class PostgreSqlBuilder extends SqlBuilder {

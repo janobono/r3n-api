@@ -151,4 +151,9 @@ public class TBaseTypes implements Serializable {
         this.tBoolean = tBoolean;
     }
 
+    @Override
+    public String toString() {
+        return "TBaseTypes{" + " id=" + id + ", tShort=" + tShort + ", tInteger=" + tInteger + ", tLong=" + tLong + ", tBigDecimal=" + tBigDecimal + ", tStringChar=" + tStringChar + ", tStringClob=" + tStringClob + ", tStringVarchar2=" + tStringVarchar2 + ", tStringScdf=" + tStringScdf + ", tBlob=" + tBlob + ", tTimeStamp=" + tTimeStamp + ", tDate=" + tDate + ", tBoolean=" + tBoolean + '}';
+    }
+
 }
