@@ -408,12 +408,12 @@ public class Query implements Serializable {
         }
 
         public Update OR(Column column, Condition condition, Object value, String representation) {
-            cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.OR);
             return this;
         }
 
         public Update OR(Column column, Condition condition, Object value) {
-            cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.OR);
             return this;
         }
 
@@ -497,12 +497,12 @@ public class Query implements Serializable {
         }
 
         public Delete OR(Column column, Condition condition, Object value, String representation) {
-            cm.addCriterion(column, condition, value, representation, Operator.AND);
+            cm.addCriterion(column, condition, value, representation, Operator.OR);
             return this;
         }
 
         public Delete OR(Column column, Condition condition, Object value) {
-            cm.addCriterion(column, condition, value, null, Operator.AND);
+            cm.addCriterion(column, condition, value, null, Operator.OR);
             return this;
         }
 
