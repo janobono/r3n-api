@@ -31,6 +31,8 @@ Execute plugin
 Result will be generated into your src dir to package *sk.r3n.example.postgres* and *sk.r3n.example.postgres.dto*
 
 ## r3n-sql
+### sk.r3n.dto
+Package with dto mapping annotations.
 ### sk.r3n.jdbc
 Contains objects used to execute sql queries like PostgreSqlBuilder and OraSqlBuilder. SqlUtil contains few usefull methods.
 ### sk.r3n.sql
@@ -47,6 +49,16 @@ Select select = Query.SELECT(T_BASE_TYPES.columns()).page(0, 5)
                      .ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC);
 
 List<Object[]> rows = sqlBuilder.select(connection, select);
+```
+Or select direct list of annotated objects
+
+```
+PostgreSqlBuilder sqlBuilder = new PostgreSqlBuilder();
+Dto dto = new Dto();
+
+Select select = Query.SELECT(T_BASE_TYPES.columns()).page(0, 1).FROM(TABLE.T_BASE_TYPES()).ORDER_BY(T_BASE_TYPES.T_INTEGER(), Order.ASC);
+
+List<TBaseTypesSO> typesList = sqlBuilder.select(connection, select, TBaseTypesSO.class);
 ```
 
 ## Licence
