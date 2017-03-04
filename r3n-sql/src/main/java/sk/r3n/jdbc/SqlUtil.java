@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
@@ -16,23 +16,59 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Base sql utils.
+ */
 public class SqlUtil {
 
     private static final Logger LOGGER = Logger.getLogger(SqlUtil.class.getCanonicalName());
 
+    /**
+     * A String for a default commands delimiter.
+     */
     private static final String DEFAULT_DELIMITER = ";";
 
+    /**
+     * A String for a default commands encoding.
+     */
     private static final String DEFAULT_ENCODING = "UTF-8";
 
+    /**
+     * Runs sql script.
+     *
+     * @param connection Connection to database.
+     * @param is Strieam to sql script.
+     * @throws Exception
+     */
     public static void runSqlScript(Connection connection, InputStream is) throws Exception {
         runSqlScript(connection, is, null, DEFAULT_DELIMITER, null);
     }
 
+    /**
+     * Runs sql script.
+     *
+     * @param connection Connection to database.
+     * @param is Strieam to sql script.
+     * @param fileEncoding Script encoding.
+     * @param commandsDelimiter Commands delimiter.
+     * @throws Exception
+     */
     public static void runSqlScript(Connection connection, InputStream is, String fileEncoding, String commandsDelimiter)
             throws Exception {
         runSqlScript(connection, is, fileEncoding, commandsDelimiter, null);
     }
 
+    /**
+     * Runs sql script.
+     *
+     * @param connection Connection to database.
+     * @param is Strieam to sql script.
+     * @param fileEncoding Script encoding.
+     * @param commandsDelimiter Commands delimiter.
+     * @param replacementParametersMap Map with replacement parameters. Keys in
+     * script will be replaced by values in map.
+     * @throws Exception
+     */
     public static void runSqlScript(Connection connection, InputStream is, String fileEncoding, String commandsDelimiter,
             Map<String, String> replacementParametersMap) throws Exception {
         final Reader reader = getScriptReader(is, fileEncoding);
@@ -112,6 +148,13 @@ public class SqlUtil {
         }
     }
 
+    /**
+     * Executes command.
+     *
+     * @param connection Connection to database.
+     * @param command Command.
+     * @throws SQLException
+     */
     public static void execute(Connection connection, String command) throws SQLException {
         Statement statement = null;
         try {
@@ -122,6 +165,14 @@ public class SqlUtil {
         }
     }
 
+    /**
+     * Executes command with parameters.
+     *
+     * @param connection Connection to database.
+     * @param command Command.
+     * @param params Parameters. Only base datatypes should be used.
+     * @throws SQLException
+     */
     public static void execute(Connection connection, String command, Object... params) throws SQLException {
         if (params == null || params.length < 1) {
             execute(connection, command);
@@ -129,7 +180,7 @@ public class SqlUtil {
             PreparedStatement preparedStatement = null;
             try {
                 preparedStatement = connection.prepareStatement(command);
-                setParams(connection, preparedStatement, params);
+                setParams(preparedStatement, params);
                 preparedStatement.execute();
             } finally {
                 close(preparedStatement);
@@ -137,14 +188,29 @@ public class SqlUtil {
         }
     }
 
-    public static void setParams(Connection connection, PreparedStatement preparedStatement, Object... params) throws SQLException {
+    /**
+     * Sets parameters to prepared statement.
+     *
+     * @param preparedStatement Prepared statement.
+     * @param params Parameters. Only base datatypes should be used.
+     * @throws SQLException
+     */
+    public static void setParams(PreparedStatement preparedStatement, Object... params) throws SQLException {
         int i = 1;
         for (Object param : params) {
-            setParam(connection, preparedStatement, i++, param);
+            setParam(preparedStatement, i++, param);
         }
     }
 
-    public static void setParam(Connection connection, PreparedStatement preparedStatement, int index, Object param) throws SQLException {
+    /**
+     * Sets parameter to prepared statement.
+     *
+     * @param preparedStatement Prepared statement.
+     * @param index Parameter index.
+     * @param param Parameter. Only base datatypes should be used.
+     * @throws SQLException
+     */
+    public static void setParam(PreparedStatement preparedStatement, int index, Object param) throws SQLException {
         if (param != null) {
             preparedStatement.setObject(index, param);
         } else {
@@ -152,47 +218,78 @@ public class SqlUtil {
         }
     }
 
+    /**
+     * Closes result set and hides java.sql.SQLException.
+     *
+     * @param resultSet Result set.
+     */
     public static void close(ResultSet resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();
             } catch (SQLException e) {
+                LOGGER.log(Level.WARNING, "", e);
             }
         }
     }
 
+    /**
+     * Closes statement and hides java.sql.SQLException.
+     *
+     * @param statement Statement.
+     */
     public static void close(Statement statement) {
         if (statement != null) {
             try {
                 statement.close();
             } catch (SQLException e) {
+                LOGGER.log(Level.WARNING, "", e);
             }
         }
     }
 
+    /**
+     * Closes connection and hides java.sql.SQLException.
+     *
+     * @param connection Connection.
+     */
     public static void close(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
+                LOGGER.log(Level.WARNING, "", e);
             }
         }
     }
 
+    /**
+     * Calls rollback on connection and hides java.sql.SQLException.
+     *
+     * @param connection Connection.
+     */
     public static void rollback(Connection connection) {
         if (connection != null) {
             try {
                 connection.rollback();
             } catch (SQLException e) {
+                LOGGER.log(Level.WARNING, "", e);
             }
         }
     }
 
+    /**
+     * Sets enable autocommit on connection to true and hides
+     * java.sql.SQLException.
+     *
+     * @param connection Connection.
+     */
     public static void enableAutoCommit(Connection connection) {
         if (connection != null) {
             try {
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
+                LOGGER.log(Level.WARNING, "", e);
             }
         }
     }

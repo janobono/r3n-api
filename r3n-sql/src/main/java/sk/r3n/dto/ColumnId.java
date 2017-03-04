@@ -10,12 +10,21 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Allows identificate column for mapping.
+ */
 @Target(value = {ElementType.FIELD})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface ColumnId {
 
+    /**
+     * @return Table identifier.
+     */
     String table() default "";
 
+    /**
+     * @return Column identifier.
+     */
     String column() default "";
 
 }

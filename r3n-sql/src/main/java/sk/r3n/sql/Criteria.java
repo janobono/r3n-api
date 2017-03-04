@@ -8,6 +8,9 @@ package sk.r3n.sql;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Criteria definition object.
+ */
 public class Criteria implements CriteriaContent {
 
     private final List<CriteriaContent> content;

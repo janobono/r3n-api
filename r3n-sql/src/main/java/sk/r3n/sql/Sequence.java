@@ -7,6 +7,9 @@ package sk.r3n.sql;
 
 import java.io.Serializable;
 
+/**
+ * Base sequence definition object.
+ */
 public class Sequence implements Serializable {
 
     private String name;

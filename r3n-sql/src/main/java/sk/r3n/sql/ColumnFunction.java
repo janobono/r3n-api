@@ -7,6 +7,9 @@ package sk.r3n.sql;
 
 import java.util.Arrays;
 
+/**
+ * Function definition object.
+ */
 public class ColumnFunction extends Column {
 
     private final String columnId;

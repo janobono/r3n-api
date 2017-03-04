@@ -7,6 +7,9 @@ package sk.r3n.sql;
 
 import java.io.Serializable;
 
+/**
+ * Base column definition object.
+ */
 public class Column implements Serializable {
 
     private String name;

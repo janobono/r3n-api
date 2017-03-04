@@ -5,6 +5,9 @@
  */
 package sk.r3n.sql;
 
+/**
+ * Select as column definition object.
+ */
 public class ColumnSelect extends Column {
 
     private final String columnId;

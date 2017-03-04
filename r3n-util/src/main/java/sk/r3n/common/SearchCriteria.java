@@ -1,9 +1,17 @@
+/* 
+ * Copyright 2016 janobono. All rights reserved.
+ * Use of this source code is governed by a Apache 2.0
+ * license that can be found in the LICENSE file.
+ */
 package sk.r3n.common;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base search criteria.
+ */
 public abstract class SearchCriteria implements Serializable {
 
     private Integer start;

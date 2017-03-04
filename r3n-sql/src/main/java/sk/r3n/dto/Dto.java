@@ -12,8 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 import sk.r3n.sql.Column;
 
+/**
+ * A utility to help mapping object to object based on annotations.
+ */
 public class Dto {
 
+    /**
+     * Maps values from source to target object. Only annotated class members are used and getters and setters are
+     * needed.
+     *
+     * @param source Source object.
+     * @param target Target object.
+     */
     public void objToObj(Object source, Object target) {
         List<Field> sourceFieldList = new ArrayList<>();
         fillFieldList(source.getClass(), sourceFieldList);
@@ -30,6 +40,13 @@ public class Dto {
         });
     }
 
+    /**
+     * Transforms object memebers to array of objects. Only annotated class members are used and getters are needed.
+     *
+     * @param object Annotated object instance.
+     * @param columns Columns witch will be searched by <code>sk.r3n.dto.ColumnId</code> annotation.
+     * @return Array of values.
+     */
     public Object[] toArray(Object object, Column... columns) {
         List<Object> result = new ArrayList<>();
 
@@ -43,6 +60,13 @@ public class Dto {
         return result.toArray();
     }
 
+    /**
+     * Sets members of object with array of objects. Only annotated class members are used and setters are needed.
+     *
+     * @param object Annotated object instance.
+     * @param values Array of values.
+     * @param columns Columns witch will be searched by <code>sk.r3n.dto.ColumnId</code> annotation.
+     */
     public void fill(Object object, Object[] values, Column... columns) {
         List<Field> fieldList = new ArrayList<>();
         fillFieldList(object.getClass(), fieldList);

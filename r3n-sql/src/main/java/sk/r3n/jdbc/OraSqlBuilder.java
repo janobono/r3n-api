@@ -42,19 +42,18 @@ import sk.r3n.sql.Sequence;
 import sk.r3n.sql.Table;
 import sk.r3n.util.FileUtil;
 
+/**
+ * Oracle sql builder implementation.
+ */
 public class OraSqlBuilder extends SqlBuilder {
 
     private static final Logger LOGGER = Logger.getLogger(OraSqlBuilder.class.getCanonicalName());
 
     @Override
-    public QueryResult nextVal(Sequence sequence) {
-        QueryResult result = new QueryResult();
-
-        StringBuilder sw = new StringBuilder();
-        sw.append("select ").append(sequenceSQL(sequence)).append(" from dual");
-
-        result.setQuery(sw.toString());
-        return result;
+    public Sql nextVal(Sequence sequence) {
+        Sql sql = new Sql();
+        sql.SELECT().append(sequenceSQL(sequence)).append(" ").FROM().append("dual");
+        return sql;
     }
 
     private String sequenceSQL(Sequence sequence) {
@@ -69,16 +68,16 @@ public class OraSqlBuilder extends SqlBuilder {
     public long nextVal(Connection connection, Sequence sequence) throws SQLException {
         long result;
 
-        QueryResult queryResult = nextVal(sequence);
+        Sql sql = nextVal(sequence);
         if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest(queryResult.toString());
+            LOGGER.finest(sql.toString());
         }
 
         Statement statement = null;
         ResultSet resultSet = null;
         try {
             statement = connection.createStatement();
-            resultSet = statement.executeQuery(queryResult.getQuery());
+            resultSet = statement.executeQuery(sql.toSql());
             resultSet.next();
             result = resultSet.getLong(1);
         } finally {
@@ -93,30 +92,29 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public QueryResult select(Select select) {
-        QueryResult result = new QueryResult();
-        StringBuilder sw = new StringBuilder();
+    public Sql select(Select select) {
+        Sql sql = new Sql();
 
         if (select.getSubSelects() != null && select.getSubSelects().length > 0) {
             Map<String, Integer> indexMap = new HashMap<>();
 
             if (select.getCount()) {
-                sw.append("select count(*) from (");
+                sql.SELECT().append("count(*) ").FROM().append("(");
             }
 
             if (select.getPagination()) {
-                sw.append("select ");
+                sql.SELECT();
                 for (int index = 0; index < select.getColumns().length; index++) {
-                    sw.append("col").append(index);
+                    sql.append("col").append(Integer.toString(index));
                     if (index < select.getColumns().length - 1) {
-                        sw.append(", ");
+                        sql.append(", ");
                     }
                 }
-                sw.append(" from ( select ");
+                sql.append(" ").FROM().append("( ").SELECT();
                 for (int index = 0; index < select.getColumns().length; index++) {
-                    sw.append("col").append(index).append(", ");
+                    sql.append("col").append(Integer.toString(index)).append(", ");
                 }
-                sw.append("rownum rnm").append(" from (");
+                sql.append("rownum rnm ").FROM().append("(");
             }
 
             for (Select subSelect : select.getSubSelects()) {
@@ -127,180 +125,179 @@ public class OraSqlBuilder extends SqlBuilder {
                 }
             }
 
-            sw.append("select ");
+            sql.SELECT();
 
             if (select.getDistinct()) {
-                sw.append("distinct ");
+                sql.DISTINCT();
             }
 
             for (int i = 0; i < select.getColumns().length; i++) {
                 Column column = select.getColumns()[i];
                 indexMap.put(column.getColumnId(), i);
-                sw.append("col").append(indexMap.get(column.getColumnId()));
+                sql.append("col").append(Integer.toString(indexMap.get(column.getColumnId())));
                 if (i < select.getColumns().length - 1) {
-                    sw.append(",");
+                    sql.append(",");
                 }
-                sw.append(" ");
+                sql.append(" ");
             }
 
-            sw.append(" from (");
+            sql.append(" ").FROM().append("(");
 
             for (int i = 0; i < select.getSubSelects().length; i++) {
                 Select subSelect = select.getSubSelects()[i];
-                sw.append(selectSQL(subSelect, result));
+                sql.append(selectSQL(subSelect));
                 if (i < select.getSubSelects().length - 1) {
-                    sw.append(" ").append(select.getDataSetOperator().name().replaceAll("_", " ")).append(" ");
+                    sql.append(" ").append(select.getDataSetOperator().name().replaceAll("_", " ")).append(" ");
                 }
             }
 
-            sw.append(")");
+            sql.append(")");
 
             if (select.getCriteriaManager().isCriteria()) {
-                sw.append(" where ").append(criteriaManagerSQL(false, select.getCriteriaManager(), result, indexMap));
+                sql.append(" ").WHERE().append(criteriaManagerSQL(false, select.getCriteriaManager(), indexMap));
             }
 
             if (select.getGroupByColumns() != null && select.getGroupByColumns().length > 0) {
-                sw.append(" group by ");
+                sql.append(" ").GROUP_BY();
                 for (int i = 0; i < select.getGroupByColumns().length; i++) {
                     Column column = select.getGroupByColumns()[i];
-                    sw.append(columnSQL(false, column, result, indexMap));
+                    sql.append(columnSQL(false, column, indexMap));
                     if (i < select.getGroupByColumns().length - 1) {
-                        sw.append(",");
+                        sql.append(",");
                     }
-                    sw.append(" ");
+                    sql.append(" ");
                 }
             }
 
             if (select.getHavingCriterion() != null) {
-                sw.append(" having ").append(criterionSQL(false, select.getHavingCriterion(), result, indexMap));
+                sql.append(" ").HAVING().append(criterionSQL(false, select.getHavingCriterion(), indexMap));
             }
 
             if (!select.getOrderCriteria().isEmpty()) {
-                sw.append(" order by ");
+                sql.append(" ").ORDER_BY();
                 for (int i = 0; i < select.getOrderCriteria().size(); i++) {
                     OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
-                    sw.append(columnSQL(false, orderCriterion.getColumn(), result, indexMap)).append(" ").append(orderCriterion.getOrder().name());
+                    sql.append(columnSQL(false, orderCriterion.getColumn(), indexMap)).append(" ").append(orderCriterion.getOrder().name());
                     if (i < select.getOrderCriteria().size() - 1) {
-                        sw.append(",");
+                        sql.append(",");
                     }
-                    sw.append(" ");
+                    sql.append(" ");
                 }
             }
 
             if (select.getCount()) {
-                sw.append(")");
+                sql.append(")");
             }
 
             if (select.getPagination()) {
-                result.getParams().add(new SqlParam(DataType.INTEGER, select.getLastRow() + 1));
-                sw.append(") where rownum <= ?");
+                sql.addParam(DataType.INTEGER, select.getLastRow() + 1);
+                sql.append(") ").WHERE("rownum <= ?");
 
-                result.getParams().add(new SqlParam(DataType.INTEGER, select.getFirstRow() + 1));
-                sw.append(") where rnm >= ?");
+                sql.addParam(DataType.INTEGER, select.getFirstRow() + 1);
+                sql.append(") ").WHERE("rnm >= ?");
             }
 
         } else {
-            sw.append(selectSQL(select, result));
+            sql.append(selectSQL(select));
         }
 
-        result.setQuery(sw.toString());
-        return result;
+        return sql;
     }
 
-    private String selectSQL(Select select, QueryResult qr) {
-        StringBuilder sw = new StringBuilder();
+    private Sql selectSQL(Select select) {
+        Sql sql = new Sql();
 
         if (select.getCount()) {
-            sw.append("select count(*) from (");
+            sql.SELECT().append("count(*) ").FROM().append("(");
         }
 
         if (select.getPagination()) {
-            sw.append("select ");
+            sql.SELECT();
             for (int index = 0; index < select.getColumns().length; index++) {
-                sw.append("col").append(index);
+                sql.append("col").append(Integer.toString(index));
                 if (index < select.getColumns().length - 1) {
-                    sw.append(", ");
+                    sql.append(", ");
                 }
             }
-            sw.append(" from ( select ");
+            sql.append(" ").FROM().append("(").SELECT();
             for (int index = 0; index < select.getColumns().length; index++) {
-                sw.append("col").append(index).append(", ");
+                sql.append("col").append(Integer.toString(index)).append(", ");
             }
-            sw.append("rownum rnm").append(" from (");
+            sql.append("rownum rnm ").FROM().append("(");
         }
 
-        sw.append("select ");
+        sql.SELECT();
 
         if (select.getDistinct()) {
-            sw.append("distinct ");
+            sql.DISTINCT();
         }
 
         for (int index = 0; index < select.getColumns().length; index++) {
             Column column = select.getColumns()[index];
-            sw.append(columnSQL(false, column, qr, null)).append(" as col").append(index);
+            sql.append(columnSQL(false, column, null)).append(" as col").append(Integer.toString(index));
             if (index < select.getColumns().length - 1) {
-                sw.append(",");
+                sql.append(",");
             }
-            sw.append(" ");
+            sql.append(" ");
         }
 
-        sw.append("from ").append(tableSQL(false, select.getTable())).append(" ");
+        sql.FROM().append(tableSQL(false, select.getTable())).append(" ");
 
         select.getJoinCriteria().stream().map((joinCriterion) -> {
-            sw.append(" ").append(joinCriterion.getJoin().name().replaceAll("_", " "));
+            sql.append(" ").append(joinCriterion.getJoin().name().replaceAll("_", " "));
             return joinCriterion;
         }).map((joinCriterion) -> {
-            sw.append(" join ").append(tableSQL(false, joinCriterion.getTable())).append(" on ");
+            sql.append(" ").JOIN().append(tableSQL(false, joinCriterion.getTable())).append(" ").ON();
             return joinCriterion;
         }).forEachOrdered((joinCriterion) -> {
-            sw.append(criteriaManagerSQL(false, joinCriterion.getCriteriaManager(), qr, null));
+            sql.append(criteriaManagerSQL(false, joinCriterion.getCriteriaManager(), null));
         });
 
         if (select.getCriteriaManager().isCriteria()) {
-            sw.append(" where ").append(criteriaManagerSQL(false, select.getCriteriaManager(), qr, null));
+            sql.append(" ").WHERE().append(criteriaManagerSQL(false, select.getCriteriaManager(), null));
         }
 
         if (select.getGroupByColumns() != null && select.getGroupByColumns().length > 0) {
-            sw.append(" group by ");
+            sql.append(" ").GROUP_BY();
             for (int i = 0; i < select.getGroupByColumns().length; i++) {
                 Column column = select.getGroupByColumns()[i];
-                sw.append(columnSQL(false, column, qr, null));
+                sql.append(columnSQL(false, column, null));
                 if (i < select.getGroupByColumns().length - 1) {
-                    sw.append(",");
+                    sql.append(",");
                 }
-                sw.append(" ");
+                sql.append(" ");
             }
         }
 
         if (select.getHavingCriterion() != null) {
-            sw.append(" having ").append(criterionSQL(false, select.getHavingCriterion(), qr, null));
+            sql.append(" ").HAVING().append(criterionSQL(false, select.getHavingCriterion(), null));
         }
 
         if (!select.getOrderCriteria().isEmpty()) {
-            sw.append(" order by ");
+            sql.append(" ").ORDER_BY();
             for (int i = 0; i < select.getOrderCriteria().size(); i++) {
                 OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
-                sw.append(columnSQL(false, orderCriterion.getColumn(), qr, null)).append(" ").append(orderCriterion.getOrder().name());
+                sql.append(columnSQL(false, orderCriterion.getColumn(), null)).append(" ").append(orderCriterion.getOrder().name());
                 if (i < select.getOrderCriteria().size() - 1) {
-                    sw.append(",");
+                    sql.append(",");
                 }
-                sw.append(" ");
+                sql.append(" ");
             }
         }
 
         if (select.getCount()) {
-            sw.append(")");
+            sql.append(")");
         }
 
         if (select.getPagination()) {
-            qr.getParams().add(new SqlParam(DataType.INTEGER, select.getLastRow() + 1));
-            sw.append(") where rownum <= ?");
+            sql.addParam(DataType.INTEGER, select.getLastRow() + 1);
+            sql.append(") ").WHERE("rownum <= ?");
 
-            qr.getParams().add(new SqlParam(DataType.INTEGER, select.getFirstRow() + 1));
-            sw.append(") where rnm >= ?");
+            sql.addParam(DataType.INTEGER, select.getFirstRow() + 1);
+            sql.append(") ").WHERE("rnm >= ?");
         }
 
-        return sw.toString();
+        return sql;
     }
 
     private String tableSQL(boolean onlyName, Table table) {
@@ -314,136 +311,140 @@ public class OraSqlBuilder extends SqlBuilder {
         return sw.toString();
     }
 
-    private String columnSQL(boolean onlyName, Column column, QueryResult qr, Map<String, Integer> indexMap) {
-        StringBuilder sw = new StringBuilder();
+    private Sql columnSQL(boolean onlyName, Column column, Map<String, Integer> indexMap) {
+        Sql sql = new Sql();
 
         if (indexMap != null) {
-            sw.append("col").append(indexMap.get(column.getColumnId()));
+            sql.append("col").append(Integer.toString(indexMap.get(column.getColumnId())));
         } else {
             if (column instanceof ColumnFunction) {
                 ColumnFunction columnFunction = (ColumnFunction) column;
                 if (columnFunction.getMembers() != null) {
-                    List<Object> membersList = new ArrayList<>();
+                    List<String> membersList = new ArrayList<>();
                     for (Column member : columnFunction.getMembers()) {
-                        membersList.add(columnSQL(onlyName, member, qr, indexMap));
+                        Sql memberSql = columnSQL(onlyName, member, indexMap);
+                        membersList.add(memberSql.toSql());
+                        memberSql.getParams().forEach((param) -> {
+                            sql.addParam(param.getDataType(), param.getValue());
+                        });
                     }
-                    sw.append(MessageFormat.format(columnFunction.getName(), membersList.toArray(new Object[membersList.size()])));
+                    sql.append(MessageFormat.format(columnFunction.getName(), membersList.toArray(new Object[membersList.size()])));
                 } else {
-                    sw.append(columnFunction.getName());
+                    sql.append(columnFunction.getName());
                 }
             } else if (column instanceof ColumnSelect) {
                 ColumnSelect columnSelect = (ColumnSelect) column;
-                sw.append("(").append(selectSQL(columnSelect.getSelect(), qr)).append(")");
+                sql.append("(").append(selectSQL(columnSelect.getSelect())).append(")");
 
             } else {
                 if (!onlyName && column.getTable() != null) {
-                    sw.append(column.getTable().getAlias()).append(".");
+                    sql.append(column.getTable().getAlias()).append(".");
                 }
-                sw.append(column.getName());
+                sql.append(column.getName());
             }
         }
 
-        return sw.toString();
+        return sql;
     }
 
-    private String valueSQL(boolean onlyName, Column column, Object value, QueryResult qr, Map<String, Integer> indexMap) {
-        StringBuilder sw = new StringBuilder();
+    private Sql valueSQL(boolean onlyName, Column column, Object value, Map<String, Integer> indexMap) {
+        Sql sql = new Sql();
 
         if (value instanceof Sequence) {
-            sw.append(sequenceSQL((Sequence) value));
+            sql.append(sequenceSQL((Sequence) value));
         } else if (value instanceof Column) {
-            sw.append(columnSQL(onlyName, (Column) value, qr, indexMap));
+            sql.append(columnSQL(onlyName, (Column) value, indexMap));
         } else {
             if (value != null) {
-                qr.getParams().add(new SqlParam(column.getDataType(), value));
-                sw.append("?");
+                sql.addParam(column.getDataType(), value);
+                sql.append("?");
             } else {
-                sw.append("null");
+                sql.append("null");
             }
         }
 
-        return sw.toString();
+        return sql;
     }
 
-    private String criteriaManagerSQL(boolean onlyName, CriteriaManager criteriaManager, QueryResult qr, Map<String, Integer> indexMap) {
-        StringBuilder sw = new StringBuilder();
+    private Sql criteriaManagerSQL(boolean onlyName, CriteriaManager criteriaManager, Map<String, Integer> indexMap) {
+        Sql sql = new Sql();
 
         Criteria lastCriteria = null;
         for (Criteria criteria : criteriaManager.getCriteriaList()) {
             if (criteria.isCriteria()) {
                 if (lastCriteria != null) {
-                    sw.append(" ").append(lastCriteria.getOperator().name()).append(" ");
+                    sql.append(" ").append(lastCriteria.getOperator().name()).append(" ");
                 }
-                sw.append(criteriaSQL(onlyName, criteria, qr, indexMap));
+                sql.append(criteriaSQL(onlyName, criteria, indexMap));
                 lastCriteria = criteria;
             }
         }
 
-        return sw.toString();
+        return sql;
     }
 
-    private String criteriaSQL(boolean onlyName, Criteria criteria, QueryResult qr, Map<String, Integer> indexMap) {
-        StringBuilder sw = new StringBuilder();
+    private Sql criteriaSQL(boolean onlyName, Criteria criteria, Map<String, Integer> indexMap) {
+        Sql sql = new Sql();
 
         CriteriaContent lastCriteriaContent = null;
         boolean criteriaSequence = false;
 
-        sw.append("(");
+        sql.append("(");
         for (CriteriaContent criteriaContent : criteria.getContent()) {
             if (criteriaContent instanceof Criterion) {
                 if (lastCriteriaContent != null) {
                     if (criteriaSequence) {
-                        sw.append(")");
+                        sql.append(")");
                         criteriaSequence = false;
                     }
-                    sw.append(" ").append(lastCriteriaContent.getOperator().name()).append(" ");
+                    sql.append(" ").append(lastCriteriaContent.getOperator().name()).append(" ");
                 }
-                sw.append(criterionSQL(onlyName, (Criterion) criteriaContent, qr, indexMap));
+                sql.append(criterionSQL(onlyName, (Criterion) criteriaContent, indexMap));
                 lastCriteriaContent = criteriaContent;
             } else {
                 Criteria subCriteria = (Criteria) criteriaContent;
                 if (subCriteria.isCriteria()) {
                     if (lastCriteriaContent != null) {
-                        sw.append(" ").append(lastCriteriaContent.getOperator().name()).append(" ");
+                        sql.append(" ").append(lastCriteriaContent.getOperator().name()).append(" ");
                     }
                     if (!criteriaSequence) {
-                        sw.append("(");
+                        sql.append("(");
                         criteriaSequence = true;
                     }
-                    sw.append(criteriaSQL(onlyName, subCriteria, qr, indexMap));
+                    sql.append(criteriaSQL(onlyName, subCriteria, indexMap));
                     lastCriteriaContent = subCriteria;
                 }
             }
         }
         if (criteriaSequence) {
-            sw.append(")");
+            sql.append(")");
         }
-        sw.append(")");
+        sql.append(")");
 
-        return sw.toString();
+        return sql;
     }
 
-    private String criterionSQL(boolean onlyName, Criterion criterion, QueryResult qr, Map<String, Integer> indexMap) {
-        StringBuilder sw = new StringBuilder();
+    private Sql criterionSQL(boolean onlyName, Criterion criterion, Map<String, Integer> indexMap) {
+        Sql sql = new Sql();
 
         if (criterion.getCondition() == Condition.DIRECT) {
-            sw.append(criterion.getValue());
+            sql.append((String) criterion.getValue());
         } else {
             if (criterion.getValue() instanceof Select) {
-                sw.append(columnSQL(onlyName, criterion.getColumn(), qr, indexMap)).append(" ").append(criterion.getCondition().condition());
-                sw.append(" (").append(selectSQL((Select) criterion.getValue(), qr)).append(")");
+                sql.append(columnSQL(onlyName, criterion.getColumn(), indexMap)).append(" ").append(criterion.getCondition().condition());
+                sql.append(" (").append(selectSQL((Select) criterion.getValue())).append(")");
             } else if (criterion.getValue() instanceof Column) {
                 Column valueColumn = (Column) criterion.getValue();
                 if (criterion.getRepresentation() == null) {
-                    sw.append(columnSQL(onlyName, criterion.getColumn(), qr, indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
-                    sw.append(columnSQL(onlyName, valueColumn, qr, indexMap));
+                    sql.append(columnSQL(onlyName, criterion.getColumn(), indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
+                    sql.append(columnSQL(onlyName, valueColumn, indexMap));
                 } else {
-                    sw.append(MessageFormat.format(criterion.getRepresentation(),
-                            columnSQL(onlyName, criterion.getColumn(), qr, indexMap), criterion.getCondition().condition(), columnSQL(onlyName, valueColumn, qr, indexMap)));
+                    sql.append(MessageFormat.format(criterion.getRepresentation(),
+                            columnSQL(onlyName, criterion.getColumn(), indexMap), criterion.getCondition().condition(), columnSQL(onlyName, valueColumn, indexMap)));
                 }
             } else {
                 if (criterion.getRepresentation() == null) {
-                    sw.append(columnSQL(onlyName, criterion.getColumn(), qr, indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
+                    sql.append(columnSQL(onlyName, criterion.getColumn(), indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
                     if (criterion.getValue() != null) {
                         if (criterion.getValue() instanceof List<?> || criterion.getValue() instanceof Object[]) {
                             Object[] valueArray;
@@ -452,293 +453,157 @@ public class OraSqlBuilder extends SqlBuilder {
                             } else {
                                 valueArray = (Object[]) criterion.getValue();
                             }
-                            sw.append("(");
+                            sql.append("(");
                             for (int index = 0; index < valueArray.length; index++) {
                                 Object val = valueArray[index];
-                                qr.getParams().add(new SqlParam(criterion.getColumn().getDataType(), val));
-                                sw.append("?");
+                                sql.addParam(criterion.getColumn().getDataType(), val);
+                                sql.append("?");
                                 if (index < valueArray.length - 1) {
-                                    sw.append(", ");
+                                    sql.append(", ");
                                 }
                             }
-                            sw.append(")");
+                            sql.append(")");
                         } else {
-                            qr.getParams().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
-                            sw.append("?");
+                            sql.addParam(criterion.getColumn().getDataType(), criterion.getValue());
+                            sql.append("?");
                         }
                     }
                 } else {
                     if (criterion.getValue() != null) {
-                        qr.getParams().add(new SqlParam(criterion.getColumn().getDataType(), criterion.getValue()));
-                        sw.append(MessageFormat.format(criterion.getRepresentation(), columnSQL(onlyName, criterion.getColumn(), qr, indexMap), criterion.getCondition().condition(), "?"));
+                        sql.addParam(criterion.getColumn().getDataType(), criterion.getValue());
+                        sql.append(MessageFormat.format(criterion.getRepresentation(), columnSQL(onlyName, criterion.getColumn(), indexMap), criterion.getCondition().condition(), "?"));
                     } else {
-                        sw.append(MessageFormat.format(criterion.getRepresentation(), columnSQL(onlyName, criterion.getColumn(), qr, indexMap), criterion.getCondition().condition()));
+                        sql.append(MessageFormat.format(criterion.getRepresentation(), columnSQL(onlyName, criterion.getColumn(), indexMap), criterion.getCondition().condition()));
                     }
                 }
             }
         }
-        return sw.toString();
+        return sql;
     }
 
     @Override
     public List<Object[]> select(Connection connection, Select select) throws SQLException {
-        List<Object[]> result = new ArrayList<>();
-
-        QueryResult queryResult = select(select);
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest(queryResult.getQuery());
-            LOGGER.finest(Arrays.toString(queryResult.getParams().toArray()));
-        }
-
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            preparedStatement = connection.prepareStatement(queryResult.getQuery());
-            setParams(connection, preparedStatement, queryResult.getParams().toArray(new SqlParam[queryResult.getParams().size()]));
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                Object[] row;
-                if (select.getCount()) {
-                    row = new Object[]{resultSet.getInt(1)};
-                } else {
-                    row = getRow(resultSet, select.getColumns());
-                }
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.log(Level.FINEST, "ROW:{0}", Arrays.toString(row));
-                }
-                result.add(row);
+        DataType[] dataTypes;
+        if (select.getCount()) {
+            dataTypes = new DataType[]{DataType.INTEGER};
+        } else {
+            dataTypes = new DataType[select.getColumns().length];
+            for (int i = 0; i < dataTypes.length; i++) {
+                dataTypes[i] = select.getColumns()[i].getDataType();
             }
-        } finally {
-            SqlUtil.close(resultSet);
-            SqlUtil.close(preparedStatement);
         }
-
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.log(Level.FINEST, "RESULT SIZE:{0}", result.size());
-        }
-        return result;
+        return executeQuery(connection, select(select), dataTypes);
     }
 
     @Override
-    public QueryResult insert(Insert insert) {
-        QueryResult result = new QueryResult();
-        StringBuilder sw = new StringBuilder();
+    public Sql insert(Insert insert) {
+        Sql sql = new Sql();
 
         if (insert.getReturning() != null) {
-            sw.append("begin ");
+            sql.append("begin ");
         }
 
-        sw.append("insert into ").append(tableSQL(true, insert.getTable())).append(" (");
+        sql.INSERT().INTO().append(tableSQL(true, insert.getTable())).append(" (");
 
         for (int index = 0; index < insert.getColumns().length; index++) {
             Column column = insert.getColumns()[index];
 
-            sw.append(columnSQL(true, column, result, null));
+            sql.append(columnSQL(true, column, null));
             if (index < insert.getColumns().length - 1) {
-                sw.append(", ");
+                sql.append(", ");
             }
         }
 
-        sw.append(") values (");
+        sql.append(") ").VALUES().append("(");
 
         for (int index = 0; index < insert.getColumns().length; index++) {
             Column column = insert.getColumns()[index];
             Object value = insert.getValues()[index];
-            sw.append(valueSQL(true, column, value, result, null));
+            sql.append(valueSQL(true, column, value, null));
             if (index < insert.getColumns().length - 1) {
-                sw.append(", ");
+                sql.append(", ");
             }
         }
-        sw.append(")");
+        sql.append(")");
 
         if (insert.getReturning() != null) {
-            sw.append(" returning ").append(columnSQL(true, insert.getReturning(), result, null)).append(" into ?;end;");
+            sql.append(" returning ").append(columnSQL(true, insert.getReturning(), null)).append(" into ?;end;");
         }
 
-        result.setQuery(sw.toString());
-        return result;
+        return sql;
     }
 
     @Override
     public Object insert(Connection connection, Insert insert) throws SQLException {
         Object result = null;
 
-        QueryResult queryResult = insert(insert);
-
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest(queryResult.getQuery());
-            LOGGER.finest(Arrays.toString(queryResult.getParams().toArray()));
-        }
-
         if (insert.getReturning() == null) {
-            execute(connection, queryResult.getQuery(), queryResult.getParams());
+            execute(connection, insert(insert));
         } else {
-            result = insert(connection, queryResult, insert.getReturning());
+            result = execute(connection, insert(insert), insert.getReturning().getDataType());
         }
 
-        return result;
-    }
-
-    private Object insert(Connection connection, QueryResult queryResult, Column returning) throws SQLException {
-        Object result = null;
-        CallableStatement callableStatement = null;
-        try {
-            int index = queryResult.getParams().size() + 1;
-
-            callableStatement = connection.prepareCall(queryResult.getQuery());
-            setParams(connection, callableStatement, queryResult.getParams().toArray(new SqlParam[queryResult.getParams().size()]));
-
-            switch (returning.getDataType()) {
-                case BOOLEAN:
-                    callableStatement.registerOutParameter(index, Types.BOOLEAN);
-                    break;
-                case STRING:
-                    callableStatement.registerOutParameter(index, Types.VARCHAR);
-                    break;
-                case SHORT:
-                    callableStatement.registerOutParameter(index, Types.SMALLINT);
-                    break;
-                case INTEGER:
-                    callableStatement.registerOutParameter(index, Types.INTEGER);
-                    break;
-                case LONG:
-                    callableStatement.registerOutParameter(index, Types.BIGINT);
-                    break;
-                case BIG_DECIMAL:
-                    callableStatement.registerOutParameter(index, Types.NUMERIC);
-                    break;
-                case DATE:
-                    callableStatement.registerOutParameter(index, Types.DATE);
-                    break;
-                case TIME:
-                    callableStatement.registerOutParameter(index, Types.TIME);
-                    break;
-                case TIME_STAMP:
-                    callableStatement.registerOutParameter(index, Types.TIMESTAMP);
-                    break;
-                case BLOB:
-                    callableStatement.registerOutParameter(index, Types.BLOB);
-                    break;
-            }
-
-            callableStatement.execute();
-
-            switch (returning.getDataType()) {
-                case BOOLEAN:
-                    result = callableStatement.getBoolean(index);
-                    break;
-                case STRING:
-                    result = callableStatement.getString(index);
-                    break;
-                case SHORT:
-                    result = callableStatement.getShort(index);
-                    break;
-                case INTEGER:
-                    result = callableStatement.getInt(index);
-                    break;
-                case LONG:
-                    result = callableStatement.getLong(index);
-                    break;
-                case BIG_DECIMAL:
-                    result = callableStatement.getBigDecimal(index);
-                    break;
-                case DATE:
-                    java.sql.Date date = callableStatement.getDate(index);
-                    result = new Date(date.getTime());
-                    break;
-                case TIME:
-                    java.sql.Time time = callableStatement.getTime(index);
-                    result = new Date(time.getTime());
-                    break;
-                case TIME_STAMP:
-                    java.sql.Timestamp timestamp = callableStatement.getTimestamp(index);
-                    result = new Date(timestamp.getTime());
-                    break;
-                case BLOB:
-                    File file = null;
-                    try {
-                        file = File.createTempFile("SQL", ".BIN", getTmpDir());
-                        Blob blob = callableStatement.getBlob(index);
-                        FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);
-                        result = file;
-                    } catch (IOException e) {
-                        if (file != null) {
-                            file.delete();
-                        }
-                        throw new SQLException(e);
-                    }
-                    break;
-            }
-        } finally {
-            SqlUtil.close(callableStatement);
-        }
         return result;
     }
 
     @Override
-    public QueryResult update(Update update) {
-        QueryResult result = new QueryResult();
-        StringBuilder sw = new StringBuilder();
+    public Sql update(Update update) {
+        Sql sql = new Sql();
 
-        sw.append("update ").append(tableSQL(true, update.getTable())).append(" set ");
+        sql.UPDATE().append(tableSQL(true, update.getTable())).append(" ").SET();
         for (int index = 0; index < update.getColumns().length; index++) {
             Column column = update.getColumns()[index];
             Object value = update.getValues()[index];
 
-            sw.append(columnSQL(true, column, result, null)).append(" = ").append(valueSQL(true, column, value, result, null));
+            sql.append(columnSQL(true, column, null)).append(" = ").append(valueSQL(true, column, value, null));
             if (index < update.getColumns().length - 1) {
-                sw.append(", ");
+                sql.append(", ");
             }
         }
         if (update.getCriteriaManager().isCriteria()) {
-            sw.append(" where ").append(criteriaManagerSQL(true, update.getCriteriaManager(), result, null));
+            sql.append(" ").WHERE().append(criteriaManagerSQL(true, update.getCriteriaManager(), null));
         }
 
-        result.setQuery(sw.toString());
-        return result;
+        return sql;
     }
 
     @Override
     public void update(Connection connection, Update update) throws SQLException {
-        QueryResult queryResult = update(update);
-        execute(connection, queryResult.getQuery(), queryResult.getParams());
+        execute(connection, update(update));
     }
 
     @Override
-    public QueryResult delete(Delete delete) {
-        QueryResult result = new QueryResult();
-        StringBuilder sw = new StringBuilder();
+    public Sql delete(Delete delete) {
+        Sql sql = new Sql();
 
-        sw.append("delete from ").append(tableSQL(true, delete.getTable()));
+        sql.DELETE().FROM().append(tableSQL(true, delete.getTable()));
         if (delete.getCriteriaManager().isCriteria()) {
-            sw.append(" where ").append(criteriaManagerSQL(true, delete.getCriteriaManager(), result, null));
+            sql.append(" ").WHERE().append(criteriaManagerSQL(true, delete.getCriteriaManager(), null));
         }
 
-        result.setQuery(sw.toString());
-        return result;
+        return sql;
     }
 
     @Override
     public void delete(Connection connection, Delete delete) throws SQLException {
-        QueryResult queryResult = delete(delete);
-        execute(connection, queryResult.getQuery(), queryResult.getParams());
+        execute(connection, delete(delete));
     }
 
-    private Object[] getRow(ResultSet resultSet, Column... columns) throws SQLException {
-        Object[] result = new Object[columns.length];
+    private Object[] getRow(ResultSet resultSet, DataType... dataTypes) throws SQLException {
+        Object[] result = new Object[dataTypes.length];
 
         for (int i = 0; i < result.length; i++) {
-            result[i] = getColumn(resultSet, i + 1, columns[i], getTmpDir());
+            result[i] = getColumn(resultSet, i + 1, dataTypes[i], getTmpDir());
         }
 
         return result;
     }
 
-    private Object getColumn(ResultSet resultSet, int index, Column column, File dir) throws SQLException {
+    private Object getColumn(ResultSet resultSet, int index, DataType dataType, File dir) throws SQLException {
         Object result = null;
 
         if (resultSet.getObject(index) != null) {
-            switch (column.getDataType()) {
+            switch (dataType) {
                 case BOOLEAN:
                     result = resultSet.getBoolean(index);
                     break;
@@ -823,24 +688,157 @@ public class OraSqlBuilder extends SqlBuilder {
         }
     }
 
-    private void execute(Connection connection, String sql, List<SqlParam> params) throws SQLException {
+    @Override
+    public void execute(Connection connection, Sql sql) throws SQLException {
         if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest(sql);
-            LOGGER.finest(Arrays.toString(params.toArray()));
+            LOGGER.finest(sql.toString());
         }
 
-        if (params.isEmpty()) {
-            SqlUtil.execute(connection, sql);
+        if (sql.getParams().isEmpty()) {
+            SqlUtil.execute(connection, sql.toSql());
         } else {
             PreparedStatement preparedStatement = null;
             try {
-                preparedStatement = connection.prepareStatement(sql);
-                setParams(connection, preparedStatement, params.toArray(new SqlParam[params.size()]));
+                preparedStatement = connection.prepareStatement(sql.toSql());
+                setParams(connection, preparedStatement, sql.getParams().toArray(new SqlParam[sql.getParams().size()]));
                 preparedStatement.executeUpdate();
             } finally {
                 SqlUtil.close(preparedStatement);
             }
         }
+    }
+
+    @Override
+    public Object execute(Connection connection, Sql sql, DataType dataType) throws SQLException {
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest(sql.toString());
+        }
+
+        Object result = null;
+        CallableStatement callableStatement = null;
+        try {
+            int index = sql.getParams().size() + 1;
+
+            callableStatement = connection.prepareCall(sql.toSql());
+            setParams(connection, callableStatement, sql.getParams().toArray(new SqlParam[sql.getParams().size()]));
+
+            switch (dataType) {
+                case BOOLEAN:
+                    callableStatement.registerOutParameter(index, Types.BOOLEAN);
+                    break;
+                case STRING:
+                    callableStatement.registerOutParameter(index, Types.VARCHAR);
+                    break;
+                case SHORT:
+                    callableStatement.registerOutParameter(index, Types.SMALLINT);
+                    break;
+                case INTEGER:
+                    callableStatement.registerOutParameter(index, Types.INTEGER);
+                    break;
+                case LONG:
+                    callableStatement.registerOutParameter(index, Types.BIGINT);
+                    break;
+                case BIG_DECIMAL:
+                    callableStatement.registerOutParameter(index, Types.NUMERIC);
+                    break;
+                case DATE:
+                    callableStatement.registerOutParameter(index, Types.DATE);
+                    break;
+                case TIME:
+                    callableStatement.registerOutParameter(index, Types.TIME);
+                    break;
+                case TIME_STAMP:
+                    callableStatement.registerOutParameter(index, Types.TIMESTAMP);
+                    break;
+                case BLOB:
+                    callableStatement.registerOutParameter(index, Types.BLOB);
+                    break;
+            }
+
+            callableStatement.execute();
+
+            switch (dataType) {
+                case BOOLEAN:
+                    result = callableStatement.getBoolean(index);
+                    break;
+                case STRING:
+                    result = callableStatement.getString(index);
+                    break;
+                case SHORT:
+                    result = callableStatement.getShort(index);
+                    break;
+                case INTEGER:
+                    result = callableStatement.getInt(index);
+                    break;
+                case LONG:
+                    result = callableStatement.getLong(index);
+                    break;
+                case BIG_DECIMAL:
+                    result = callableStatement.getBigDecimal(index);
+                    break;
+                case DATE:
+                    java.sql.Date date = callableStatement.getDate(index);
+                    result = new Date(date.getTime());
+                    break;
+                case TIME:
+                    java.sql.Time time = callableStatement.getTime(index);
+                    result = new Date(time.getTime());
+                    break;
+                case TIME_STAMP:
+                    java.sql.Timestamp timestamp = callableStatement.getTimestamp(index);
+                    result = new Date(timestamp.getTime());
+                    break;
+                case BLOB:
+                    File file = null;
+                    try {
+                        file = File.createTempFile("SQL", ".BIN", getTmpDir());
+                        Blob blob = callableStatement.getBlob(index);
+                        FileUtil.streamToFile(blob.getBinaryStream(1, blob.length()), file);
+                        result = file;
+                    } catch (IOException e) {
+                        if (file != null) {
+                            file.delete();
+                        }
+                        throw new SQLException(e);
+                    }
+                    break;
+            }
+        } finally {
+            SqlUtil.close(callableStatement);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Object[]> executeQuery(Connection connection, Sql sql, DataType... dataTypes) throws SQLException {
+        List<Object[]> result = new ArrayList<>();
+
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest(sql.toString());
+        }
+
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = connection.prepareStatement(sql.toSql());
+            setParams(connection, preparedStatement, sql.getParams().toArray(new SqlParam[sql.getParams().size()]));
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Object[] row = getRow(resultSet, dataTypes);
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.log(Level.FINEST, "ROW:{0}", Arrays.toString(row));
+                }
+                result.add(row);
+            }
+        } finally {
+            SqlUtil.close(resultSet);
+            SqlUtil.close(preparedStatement);
+        }
+
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.log(Level.FINEST, "RESULT SIZE:{0}", result.size());
+        }
+        return result;
     }
 
 }

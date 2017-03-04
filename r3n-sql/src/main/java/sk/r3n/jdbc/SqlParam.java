@@ -8,10 +8,19 @@ package sk.r3n.jdbc;
 import java.io.Serializable;
 import sk.r3n.sql.DataType;
 
+/**
+ * Object to store parameters used in sql queries.
+ */
 public class SqlParam implements Serializable {
 
+    /**
+     * Parameter data type.
+     */
     private DataType dataType;
 
+    /**
+     * Parameter value.
+     */
     private Object value;
 
     public SqlParam(DataType dataType, Object value) {

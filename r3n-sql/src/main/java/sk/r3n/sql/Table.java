@@ -7,6 +7,9 @@ package sk.r3n.sql;
 
 import java.io.Serializable;
 
+/**
+ * Base table definition object.
+ */
 public class Table implements Serializable {
 
     private String name;

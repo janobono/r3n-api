@@ -5,6 +5,9 @@
  */
 package sk.r3n.sql;
 
+/**
+ * Supported SQL data set operators.
+ */
 public enum DataSetOperator {
 
     UNION, UNION_ALL, INTERSECT;

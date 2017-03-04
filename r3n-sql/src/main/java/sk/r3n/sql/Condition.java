@@ -5,6 +5,9 @@
  */
 package sk.r3n.sql;
 
+/**
+ * Supported SQL conditions.
+ */
 public enum Condition {
 
     EQUALS(" = "),

@@ -5,6 +5,9 @@
  */
 package sk.r3n.sql;
 
+/**
+ * Supported SQL data types.
+ */
 public enum DataType {
 
     BOOLEAN,
