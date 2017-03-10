@@ -60,13 +60,17 @@ public class Sql {
     /**
      * Appends to command.
      *
+     * @param separator String separator.
      * @param strings String array.
      * @return Sql command representation object.
      */
-    public Sql appendArray(String... strings) {
+    public Sql append(String separator, String... strings) {
         for (String string : strings) {
             if (string != null && string.length() > 0) {
-                append(string).append(" ");
+                append(string);
+            }
+            if (separator != null && separator.length() > 0) {
+                append(separator);
             }
         }
         return this;
@@ -154,17 +158,7 @@ public class Sql {
      * @return Sql command representation object.
      */
     public Sql SET() {
-        return SET(null);
-    }
-
-    /**
-     * Appends set to command.
-     *
-     * @param condition Condition string.
-     * @return Sql command representation object.
-     */
-    public Sql SET(String condition) {
-        return appendArray("set", condition);
+        return append("set");
     }
 
     /**
@@ -236,17 +230,7 @@ public class Sql {
      * @return Sql command representation object.
      */
     public Sql ON() {
-        return ON(null);
-    }
-
-    /**
-     * Appends on to command.
-     *
-     * @param condition Condition string.
-     * @return Sql command representation object.
-     */
-    public Sql ON(String condition) {
-        return appendArray("on", condition);
+        return append("on ");
     }
 
     /**
@@ -255,17 +239,7 @@ public class Sql {
      * @return Sql command representation object.
      */
     public Sql WHERE() {
-        return WHERE(null);
-    }
-
-    /**
-     * Appends where to command.
-     *
-     * @param condition Condition string.
-     * @return Sql command representation object.
-     */
-    public Sql WHERE(String condition) {
-        return appendArray("where", condition);
+        return append("where ");
     }
 
     /**
@@ -274,17 +248,7 @@ public class Sql {
      * @return Sql command representation object.
      */
     public Sql AND() {
-        return AND(null);
-    }
-
-    /**
-     * Appends and to command.
-     *
-     * @param condition Condition string.
-     * @return Sql command representation object.
-     */
-    public Sql AND(String condition) {
-        return appendArray("and", condition);
+        return append("and ");
     }
 
     /**
@@ -293,17 +257,7 @@ public class Sql {
      * @return Sql command representation object.
      */
     public Sql OR() {
-        return OR(null);
-    }
-
-    /**
-     * Appends or to command.
-     *
-     * @param condition Condition string.
-     * @return Sql command representation object.
-     */
-    public Sql OR(String condition) {
-        return appendArray("or", condition);
+        return append("or ");
     }
 
     /**

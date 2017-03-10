@@ -191,10 +191,10 @@ public class OraSqlBuilder extends SqlBuilder {
 
             if (select.getPagination()) {
                 sql.addParam(DataType.INTEGER, select.getLastRow() + 1);
-                sql.append(") ").WHERE("rownum <= ?");
+                sql.append(") ").WHERE().append("rownum <= ?");
 
                 sql.addParam(DataType.INTEGER, select.getFirstRow() + 1);
-                sql.append(") ").WHERE("rnm >= ?");
+                sql.append(") ").WHERE().append("rnm >= ?");
             }
 
         } else {
@@ -291,10 +291,10 @@ public class OraSqlBuilder extends SqlBuilder {
 
         if (select.getPagination()) {
             sql.addParam(DataType.INTEGER, select.getLastRow() + 1);
-            sql.append(") ").WHERE("rownum <= ?");
+            sql.append(") ").WHERE().append("rownum <= ?");
 
             sql.addParam(DataType.INTEGER, select.getFirstRow() + 1);
-            sql.append(") ").WHERE("rnm >= ?");
+            sql.append(") ").WHERE().append("rnm >= ?");
         }
 
         return sql;
