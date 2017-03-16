@@ -158,7 +158,7 @@ public class Sql {
      * @return Sql command representation object.
      */
     public Sql SET() {
-        return append("set");
+        return append("set ");
     }
 
     /**
