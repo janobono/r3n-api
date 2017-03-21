@@ -9,13 +9,18 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sk.r3n.sql.Column;
 
 /**
  * A utility to help mapping object to object based on annotations.
  */
 public class Dto {
+
+    private static final Logger LOGGER = Logger.getLogger(Dto.class.getCanonicalName());
 
     /**
      * Maps values from source to target object. Only annotated class members are used and getters and setters are
@@ -38,6 +43,9 @@ public class Dto {
                 setValue(target, targetField, getValue(source, sourceField));
             }
         });
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "objToObj({0},{1})", new Object[]{source, target});
+        }
     }
 
     /**
@@ -57,6 +65,9 @@ public class Dto {
             result.add(getValue(object, column, fieldList));
         }
 
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "toArray({0},{1}) = {2}", new Object[]{object, Arrays.toString(columns), Arrays.toString(result.toArray())});
+        }
         return result.toArray();
     }
 
@@ -76,13 +87,18 @@ public class Dto {
             Object value = values[index++];
             setValue(object, column, value, fieldList);
         }
-
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "fill({0},{1},{2})", new Object[]{object, Arrays.toString(values), Arrays.toString(columns)});
+        }
     }
 
     private void setValue(Object object, Column column, Object value, List<Field> fieldList) {
         Field field = getField(column.getTable().getName(), column.getName(), fieldList);
         if (field != null) {
             setValue(object, field, value);
+        }
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "setValue({0},{1},{2},{3})", new Object[]{object, column, value, fieldList});
         }
     }
 
@@ -95,6 +111,9 @@ public class Dto {
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "setValue({0},{1},{2})", new Object[]{object, field, value});
+        }
     }
 
     private Object getValue(Object object, Column column, List<Field> fieldList) {
@@ -102,6 +121,9 @@ public class Dto {
         Field field = getField(column.getTable().getName(), column.getName(), fieldList);
         if (field != null) {
             result = getValue(object, field);
+        }
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "getValue({0},{1},{2}) = {3}", new Object[]{object, field, fieldList, result});
         }
         return result;
     }
@@ -115,6 +137,9 @@ public class Dto {
             result = method.invoke(object);
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new RuntimeException(e);
+        }
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "getValue({0},{1}) = {2}", new Object[]{object, field, result});
         }
         return result;
     }
@@ -130,14 +155,23 @@ public class Dto {
         if (aClass.getSuperclass() != null) {
             fillFieldList(aClass.getSuperclass(), fieldList);
         }
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "fillFieldList({0},{1})", new Object[]{aClass, fieldList});
+        }
     }
 
     private Field getField(String table, String column, List<Field> fieldList) {
         for (Field field : fieldList) {
             ColumnId columnId = field.getAnnotation(ColumnId.class);
             if (columnId.table().equals(table) && columnId.column().equals(column)) {
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.log(Level.FINE, "getField({0},{1},{2}) = {3}", new Object[]{table, column, fieldList, field});
+                }
                 return field;
             }
+        }
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "getField({0},{1},{2}) = {3}", new Object[]{table, column, fieldList, null});
         }
         return null;
     }
