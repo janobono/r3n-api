@@ -146,6 +146,9 @@ public class Dto {
 
     private void fillFieldList(Class aClass, List<Field> fieldList) {
         Field[] declaredFields = aClass.getDeclaredFields();
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "declaredFields: {0}", Arrays.toString(declaredFields));
+        }
         for (Field field : declaredFields) {
             ColumnId columnId = field.getAnnotation(ColumnId.class);
             if (columnId != null) {
