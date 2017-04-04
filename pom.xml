@@ -15,6 +15,7 @@
         <junit.version>4.12</junit.version>
         <ora.version>12.2.0.1</ora.version>
         <postgres.version>9.1-901-1.jdbc4</postgres.version>
+        <h2.version>1.4.194</h2.version>
     </properties>
 
     <modules>

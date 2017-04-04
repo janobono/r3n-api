@@ -1,18 +1,18 @@
 --SEQUENCES
-create sequence test_sequence minvalue 1 maxvalue 9223372036854775807 start 1 cache 1  no cycle;
+create sequence test_sequence start with 1 minvalue 1 maxvalue 9223372036854775807 nocache nocycle;
 
 --TABLES
 create table t_base_types(
 id                bigint not null,
 t_short           smallint not null,
-t_integer         integer not null,
+t_integer         int not null,
 t_long            bigint not null,
-t_big_decimal     numeric not null,
+t_big_decimal     decimal not null,
 t_string_char     char(10) not null,
-t_string_text     text not null,
+t_string_text     clob not null,
 t_string_varchar  varchar(255) not null,
 t_string_scdf     varchar(255) not null,
-t_blob            bytea not null,
+t_blob            blob not null,
 t_time_stamp      timestamp not null,
 t_time            time not null,
 t_date            date not null,
