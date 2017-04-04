@@ -13,7 +13,7 @@
         <targetJdk>1.8</targetJdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>4.12</junit.version>
-        <ora.version>12.1.0.1</ora.version>
+        <ora.version>12.2.0.1</ora.version>
         <postgres.version>9.1-901-1.jdbc4</postgres.version>
     </properties>
 
