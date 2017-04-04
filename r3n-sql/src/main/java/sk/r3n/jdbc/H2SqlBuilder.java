@@ -504,6 +504,7 @@ public class H2SqlBuilder extends SqlBuilder {
         execute(connection, insert(insert));
 
         if (insert.getReturning() != null) {
+            LOGGER.warning("Select max will be used!");
             result = select(connection, Query
                     .SELECT(new ColumnFunction("i1", "max({0})", insert.getReturning().getDataType(), insert.getReturning()))
                     .FROM(insert.getTable())).get(0)[0];
