@@ -1,4 +1,6 @@
-# r3n-api - simple way to write SQL query in java
+# r3n-api
+
+simple way to write SQL query in java
 
 ## Supported database servers
 
