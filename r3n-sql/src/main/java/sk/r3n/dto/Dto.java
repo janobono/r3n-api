@@ -49,7 +49,7 @@ public class Dto {
     }
 
     /**
-     * Transforms object memebers to array of objects. Only annotated class members are used and getters are needed.
+     * Transforms object members to array of objects. Only annotated class members are used and getters are needed.
      *
      * @param object Annotated object instance.
      * @param columns Columns witch will be searched by <code>sk.r3n.dto.ColumnId</code> annotation.
