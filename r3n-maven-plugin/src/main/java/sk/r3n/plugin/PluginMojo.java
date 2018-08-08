@@ -49,7 +49,7 @@ public class PluginMojo extends AbstractMojo {
         try {
             Class.forName(jdbcDriver);
             connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPassword);
-            Structure structure = StructureLoader.getInstance(jdbcDriver).load(getLog(), connection, jdbcUser);
+            Structure structure = StructureLoader.getInstance(jdbcDriver).load(getLog(), connection);
             new StructureWriter().write(getLog(), overwrite, baseDir, targetPackage, structure);
         } catch (Exception e) {
             throw new RuntimeException(e);

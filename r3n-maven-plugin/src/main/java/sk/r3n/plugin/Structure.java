@@ -1,18 +1,19 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.plugin;
 
+import sk.r3n.sql.Column;
+import sk.r3n.sql.Sequence;
+import sk.r3n.sql.Table;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import sk.r3n.sql.Column;
-import sk.r3n.sql.Sequence;
-import sk.r3n.sql.Table;
 
 public class Structure implements Serializable {
 
@@ -29,10 +30,6 @@ public class Structure implements Serializable {
         return sequences;
     }
 
-    public void setSequences(List<Sequence> sequences) {
-        this.sequences = sequences;
-    }
-
     public List<Table> getTables() {
         if (tables == null) {
             tables = new ArrayList<>();
@@ -40,25 +37,15 @@ public class Structure implements Serializable {
         return tables;
     }
 
-    public void setTables(List<Table> tables) {
-        this.tables = tables;
-    }
-
-    public Map<String, List<Column>> getColumns() {
+    private Map<String, List<Column>> getColumns() {
         if (columns == null) {
             columns = new HashMap<>();
         }
         return columns;
     }
 
-    public void setColumns(Map<String, List<Column>> columns) {
-        this.columns = columns;
-    }
-
-    public List<Column> getColumns(Table table) {
-        if (getColumns().get(table.getName()) == null) {
-            getColumns().put(table.getName(), new ArrayList<Column>());
-        }
+    List<Column> getColumns(Table table) {
+        getColumns().computeIfAbsent(table.getName(), k -> new ArrayList<>());
         return getColumns().get(table.getName());
     }
 

@@ -1,22 +1,11 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -43,7 +32,7 @@ public class FileUtil {
 
     private static void fileStreaming(File source, File target, boolean append) {
         try (InputStream is = new BufferedInputStream(new FileInputStream(source));
-                OutputStream os = new BufferedOutputStream(new FileOutputStream(target, append))) {
+             OutputStream os = new BufferedOutputStream(new FileOutputStream(target, append))) {
             byte[] buffer = new byte[1024];
             int bytesRead = 0;
             while (bytesRead != -1) {
@@ -59,7 +48,7 @@ public class FileUtil {
 
     public static void fileToStream(File source, OutputStream target) {
         try (InputStream is = new BufferedInputStream(new FileInputStream(source));
-                OutputStream os = new BufferedOutputStream(target)) {
+             OutputStream os = new BufferedOutputStream(target)) {
             byte[] buffer = new byte[1024];
             int bytesRead = 0;
             while (bytesRead != -1) {
@@ -75,7 +64,7 @@ public class FileUtil {
 
     public static void streamToStream(InputStream source, OutputStream target) {
         try (InputStream is = new BufferedInputStream(source);
-                OutputStream os = new BufferedOutputStream(target)) {
+             OutputStream os = new BufferedOutputStream(target)) {
             byte[] buffer = new byte[1024];
             int bytesRead = 0;
             while (bytesRead != -1) {
@@ -91,7 +80,7 @@ public class FileUtil {
 
     public static void streamToFile(InputStream source, File target) {
         try (InputStream is = new BufferedInputStream(source);
-                OutputStream os = new BufferedOutputStream(new FileOutputStream(target, false))) {
+             OutputStream os = new BufferedOutputStream(new FileOutputStream(target, false))) {
             byte[] buffer = new byte[1024];
             int bytesRead = 0;
             while (bytesRead != -1) {
@@ -116,7 +105,7 @@ public class FileUtil {
 
     public static byte[] read(File file) {
         try (InputStream is = new BufferedInputStream(new FileInputStream(file));
-                OutputStream os = new ByteArrayOutputStream()) {
+             ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[1024];
             int bytesRead = 0;
             while (bytesRead != -1) {
@@ -125,7 +114,7 @@ public class FileUtil {
                     os.write(buffer, 0, bytesRead);
                 }
             }
-            return ((ByteArrayOutputStream) os).toByteArray();
+            return os.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

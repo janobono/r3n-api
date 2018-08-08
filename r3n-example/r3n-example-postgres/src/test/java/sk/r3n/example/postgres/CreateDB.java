@@ -1,16 +1,17 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.example.postgres;
 
+import org.junit.Test;
+import sk.r3n.jdbc.SqlUtil;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.logging.LogManager;
-import org.junit.Test;
-import sk.r3n.jdbc.SqlUtil;
 
 public class CreateDB {
 

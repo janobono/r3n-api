@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.common;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * Date adapter.

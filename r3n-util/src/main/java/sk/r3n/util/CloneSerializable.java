@@ -1,15 +1,11 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 public class CloneSerializable {
 
@@ -25,9 +21,8 @@ public class CloneSerializable {
 
             bis = new ByteArrayInputStream(bos.toByteArray());
             is = new ObjectInputStream(bis);
-            Object clone = is.readObject();
 
-            return clone;
+            return is.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {

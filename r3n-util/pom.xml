@@ -4,10 +4,17 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>4.0.1</version>
+        <version>4.1.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-util</artifactId>
-
     <description>Utils lib.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+    </dependencies>
 </project>

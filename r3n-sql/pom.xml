@@ -4,20 +4,18 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>4.0.1</version>
+        <version>4.1.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-sql</artifactId>
-
     <description>Sql utils lib.</description>
-    
-    
+
     <dependencies>
         <dependency>
             <groupId>sk.r3n</groupId>
             <artifactId>r3n-util</artifactId>
             <version>${project.version}</version>
-        </dependency> 
+        </dependency>
         <!--Test dependecies-->
         <dependency>
             <groupId>junit</groupId>
@@ -32,7 +30,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgres.version}</version>
             <scope>test</scope>
@@ -44,5 +42,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
 </project>

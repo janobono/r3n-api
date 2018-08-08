@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
@@ -37,7 +37,7 @@ public class PlainXML {
     }
 
     public static String beginTag(String tag, Map<String, String> attributes,
-            boolean simpleClose) {
+                                  boolean simpleClose) {
         StringBuilder result = new StringBuilder();
         result.append(OPEN_START);
         result.append(tag);

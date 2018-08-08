@@ -1,9 +1,11 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.dto;
+
+import sk.r3n.sql.Column;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -13,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sk.r3n.sql.Column;
 
 /**
  * A utility to help mapping object to object based on annotations.
@@ -51,7 +52,7 @@ public class Dto {
     /**
      * Transforms object members to array of objects. Only annotated class members are used and getters are needed.
      *
-     * @param object Annotated object instance.
+     * @param object  Annotated object instance.
      * @param columns Columns witch will be searched by <code>sk.r3n.dto.ColumnId</code> annotation.
      * @return Array of values.
      */
@@ -74,8 +75,8 @@ public class Dto {
     /**
      * Sets members of object with array of objects. Only annotated class members are used and setters are needed.
      *
-     * @param object Annotated object instance.
-     * @param values Array of values.
+     * @param object  Annotated object instance.
+     * @param values  Array of values.
      * @param columns Columns witch will be searched by <code>sk.r3n.dto.ColumnId</code> annotation.
      */
     public void fill(Object object, Object[] values, Column... columns) {
@@ -104,9 +105,7 @@ public class Dto {
 
     private void setValue(Object object, Field field, Object value) {
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("set").append(Character.toString(field.getName().charAt(0)).toUpperCase()).append(field.getName().substring(1));
-            Method method = object.getClass().getMethod(sb.toString(), field.getType());
+            Method method = object.getClass().getMethod("set" + Character.toString(field.getName().charAt(0)).toUpperCase() + field.getName().substring(1), field.getType());
             method.invoke(object, value);
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -129,11 +128,9 @@ public class Dto {
     }
 
     private Object getValue(Object object, Field field) {
-        Object result = null;
+        Object result;
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("get").append(Character.toString(field.getName().charAt(0)).toUpperCase()).append(field.getName().substring(1));
-            Method method = object.getClass().getMethod(sb.toString());
+            Method method = object.getClass().getMethod("get" + Character.toString(field.getName().charAt(0)).toUpperCase() + field.getName().substring(1));
             result = method.invoke(object);
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new RuntimeException(e);

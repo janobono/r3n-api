@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
@@ -22,7 +22,7 @@ public class URLConnection extends java.net.URLConnection {
 
     private ZipEntry zipEntry;
 
-    protected URLConnection(URL url) throws MalformedURLException {
+    URLConnection(URL url) throws MalformedURLException {
         super(url);
         String spec = url.getFile();
         int separator = spec.indexOf('!');

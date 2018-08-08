@@ -1,17 +1,10 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.plugin.postgres;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.maven.plugin.logging.Log;
 import sk.r3n.jdbc.SqlUtil;
 import sk.r3n.plugin.Structure;
@@ -21,29 +14,24 @@ import sk.r3n.sql.DataType;
 import sk.r3n.sql.Sequence;
 import sk.r3n.sql.Table;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class PostgreStructureLoader extends StructureLoader {
 
     private enum DATA_TYPE {
 
-        SMALLINT, INTEGER, BIGINT, DECIMAL, NUMERIC, CHARACTER, TEXT, BYTEA, TIMESTAMP, TIME, DATE, BOOLEAN;
+        SMALLINT, INTEGER, BIGINT, DECIMAL, NUMERIC, CHARACTER, TEXT, BYTEA, TIMESTAMP, TIME, DATE, BOOLEAN
 
     }
 
     @Override
-    public Structure load(Log log, Connection connection, String jdbcUser) throws Exception {
-        Structure structure = new Structure();
-
-        loadSequences(log, connection, structure);
-        loadTables(log, connection, structure);
-
-        for (Table table : structure.getTables()) {
-            structure.getColumns(table).addAll(loadColumns(log, connection, table));
-        }
-
-        return structure;
-    }
-
-    private void loadSequences(Log log, Connection connection, Structure structure) throws SQLException {
+    protected void loadSequences(Log log, Connection connection, Structure structure) {
         log.info("Sequences loading");
 
         PreparedStatement statement = null;
@@ -55,9 +43,10 @@ public class PostgreStructureLoader extends StructureLoader {
             while (resultSet.next()) {
                 Sequence sequence = new Sequence(resultSet.getString(1));
                 structure.getSequences().add(sequence);
-                log.info("Sequnce found: " + sequence.getName());
+                log.info("Sequence found: " + sequence.getName());
             }
-
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
             SqlUtil.close(statement);
@@ -66,7 +55,8 @@ public class PostgreStructureLoader extends StructureLoader {
         log.info("Sequences loaded");
     }
 
-    private void loadTables(Log log, Connection connection, Structure structure) throws SQLException {
+    @Override
+    protected void loadTables(Log log, Connection connection, Structure structure) {
         log.info("Tables loading");
 
         PreparedStatement statement = null;
@@ -82,7 +72,8 @@ public class PostgreStructureLoader extends StructureLoader {
                 structure.getTables().add(table);
                 log.info("Table found: " + table.getName());
             }
-
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
             SqlUtil.close(statement);
@@ -91,7 +82,8 @@ public class PostgreStructureLoader extends StructureLoader {
         log.info("Tables loaded");
     }
 
-    private List<Column> loadColumns(Log log, Connection connection, Table table) throws SQLException {
+    @Override
+    protected List<Column> loadColumns(Log log, Connection connection, Table table) {
         log.info("Columns loading: " + table);
         List<Column> result = new ArrayList<>();
 
@@ -105,7 +97,8 @@ public class PostgreStructureLoader extends StructureLoader {
                 Column column = new Column(resultSet.getString(1), table, getDataType(resultSet.getString(2)));
                 result.add(column);
             }
-
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
             SqlUtil.close(statement);
