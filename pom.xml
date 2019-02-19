@@ -9,7 +9,7 @@
     <description>R3N simple sql utils.</description>
 
     <properties>
-        <targetJdk>10</targetJdk>
+        <targetJdk>1.8</targetJdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>4.12</junit.version>
         <ora.version>12.2.0.1</ora.version>
@@ -21,7 +21,6 @@
         <module>r3n-example</module>
         <module>r3n-maven-plugin</module>
         <module>r3n-sql</module>
-        <module>r3n-sw</module>
         <module>r3n-util</module>
     </modules>
 
