@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.logging.LogManager;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import sk.r3n.dto.Dto;
 import sk.r3n.example.ora.SEQUENCE;
@@ -39,6 +40,7 @@ import sk.r3n.util.DateUtil;
 import sk.r3n.util.FileUtil;
 import sk.r3n.util.ScDf;
 
+@Ignore
 public class OraTest {
 
     public OraTest() {

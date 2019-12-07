@@ -5,6 +5,7 @@
  */
 package sk.r3n.example.ora;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import sk.r3n.jdbc.SqlUtil;
 
@@ -13,6 +14,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.logging.LogManager;
 
+@Ignore
 public class CreateDB {
 
     public CreateDB() {
