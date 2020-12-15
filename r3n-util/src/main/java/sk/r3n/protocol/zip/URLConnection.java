@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 janobono. All rights reserved.
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -12,6 +12,12 @@ import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ * Zip file URLConnection.
+ *
+ * @author janobono
+ * @since 18 August 2014
+ */
 public class URLConnection extends java.net.URLConnection {
 
     private final String file;

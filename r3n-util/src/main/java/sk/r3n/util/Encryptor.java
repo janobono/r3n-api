@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 janobono. All rights reserved.
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -15,36 +15,81 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
 
-public class Encrypter {
+/**
+ * {@link Cipher} utility methods.
+ *
+ * @author janobono
+ * @since 18 August 2014
+ */
+public class Encryptor {
 
-    private Cipher cipher;
+    private final Cipher cipher;
 
     private Key key;
 
-    public Encrypter() throws Exception {
+    /**
+     * Default constructor.
+     *
+     * @throws Exception
+     */
+    public Encryptor() throws Exception {
         this("Blowfish");
     }
 
-    public Encrypter(String algorithm) throws Exception {
+    /**
+     * Constructor with transformation param.
+     *
+     * @param transformation the name of the transformation, e.g., <i>AES/CBC/PKCS5Padding</i>.
+     *                       See the Cipher section in the
+     *                       <a href="{@docRoot}/../technotes/guides/security/StandardNames.html#Cipher">Java Cryptography Architecture Standard Algorithm Name Documentation</a>
+     *                       for information about standard transformation names.
+     * @throws Exception
+     */
+    public Encryptor(String transformation) throws Exception {
         super();
-        cipher = Cipher.getInstance(algorithm);
+        cipher = Cipher.getInstance(transformation);
     }
 
+    /**
+     * Generate key.
+     *
+     * @param length key length
+     * @throws Exception
+     */
     public void generateKey(int length) throws Exception {
         KeyGenerator kgen = KeyGenerator.getInstance(cipher.getAlgorithm());
         kgen.init(length);
         createKey(kgen.generateKey().getEncoded());
     }
 
+    /**
+     * Create key.
+     *
+     * @param key byte array key representation
+     */
     public void createKey(byte[] key) {
         this.key = new SecretKeySpec(key, cipher.getAlgorithm());
     }
 
+    /**
+     * Decrypt data in byte array format.
+     *
+     * @param data source data
+     * @return decrypted data
+     * @throws Exception
+     */
     public byte[] decrypt(byte[] data) throws Exception {
         cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec());
         return cipher.doFinal(data);
     }
 
+    /**
+     * Decrypt stream to stream.
+     *
+     * @param in  source stream
+     * @param out target stream
+     * @throws Exception
+     */
     public void decrypt(InputStream in, OutputStream out) throws Exception {
         cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec());
         byte[] buf = new byte[1024];
@@ -56,11 +101,23 @@ public class Encrypter {
         in.close();
     }
 
+    /**
+     * Encrypt data in byte array format.
+     *
+     * @param data source data
+     * @return encrypted data
+     * @throws Exception
+     */
     public byte[] encrypt(byte[] data) throws Exception {
         cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec());
         return cipher.doFinal(data);
     }
 
+    /**
+     * @param in
+     * @param out
+     * @throws Exception
+     */
     public void encrypt(InputStream in, OutputStream out) throws Exception {
         cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec());
         byte[] buf = new byte[1024];
@@ -72,6 +129,11 @@ public class Encrypter {
         out.close();
     }
 
+    /**
+     * Return key.
+     *
+     * @return key
+     */
     public Key getKey() {
         return key;
     }
@@ -83,6 +145,13 @@ public class Encrypter {
         return key;
     }
 
+    /**
+     * Load key from stream.
+     *
+     * @param inputStream stream
+     * @throws Exception If the first byte cannot be read for any reason other than the end of the file,
+     *                   if the input stream has been closed, or if some other I/O error occurs.
+     */
     public void loadKey(InputStream inputStream) throws Exception {
         byte[] encoded;
         byte[] buffer = new byte[1024];
@@ -98,9 +167,14 @@ public class Encrypter {
         createKey(encoded);
     }
 
+    /**
+     * Save key to stream.
+     *
+     * @param outputStream stream
+     * @throws Exception if an I/O error occurs.
+     */
     public void saveKey(OutputStream outputStream) throws Exception {
         outputStream.write(key.getEncoded());
         outputStream.flush();
     }
-
 }
