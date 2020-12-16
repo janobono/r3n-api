@@ -1,15 +1,21 @@
-/* 
- * Copyright 2016 janobono. All rights reserved.
+/*
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.sql;
 
-import java.util.Arrays;
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Function definition object.
+ *
+ * @author janobono
+ * @since 26 September 2014
  */
+@Getter
+@ToString(callSuper = true)
 public class ColumnFunction extends Column {
 
     private final String columnId;
@@ -21,19 +27,4 @@ public class ColumnFunction extends Column {
         this.columnId = columnId;
         this.members = members;
     }
-
-    @Override
-    public String getColumnId() {
-        return columnId;
-    }
-
-    public Column[] getMembers() {
-        return members;
-    }
-
-    @Override
-    public String toString() {
-        return "ColumnFunction{" + "function=" + getName() + ", members=" + Arrays.toString(members) + ", dataType=" + getDataType() + '}';
-    }
-
 }

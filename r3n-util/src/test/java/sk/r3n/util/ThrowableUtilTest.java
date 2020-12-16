@@ -17,8 +17,10 @@ public class ThrowableUtilTest {
         try {
             throw new RuntimeException(EXCEPTION_MESSAGE);
         } catch (Exception e) {
+            // create message
             assertThat(ThrowableUtil.createMessage(e)).isEqualTo(EXCEPTION_MESSAGE);
             LOGGER.info(ThrowableUtil.createMessage(e));
+            // get stack trace
             assertThat(ThrowableUtil.getStackTrace(e)).isNotEmpty();
             LOGGER.info(ThrowableUtil.getStackTrace(e));
         }

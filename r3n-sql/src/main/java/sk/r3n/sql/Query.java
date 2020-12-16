@@ -1,5 +1,5 @@
-/* 
- * Copyright 2016 janobono. All rights reserved.
+/*
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Query object.
+ *
+ * @author janobono
+ * @since 20 August 2014
+ */
 public class Query {
 
     public static class Select implements Serializable {

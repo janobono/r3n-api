@@ -16,8 +16,10 @@ public class ScDfTest {
 
     @Test
     public void test() {
+        // remove diacritics
         assertThat(ScDf.toDf(TEXT)).isEqualTo(DF_RESULT);
         LOGGER.info("ScDf.toDf({}) = {}", TEXT, DF_RESULT);
+        // remove diacritics and transform to lower case
         assertThat(ScDf.toScDf(TEXT)).isEqualTo(SCDF_RESULT);
         LOGGER.info("ScDf.toScDf({}) = {}", TEXT, SCDF_RESULT);
     }

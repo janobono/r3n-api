@@ -1,14 +1,23 @@
-/* 
- * Copyright 2016 janobono. All rights reserved.
+/*
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.sql;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Criteria management object.
+ *
+ * @author janobono
+ * @since 18 August 2014
+ */
+@Getter
 public class CriteriaManager implements Serializable {
 
     private Criteria criteria;
@@ -65,14 +74,6 @@ public class CriteriaManager implements Serializable {
         }
     }
 
-    public Criteria getCritera() {
-        return criteria;
-    }
-
-    public List<Criteria> getCriteriaList() {
-        return criteriaList;
-    }
-
     public boolean isCriteria() {
         boolean result = false;
         for (Criteria c : criteriaList) {
@@ -83,5 +84,4 @@ public class CriteriaManager implements Serializable {
         }
         return result;
     }
-
 }

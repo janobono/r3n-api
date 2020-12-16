@@ -15,16 +15,19 @@ public class PasswordGeneratorTest {
         // Default algorithm
         PasswordGenerator passwordGenerator = new PasswordGenerator();
 
+        // generate numeric password
         String password = passwordGenerator.generatePassword(PasswordGenerator.Type.NUMERIC, 10);
         assertThat(password.matches("[0-9]+")).isTrue();
         assertThat(password.length()).isEqualTo(10);
         LOGGER.info("passwordGenerator.generatePassword({},{}) = {}", PasswordGenerator.Type.NUMERIC, 10, password);
 
+        // generate alpha password
         password = passwordGenerator.generatePassword(PasswordGenerator.Type.ALPHA, 15);
         assertThat(password.matches("[a-zA-Z]+")).isTrue();
         assertThat(password.length()).isEqualTo(15);
         LOGGER.info("passwordGenerator.generatePassword({},{}) = {}", PasswordGenerator.Type.ALPHA, 15, password);
 
+        // generate alpha numeric password
         password = passwordGenerator.generatePassword(PasswordGenerator.Type.ALPHA_NUMERIC, 12);
         assertThat(password.matches("[0-9a-zA-Z]+")).isTrue();
         assertThat(password.length()).isEqualTo(12);

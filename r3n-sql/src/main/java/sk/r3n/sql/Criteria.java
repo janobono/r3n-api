@@ -1,16 +1,24 @@
-/* 
- * Copyright 2016 janobono. All rights reserved.
+/*
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
 package sk.r3n.sql;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Criteria definition object.
+ *
+ * @author janobono
+ * @since 18 August 2014
  */
+@Getter
+@Setter
 public class Criteria implements CriteriaContent {
 
     private final List<CriteriaContent> content;
@@ -39,7 +47,7 @@ public class Criteria implements CriteriaContent {
             if (contentObject instanceof Criterion) {
                 result = true;
             } else {
-                result |= isCriteria((Criteria) contentObject);
+                result = isCriteria((Criteria) contentObject);
             }
             if (result) {
                 break;
@@ -56,9 +64,9 @@ public class Criteria implements CriteriaContent {
         boolean result = false;
         for (Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
-                result |= ((Criterion) contentObject).getColumn().getColumnId().equals(column.getColumnId());
+                result = ((Criterion) contentObject).getColumn().getColumnId().equals(column.getColumnId());
             } else {
-                result |= contains((Criteria) contentObject, column);
+                result = contains((Criteria) contentObject, column);
             }
             if (result) {
                 break;
@@ -75,9 +83,9 @@ public class Criteria implements CriteriaContent {
         boolean result = false;
         for (Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
-                result |= ((Criterion) contentObject).getColumn().getTable().getName().equals(table.getName());
+                result = ((Criterion) contentObject).getColumn().getTable().getName().equals(table.getName());
             } else {
-                result |= contains((Criteria) contentObject, table);
+                result = contains((Criteria) contentObject, table);
             }
             if (result) {
                 break;
@@ -105,26 +113,4 @@ public class Criteria implements CriteriaContent {
             }
         });
     }
-
-    public List<CriteriaContent> getContent() {
-        return content;
-    }
-
-    @Override
-    public Operator getOperator() {
-        return operator;
-    }
-
-    public void setOperator(Operator operator) {
-        this.operator = operator;
-    }
-
-    public Criteria getParent() {
-        return parent;
-    }
-
-    public void setParent(Criteria parent) {
-        this.parent = parent;
-    }
-
 }

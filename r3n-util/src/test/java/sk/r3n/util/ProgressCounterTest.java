@@ -8,6 +8,7 @@ class ProgressCounterTest {
 
     @Test
     public void test() {
+        // Create progress counter
         ProgressCounter progressCounter = new ProgressCounter(100);
         // No progress yet
         assertThat(progressCounter.actualProgress()).isEqualTo(0);

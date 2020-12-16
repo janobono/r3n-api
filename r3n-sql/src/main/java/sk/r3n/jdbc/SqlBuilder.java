@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2016 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
@@ -10,8 +10,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sk.r3n.dto.Dto;
 import sk.r3n.sql.DataType;
 import sk.r3n.sql.Query.Delete;
@@ -22,10 +23,13 @@ import sk.r3n.sql.Sequence;
 
 /**
  * Sql builder base class.
+ *
+ * @author janobono
+ * @since 18 August 2014
  */
 public abstract class SqlBuilder {
 
-    private static final Logger LOGGER = Logger.getLogger(SqlBuilder.class.getCanonicalName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlBuilder.class);
 
     /**
      * Temporary directory used to store BLOB data from database.
@@ -35,9 +39,7 @@ public abstract class SqlBuilder {
     public File getTmpDir() {
         if (tmpDir == null) {
             tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.log(Level.FINEST, "Default tmp dir will be used - {0}", tmpDir.getAbsolutePath());
-            }
+            LOGGER.debug("Default tmp dir will be used - {}", tmpDir);
         }
         return tmpDir;
     }
@@ -58,7 +60,7 @@ public abstract class SqlBuilder {
      * Executes nextval.
      *
      * @param connection Connection.
-     * @param sequence Sequence definition object.
+     * @param sequence   Sequence definition object.
      * @return Next value from sequence.
      * @throws SQLException
      */
@@ -76,7 +78,7 @@ public abstract class SqlBuilder {
      * Executes select.
      *
      * @param connection Connection.
-     * @param select Select definition object.
+     * @param select     Select definition object.
      * @return List of result rows like arrays of objects.
      * @throws SQLException
      */
@@ -85,10 +87,10 @@ public abstract class SqlBuilder {
     /**
      * Executes select.
      *
-     * @param <T> Dto object.
+     * @param <T>        Dto object.
      * @param connection Connection.
-     * @param select Select definition object.
-     * @param clazz Dto object class.
+     * @param select     Select definition object.
+     * @param clazz      Dto object class.
      * @return List of result dto objects.
      * @throws SQLException
      * @throws InstantiationException
@@ -103,9 +105,7 @@ public abstract class SqlBuilder {
             T t = clazz.newInstance();
             dto.fill(t, row, select.getColumns());
             result.add(t);
-            if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.log(Level.FINEST, t.toString());
-            }
+            LOGGER.debug(t.toString());
         }
 
         return result;
@@ -123,7 +123,7 @@ public abstract class SqlBuilder {
      * Executes insert.
      *
      * @param connection Connection.
-     * @param insert Insert definition object.
+     * @param insert     Insert definition object.
      * @return Value if insert returning value else null.
      * @throws SQLException
      */
@@ -141,7 +141,7 @@ public abstract class SqlBuilder {
      * Executes update.
      *
      * @param connection Connection.
-     * @param update Update definition object.
+     * @param update     Update definition object.
      * @throws SQLException
      */
     public abstract void update(Connection connection, Update update) throws SQLException;
@@ -158,7 +158,7 @@ public abstract class SqlBuilder {
      * Executes delete.
      *
      * @param connection Connection.
-     * @param delete Delete definition object.
+     * @param delete     Delete definition object.
      * @throws SQLException
      */
     public abstract void delete(Connection connection, Delete delete) throws SQLException;
@@ -167,7 +167,7 @@ public abstract class SqlBuilder {
      * Executes sql representation.
      *
      * @param connection Connection.
-     * @param sql Sql representation object.
+     * @param sql        Sql representation object.
      * @throws SQLException
      */
     public abstract void execute(Connection connection, Sql sql) throws SQLException;
@@ -176,8 +176,8 @@ public abstract class SqlBuilder {
      * Executes sql representation.
      *
      * @param connection Connection.
-     * @param sql Sql representation object.
-     * @param dataType Returning data type.
+     * @param sql        Sql representation object.
+     * @param dataType   Returning data type.
      * @return Returning value.
      * @throws SQLException
      */
@@ -187,8 +187,8 @@ public abstract class SqlBuilder {
      * Executes sql representation.
      *
      * @param connection Connection.
-     * @param sql Sql representation object.
-     * @param dataTypes Returning data types.
+     * @param sql        Sql representation object.
+     * @param dataTypes  Returning data types.
      * @return List of result rows like arrays of objects.
      * @throws SQLException
      */

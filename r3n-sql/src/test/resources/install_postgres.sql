@@ -1,5 +1,5 @@
 --SEQUENCES
-create sequence test_sequence minvalue 1 maxvalue 9223372036854775807 start 1 cache 1  no cycle;
+create sequence test_sequence minvalue 1 maxvalue 9223372036854775807 start 1 cache 1 no cycle;
 
 --TABLES
 create table t_base_types(
@@ -31,5 +31,7 @@ alter table t_base_types add primary key (id);
 alter table t_join add primary key (id);
 
 --FK
-alter table t_join add constraint fk_bt 
+alter table t_join add constraint fk_bt
     foreign key (t_base_types_fk) references t_base_types (id) on delete cascade on update cascade;
+
+--DATA

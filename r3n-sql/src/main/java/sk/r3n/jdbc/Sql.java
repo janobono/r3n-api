@@ -1,5 +1,5 @@
-/* 
- * Copyright 2016 janobono. All rights reserved.
+/*
+ * Copyright 2017 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -13,6 +13,9 @@ import sk.r3n.sql.Query;
 
 /**
  * Sql command representation object.
+ *
+ * @author janobono
+ * @since 4 March 2017
  */
 public class Sql {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 janobono. All rights reserved.
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -12,6 +12,9 @@ import java.lang.annotation.Target;
 
 /**
  * Allows identify column for mapping.
+ *
+ * @author janobono
+ * @since 22 August 2014
  */
 @Target(value = {ElementType.FIELD})
 @Retention(value = RetentionPolicy.RUNTIME)
@@ -26,5 +29,4 @@ public @interface ColumnId {
      * @return Column identifier.
      */
     String column() default "";
-
 }
