@@ -41,6 +41,7 @@ Maven plugin to generate meta object useful in query creation process. [Look her
 
 - [OpenJDK 8](https://adoptopenjdk.net/)
 - [Maven](https://maven.apache.org/download.cgi)
+- [Docker](https://www.docker.com/products/container-runtime)
 
 with tests:
 ```
