@@ -1,0 +1,16 @@
+package <REPLACE_PACKAGE>;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import sk.r3n.dto.ColumnId;
+
+<REPLACE_IMPORT>
+
+@Getter
+@Setter
+@ToString
+public class <REPLACE_CLASS_NAME> implements Serializable {
+
+<REPLACE_DEFINITION>
+}

@@ -13,11 +13,11 @@ import java.io.Serializable;
 public class TJoinDto implements Serializable {
 
     @ColumnId(table = "t_join", column = "id")
-    protected Long id;
+    private Long id;
 
     @ColumnId(table = "t_join", column = "t_base_types_fk")
-    protected Long tBaseTypesFk;
+    private Long tBaseTypesFk;
 
     @ColumnId(table = "t_join", column = "t_join_string")
-    protected String tJoinString;
+    private String tJoinString;
 }

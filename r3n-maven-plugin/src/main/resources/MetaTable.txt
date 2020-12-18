@@ -1,0 +1,25 @@
+package <REPLACE_PACKAGE>;
+
+import sk.r3n.sql.Table;
+
+public enum MetaTable {
+
+<REPLACE_DEFINITION>
+
+    private final String tableName;
+
+    private final String tableAlias;
+
+    MetaTable(String tableName, String tableAlias) {
+        this.tableName = tableName;
+        this.tableAlias = tableAlias;
+    }
+
+    public Table table() {
+        return new Table(tableName, tableAlias);
+    }
+
+    public Table table(String tableAlias) {
+        return new Table(tableName, tableAlias);
+    }
+}

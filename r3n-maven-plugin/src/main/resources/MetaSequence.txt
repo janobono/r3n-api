@@ -1,0 +1,18 @@
+package <REPLACE_PACKAGE>;
+
+import sk.r3n.sql.Sequence;
+
+public enum MetaSequence {
+
+<REPLACE_DEFINITION>
+
+    private final String sequenceName;
+
+    MetaSequence(String sequenceName) {
+        this.sequenceName = sequenceName;
+    }
+
+    public Sequence sequence() {
+        return new Sequence(sequenceName);
+    }
+}

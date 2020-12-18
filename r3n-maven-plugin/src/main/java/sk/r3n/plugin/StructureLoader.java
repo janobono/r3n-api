@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 janobono. All rights reserved.
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -15,6 +15,12 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.util.List;
 
+/**
+ * Db structure loader.
+ *
+ * @author janobono
+ * @since 21 August 2014
+ */
 public abstract class StructureLoader implements Serializable {
 
     static StructureLoader getInstance(String jdbcDriver) {
@@ -47,5 +53,4 @@ public abstract class StructureLoader implements Serializable {
     protected abstract void loadTables(Log log, Connection connection, Structure structure);
 
     protected abstract List<Column> loadColumns(Log log, Connection connection, Table table);
-
 }

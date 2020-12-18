@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <revision>4.1.1</revision>
+        <revision>5.0.0</revision>
 
         <org.slf4j.version>1.7.30</org.slf4j.version>
 
@@ -89,7 +89,6 @@
     </dependencyManagement>
 
     <build>
-        <defaultGoal>package</defaultGoal>
         <pluginManagement>
             <plugins>
                 <plugin>

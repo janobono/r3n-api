@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 janobono. All rights reserved.
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -25,9 +25,7 @@ import java.util.List;
 public class PostgreStructureLoader extends StructureLoader {
 
     private enum DATA_TYPE {
-
         SMALLINT, INTEGER, BIGINT, DECIMAL, NUMERIC, CHARACTER, TEXT, BYTEA, TIMESTAMP, TIME, DATE, BOOLEAN
-
     }
 
     @Override
@@ -62,7 +60,9 @@ public class PostgreStructureLoader extends StructureLoader {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            statement = connection.prepareStatement("SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type =?");
+            statement = connection.prepareStatement(
+                    "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type =?"
+            );
             statement.setString(1, "public");
             statement.setString(2, "BASE TABLE");
             resultSet = statement.executeQuery();
@@ -90,7 +90,9 @@ public class PostgreStructureLoader extends StructureLoader {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            statement = connection.prepareStatement("SELECT column_name, data_type FROM information_schema.columns WHERE table_name  = ? order by ordinal_position");
+            statement = connection.prepareStatement(
+                    "SELECT column_name, data_type FROM information_schema.columns WHERE table_name  = ? order by ordinal_position"
+            );
             statement.setString(1, table.getName().toLowerCase());
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -156,5 +158,4 @@ public class PostgreStructureLoader extends StructureLoader {
         }
         return result;
     }
-
 }

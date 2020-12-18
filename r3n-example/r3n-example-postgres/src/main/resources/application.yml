@@ -1,0 +1,28 @@
+# ===============================
+# = LOGGING
+# ===============================
+logging:
+  level:
+    sk.r3n: ${EXAMPLE_LOG_LEVEL:debug}
+
+# ===============================
+# = SERVER
+# ===============================
+server:
+  port: ${EXAMPLE_PORT:8080}
+  servlet:
+    context-path: ${EXAMPLE_CONTEXT_PATH:/api}
+
+# ===============================
+# = DATASOURCE
+# ===============================
+spring:
+  datasource:
+    url: ${EXAMPLE_DB_URL:jdbc:postgresql://localhost:5432/app}
+    username: ${EXAMPLE_DB_USER:app}
+    password: ${EXAMPLE_DB_PASS:app}
+  # ===============================
+  # = FLYWAY
+  # ===============================
+  flyway:
+    check-location: true

@@ -18,44 +18,44 @@ import java.time.LocalTime;
 public class TBaseTypesDto implements Serializable {
 
     @ColumnId(table = "t_base_types", column = "id")
-    protected Long id;
+    private Long id;
 
     @ColumnId(table = "t_base_types", column = "t_short")
-    protected Short tShort;
+    private Short tShort;
 
     @ColumnId(table = "t_base_types", column = "t_integer")
-    protected Integer tInteger;
+    private Integer tInteger;
 
     @ColumnId(table = "t_base_types", column = "t_long")
-    protected Long tLong;
+    private Long tLong;
 
     @ColumnId(table = "t_base_types", column = "t_big_decimal")
-    protected BigDecimal tBigDecimal;
+    private BigDecimal tBigDecimal;
 
     @ColumnId(table = "t_base_types", column = "t_string_char")
-    protected String tStringChar;
+    private String tStringChar;
 
     @ColumnId(table = "t_base_types", column = "t_string_text")
-    protected String tStringText;
+    private String tStringText;
 
     @ColumnId(table = "t_base_types", column = "t_string_varchar")
-    protected String tStringVarchar;
+    private String tStringVarchar;
 
     @ColumnId(table = "t_base_types", column = "t_string_scdf")
-    protected String tStringScdf;
+    private String tStringScdf;
 
     @ColumnId(table = "t_base_types", column = "t_blob")
-    protected File tBlob;
+    private File tBlob;
 
     @ColumnId(table = "t_base_types", column = "t_time_stamp")
-    protected LocalDateTime tTimeStamp;
+    private LocalDateTime tTimeStamp;
 
     @ColumnId(table = "t_base_types", column = "t_time")
-    protected LocalTime tTime;
+    private LocalTime tTime;
 
     @ColumnId(table = "t_base_types", column = "t_date")
-    protected LocalDate tDate;
+    private LocalDate tDate;
 
     @ColumnId(table = "t_base_types", column = "t_boolean")
-    protected Boolean tBoolean;
+    private Boolean tBoolean;
 }

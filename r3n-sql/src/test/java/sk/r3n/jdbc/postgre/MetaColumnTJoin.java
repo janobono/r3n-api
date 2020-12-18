@@ -31,16 +31,16 @@ public enum MetaColumnTJoin {
 
     public static Column[] columns() {
         List<Column> columnList = new ArrayList<>();
-        for (MetaColumnTJoin metaTJoin_ora : values()) {
-            columnList.add(metaTJoin_ora.column());
+        for (MetaColumnTJoin metaColumnTJoin : values()) {
+            columnList.add(metaColumnTJoin.column());
         }
         return columnList.toArray(new Column[0]);
     }
 
     public static Column[] columns(String tableAlias) {
         List<Column> columnList = new ArrayList<>();
-        for (MetaColumnTJoin metaTJoin_ora : values()) {
-            columnList.add(metaTJoin_ora.column(tableAlias));
+        for (MetaColumnTJoin metaColumnTJoin : values()) {
+            columnList.add(metaColumnTJoin.column(tableAlias));
         }
         return columnList.toArray(new Column[0]);
     }

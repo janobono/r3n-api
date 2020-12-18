@@ -10,29 +10,22 @@
     <artifactId>r3n-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
 
-    <properties>
-        <mavenVersion>3.5.4</mavenVersion>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>${mavenVersion}</version>
+            <version>3.6.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.5.2</version>
+            <version>3.6.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>sk.r3n</groupId>
@@ -45,7 +38,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.6.0</version>
                 <configuration>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>

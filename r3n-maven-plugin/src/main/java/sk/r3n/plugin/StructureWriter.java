@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 janobono. All rights reserved.
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -17,256 +17,234 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Java objects writer.
+ *
+ * @author janobono
+ * @since 21 August 2014
+ */
 class StructureWriter implements Serializable {
 
-    void write(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
+    private static final String REPLACE_PACKAGE = "<REPLACE_PACKAGE>";
+    private static final String REPLACE_IMPORT = "<REPLACE_IMPORT>";
+    private static final String REPLACE_CLASS_NAME = "<REPLACE_CLASS_NAME>";
+    private static final String REPLACE_DEFINITION = "<REPLACE_DEFINITION>";
+    private static final String REPLACE_TABLE_NAME = "<REPLACE_TABLE_NAME>";
+
+    private final String sequenceTemplate;
+    private final String tableTemplate;
+    private final String columnTemplate;
+    private final String dtoTemplate;
+
+    public StructureWriter(String sequenceTemplate, String tableTemplate, String columnTemplate, String dtoTemplate) {
+        this.sequenceTemplate = sequenceTemplate;
+        this.tableTemplate = tableTemplate;
+        this.columnTemplate = columnTemplate;
+        this.dtoTemplate = dtoTemplate;
+    }
+
+    public void write(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
         log.info("Sequences");
-        writeSequences(log, overwrite, targetDir, targetPackage, structure);
+        File r3nDir = new File(targetDir, "r3n");
+        r3nDir.mkdirs();
+        writeSequences(log, overwrite, r3nDir, targetPackage + ".r3n", structure);
 
         log.info("Tables");
-        writeTables(log, overwrite, targetDir, targetPackage, structure);
+        writeTables(log, overwrite, r3nDir, targetPackage + ".r3n", structure);
 
         log.info("Dtos");
-        File dtoDir = new File(targetDir, "dto");
-        dtoDir.mkdirs();
-        targetPackage = targetPackage + ".dto";
-        writeDtos(log, overwrite, dtoDir, targetPackage, structure);
+        writeDtos(log, overwrite, targetDir, targetPackage, structure);
     }
 
     private void writeSequences(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
-        File file = new File(targetDir, "SEQUENCE.java");
+        File file = new File(targetDir, "MetaSequence.java");
         if (!file.exists() || overwrite) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("package ").append(targetPackage).append(";\n");
-            sb.append("\n");
-            sb.append("import java.io.Serializable;\n");
-            sb.append("import sk.r3n.sql.Sequence;\n");
-            sb.append("\n");
-            sb.append("public class SEQUENCE implements Serializable {\n");
-            sb.append("\n");
-            for (Sequence sequence : structure.getSequences()) {
-                sb.append(sequenceJava(sequence));
-            }
-            sb.append("\n");
-            sb.append("}\n");
-            FileUtil.write(file, sb.toString().getBytes());
+            String content = sequenceTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
+            content = content.replaceAll(REPLACE_DEFINITION, sequencesToString(structure.getSequences()));
+            FileUtil.write(file, content.getBytes());
         } else {
             log.info("SKIPPED");
         }
     }
 
-    private String sequenceJava(Sequence sequence) {
-        return "    public static Sequence " + sequence.getName().toUpperCase() + "() {\n" +
-                "        return new Sequence(\"" + sequence.getName().toLowerCase() + "\");\n" +
-                "    }\n";
-    }
-
     private void writeTables(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
-        File file = new File(targetDir, "TABLE.java");
+        File file = new File(targetDir, "MetaTable.java");
         if (!file.exists() || overwrite) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("package ").append(targetPackage).append(";\n");
-            sb.append("\n");
-            sb.append("import java.io.Serializable;\n");
-            sb.append("import sk.r3n.sql.Table;\n");
-            sb.append("\n");
-            sb.append("public class TABLE implements Serializable {\n");
-            structure.getTables().forEach(table -> sb.append(tableJava(table)));
-            sb.append("\n");
-            sb.append("}\n");
-            FileUtil.write(file, sb.toString().getBytes());
+            String content = tableTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
+            content = content.replaceAll(REPLACE_DEFINITION, tablesToString(structure.getTables()));
+            FileUtil.write(file, content.getBytes());
         } else {
             log.info("SKIPPED");
         }
 
         for (Table table : structure.getTables()) {
-            file = new File(targetDir, table.getName().toUpperCase() + ".java");
+            String className = "MetaColumn" + toCamelCase(false, table.getName());
+            file = new File(targetDir, className + ".java");
             if (!file.exists() || overwrite) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("package ").append(targetPackage).append(";\n");
-                sb.append("\n");
-                sb.append("import java.io.Serializable;\n");
-                sb.append("import sk.r3n.sql.Column;\n");
-                sb.append("import sk.r3n.sql.DataType;\n");
-                sb.append("\n");
-                sb.append("public class ").append(table.getName().toUpperCase()).append(" implements Serializable {\n");
-                structure.getColumns(table).forEach(column -> sb.append(columnJava(table, column)));
-                sb.append("\n");
-                sb.append("    public static Column[] columns() {\n");
-                sb.append("        return new Column[]{");
-                for (int i = 0; i < structure.getColumns(table).size(); i++) {
-                    Column column = structure.getColumns(table).get(i);
-                    sb.append(column.getName().toUpperCase()).append("()");
-                    if (i < structure.getColumns(table).size() - 1) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append("};\n");
-                sb.append("    }\n");
-                sb.append("\n");
-                sb.append("    public static Column[] columns(String alias) {\n");
-                sb.append("        return new Column[]{");
-                for (int i = 0; i < structure.getColumns(table).size(); i++) {
-                    Column column = structure.getColumns(table).get(i);
-                    sb.append(column.getName().toUpperCase()).append("(alias)");
-                    if (i < structure.getColumns(table).size() - 1) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append("};\n");
-                sb.append("    }\n");
-                sb.append("}\n");
-                FileUtil.write(file, sb.toString().getBytes());
+                String content = columnTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
+                content = content.replaceAll(REPLACE_CLASS_NAME, toCamelCase(false, table.getName()));
+                content = content.replaceAll(REPLACE_DEFINITION, columnsToString(structure.getColumns(table)));
+                content = content.replaceAll(REPLACE_TABLE_NAME, table.getName().toUpperCase());
+                FileUtil.write(file, content.getBytes());
             } else {
                 log.info("SKIPPED");
             }
         }
-    }
-
-    private String tableJava(Table table) {
-        return "\n" +
-                "    public static Table " + table.getName().toUpperCase() + "() {\n" +
-                "        return new Table(\"" + table.getName().toLowerCase() + "\", \"" + table.getAlias().toLowerCase() + "\");\n" +
-                "    }\n" +
-                "\n" +
-                "    public static Table " + table.getName().toUpperCase() + "(String alias) {\n" +
-                "        return new Table(\"" + table.getName().toLowerCase() + "\", alias);\n" +
-                "    }\n";
-    }
-
-    private String columnJava(Table table, Column column) {
-        return "\n" +
-                "    public static Column " + column.getName().toUpperCase() + "() {\n" +
-                "        return new Column(\"" + column.getName().toLowerCase() + "\", TABLE." + table.getName().toUpperCase() + "(), DataType." + column.getDataType() + ");\n" +
-                "    }\n" +
-                "\n" +
-                "    public static Column " + column.getName().toUpperCase() + "(String alias) {\n" +
-                "        return new Column(\"" + column.getName().toLowerCase() + "\", TABLE." + table.getName().toUpperCase() + "(alias), DataType." + column.getDataType() + ");\n" +
-                "    }\n";
     }
 
     private void writeDtos(Log log, boolean overwrite, File dtoDir, String targetPackage, Structure structure) {
         for (Table table : structure.getTables()) {
-            String className = toCamelCase(false, table.getName());
-
+            String className = toCamelCase(false, table.getName()) + "Dto";
             File file = new File(dtoDir, className + ".java");
             if (!file.exists() || overwrite) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("package ").append(targetPackage).append(";\n");
-                sb.append("\n");
-                sb.append("import java.io.Serializable;\n");
-                for (Column column : structure.getColumns(table)) {
-                    if (column.getDataType() == DataType.BLOB) {
-                        sb.append("import java.io.File;\n");
-                        break;
-                    }
+                String content = dtoTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
+                List<String> lines = new ArrayList<>();
+                if (containsDataType(structure.getColumns(table), DataType.BLOB)) {
+                    lines.add("import java.io.File;");
                 }
-                for (Column column : structure.getColumns(table)) {
-                    if (column.getDataType() == DataType.BIG_DECIMAL) {
-                        sb.append("import java.math.BigDecimal;\n");
-                        break;
-                    }
+                lines.add("import java.io.Serializable;");
+                if (containsDataType(structure.getColumns(table), DataType.BIG_DECIMAL)) {
+                    lines.add("import java.math.BigDecimal;");
                 }
-                for (Column column : structure.getColumns(table)) {
-                    if (column.getDataType() == DataType.DATE
-                            || column.getDataType() == DataType.TIME
-                            || column.getDataType() == DataType.TIME_STAMP) {
-                        sb.append("import java.util.Date;\n");
-                        break;
-                    }
+                if (containsDataType(structure.getColumns(table), DataType.DATE)) {
+                    lines.add("import java.time.LocalDate;");
                 }
-                sb.append("import sk.r3n.dto.ColumnId;\n");
-                sb.append("\n");
-                sb.append("public class ").append(className).append(" implements Serializable {\n");
+                if (containsDataType(structure.getColumns(table), DataType.TIME_STAMP)) {
+                    lines.add("import java.time.LocalDateTime;");
+                }
+                if (containsDataType(structure.getColumns(table), DataType.TIME)) {
+                    lines.add("import java.time.LocalTime;");
+                }
+                content = content.replaceAll(REPLACE_IMPORT, linesToString(lines.toArray(new String[0])));
+                content = content.replaceAll(REPLACE_CLASS_NAME, className);
 
-                List<String> fields = new ArrayList<>();
-                List<String> methods = new ArrayList<>();
-                structure.getColumns(table).forEach(column -> fillFieldAndMethods(table, column, fields, methods));
-
-                fields.forEach(sb::append);
-
-                methods.forEach(sb::append);
-
-                sb.append("\n");
-                sb.append("    @Override\n");
-                sb.append("    public String toString() {\n");
-                sb.append("        return \"").append(className).append("{\"");
+                lines = new ArrayList<>();
                 List<Column> columns = structure.getColumns(table);
-                for (int i = 0; i < columns.size(); i++) {
-                    Column column = columns.get(i);
-                    String fieldName = toCamelCase(true, column.getName());
-                    sb.append(" + \"");
-                    if (i < fields.size() && i > 0) {
-                        sb.append(",");
+                for (int index = 0; index < columns.size(); index++) {
+                    lines.add(columnToString(table, columns.get(index)));
+                    if (index < columns.size() - 1) {
+                        lines.add("");
                     }
-                    sb.append(" ").append(fieldName).append("=\" + ").append(fieldName);
                 }
-                sb.append(" + '}';\n");
-                sb.append("    }\n");
-                sb.append("\n");
-                sb.append("}\n");
-                FileUtil.write(file, sb.toString().getBytes());
+                content = content.replaceAll(REPLACE_DEFINITION, linesToString(lines.toArray(new String[0])));
+                FileUtil.write(file, content.getBytes());
             } else {
                 log.info("SKIPPED");
             }
         }
     }
 
-    private void fillFieldAndMethods(Table table, Column column, List<String> fields, List<String> methods) {
-        String fieldName = toCamelCase(true, column.getName());
+    private String sequencesToString(List<Sequence> sequences) {
+        StringBuilder sb = new StringBuilder();
+        for (int index = 0; index < sequences.size(); index++) {
+            sb.append("    ");
+            sb.append(sequences.get(index).getName().toUpperCase());
+            sb.append("(\"");
+            sb.append(sequences.get(index).getName().toLowerCase());
+            sb.append("\")");
+            if (index < sequences.size() - 1) {
+                sb.append(",");
+                sb.append("\n");
+            } else {
+                sb.append(";");
+            }
+        }
+        return sb.toString();
+    }
 
-        String type = "";
+    private String tablesToString(List<Table> tables) {
+        StringBuilder sb = new StringBuilder();
+        for (int index = 0; index < tables.size(); index++) {
+            sb.append("    ");
+            sb.append(tables.get(index).getName().toUpperCase());
+            sb.append("(\"");
+            sb.append(tables.get(index).getName().toLowerCase());
+            sb.append("\", \"");
+            sb.append(tables.get(index).getAlias().toLowerCase());
+            sb.append("\")");
+            if (index < tables.size() - 1) {
+                sb.append(",");
+                sb.append("\n");
+            } else {
+                sb.append(";");
+            }
+        }
+        return sb.toString();
+    }
+
+    private String columnsToString(List<Column> columns) {
+        StringBuilder sb = new StringBuilder();
+        for (int index = 0; index < columns.size(); index++) {
+            sb.append("    ");
+            sb.append(columns.get(index).getName().toUpperCase());
+            sb.append("(\"");
+            sb.append(columns.get(index).getName().toLowerCase());
+            sb.append("\", DataType.");
+            sb.append(columns.get(index).getDataType().name());
+            sb.append(")");
+            if (index < columns.size() - 1) {
+                sb.append(",");
+                sb.append("\n");
+            } else {
+                sb.append(";");
+            }
+        }
+        return sb.toString();
+    }
+
+    private boolean containsDataType(List<Column> columns, DataType dataType) {
+        for (Column column : columns) {
+            if (column.getDataType() == dataType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String columnToString(Table table, Column column) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("    @ColumnId(table = \"");
+        sb.append(table.getName().toLowerCase());
+        sb.append("\", column = \"");
+        sb.append(column.getName().toLowerCase());
+        sb.append("\")\n");
+        sb.append("    private ");
         switch (column.getDataType()) {
             case BOOLEAN:
-                type = "Boolean";
+                sb.append("Boolean");
                 break;
             case STRING:
-                type = "String";
+                sb.append("String");
                 break;
             case SHORT:
-                type = "Short";
+                sb.append("Short");
                 break;
             case INTEGER:
-                type = "Integer";
+                sb.append("Integer");
                 break;
             case LONG:
-                type = "Long";
+                sb.append("Long");
                 break;
             case BIG_DECIMAL:
-                type = "BigDecimal";
+                sb.append("BigDecimal");
                 break;
             case DATE:
+                sb.append("LocalDate");
+                break;
             case TIME:
+                sb.append("LocalTime");
+                break;
             case TIME_STAMP:
-                type = "Date";
+                sb.append("LocalDateTime");
                 break;
             case BLOB:
-                type = "File";
+                sb.append("File");
                 break;
         }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n");
-        sb.append("    @ColumnId(");
-        sb.append("table = \"").append(table.getName().toLowerCase()).append("\", ");
-        sb.append("column = \"").append(column.getName().toLowerCase()).append("\"");
-        sb.append(")\n");
-        sb.append("    protected ").append(type).append(" ").append(fieldName).append(";\n");
-        fields.add(sb.toString());
-
-        sb = new StringBuilder();
-        sb.append("\n");
-        sb.append("    public ").append(type).append(" get")
-                .append(Character.toString(fieldName.charAt(0)).toUpperCase()).append(fieldName.substring(1))
-                .append("() {\n");
-        sb.append("        return ").append(fieldName).append(";\n");
-        sb.append("    }\n");
-        sb.append("\n");
-        sb.append("    public void set").append(Character.toString(fieldName.charAt(0)).toUpperCase()).append(fieldName.substring(1))
-                .append("(").append(type).append(" ").append(fieldName).append(") {\n");
-        sb.append("        this.").append(fieldName).append(" = ").append(fieldName).append(";\n");
-        sb.append("    }\n");
-        methods.add(sb.toString());
+        sb.append(" ");
+        sb.append(toCamelCase(true, column.getName()));
+        sb.append(";");
+        return sb.toString();
     }
 
     private String toCamelCase(boolean firstLower, String string) {
@@ -289,7 +267,20 @@ class StructureWriter implements Serializable {
                 }
             }
         }
+        return sb.toString();
+    }
 
+    private String linesToString(String... lines) {
+        StringBuilder sb = new StringBuilder();
+        for (int index = 0; index < lines.length; index++) {
+            String line = lines[index];
+            if (line.length() > 0) {
+                sb.append(line);
+            }
+            if (index < lines.length - 1) {
+                sb.append("\n");
+            }
+        }
         return sb.toString();
     }
 }

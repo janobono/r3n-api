@@ -4,40 +4,87 @@
     <parent>
         <artifactId>r3n-example</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>${revision}</version>
+        <version>5.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-example-postgres</artifactId>
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
         </dependency>
-        <!--Test dependecies-->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>sk.r3n</groupId>
+            <artifactId>r3n-sql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <defaultGoal>package</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>sk.r3n</groupId>
                 <artifactId>r3n-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${sk.r3n.version}</version>
                 <configuration>
-                    <targetPackage>sk.r3n.example.postgres</targetPackage>
+                    <targetPackage>sk.r3n.example.dal.domain</targetPackage>
                     <jdbcDriver>org.postgresql.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:postgresql://10.0.0.8:5432/test</jdbcUrl>
-                    <jdbcUser>postgres</jdbcUser>
-                    <jdbcPassword>postgres</jdbcPassword>
+                    <jdbcUrl>jdbc:postgresql://localhost:5432/app</jdbcUrl>
+                    <jdbcUser>app</jdbcUser>
+                    <jdbcPassword>app</jdbcPassword>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
-
 </project>

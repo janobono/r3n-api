@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 janobono. All rights reserved.
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -15,6 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Db structure object.
+ *
+ * @author janobono
+ * @since 21 August 2014
+ */
 public class Structure implements Serializable {
 
     private List<Sequence> sequences;
@@ -48,5 +54,4 @@ public class Structure implements Serializable {
         getColumns().computeIfAbsent(table.getName(), k -> new ArrayList<>());
         return getColumns().get(table.getName());
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 janobono. All rights reserved.
+ * Copyright 2014 janobono. All rights reserved.
  * Use of this source code is governed by a Apache 2.0
  * license that can be found in the LICENSE file.
  */
@@ -22,9 +22,7 @@ import java.util.List;
 public class OracleStructureLoader extends StructureLoader {
 
     private enum DATA_TYPE {
-
         NUMBER, CHAR, NCHAR, VARCHAR, NVARCHAR, CLOB, NCLOB, BLOB, TIMESTAMP, DATE
-
     }
 
     @Override
@@ -84,11 +82,17 @@ public class OracleStructureLoader extends StructureLoader {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            statement = connection.prepareStatement("select column_name, data_type, data_precision, data_scale from user_tab_columns where table_name = ? order by column_id");
+            statement = connection.prepareStatement(
+                    "select column_name, data_type, data_precision, data_scale from user_tab_columns where table_name = ? order by column_id"
+            );
             statement.setString(1, table.getName());
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                Column column = new Column(resultSet.getString(1), table, getDataType(resultSet.getString(2), resultSet.getInt(3), resultSet.getInt(4)));
+                Column column = new Column(
+                        resultSet.getString(1),
+                        table,
+                        getDataType(resultSet.getString(2), resultSet.getInt(3), resultSet.getInt(4))
+                );
                 result.add(column);
             }
         } catch (SQLException e) {
@@ -152,5 +156,4 @@ public class OracleStructureLoader extends StructureLoader {
         }
         return result;
     }
-
 }

@@ -1,0 +1,30 @@
+# ===============================
+# = LOGGING
+# ===============================
+logging:
+  level:
+    sk.r3n: ${EXAMPLE_LOG_LEVEL:debug}
+
+# ===============================
+# = SERVER
+# ===============================
+server:
+  port: ${EXAMPLE_PORT:8080}
+  servlet:
+    context-path: ${EXAMPLE_CONTEXT_PATH:/api}
+
+# ===============================
+# = DATASOURCE
+# ===============================
+spring:
+  datasource:
+    url: ${EXAMPLE_DB_URL:jdbc:oracle:thin:@localhost:1521:XE}
+    username: ${EXAMPLE_DB_USER:app}
+    password: ${EXAMPLE_DB_PASS:app}
+    driver-class-name: oracle.jdbc.OracleDriver
+  # ===============================
+  # = LIQUIBASE
+  # ===============================
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.sql

@@ -4,40 +4,87 @@
     <parent>
         <artifactId>r3n-example</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>${revision}</version>
+        <version>5.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-example-ora</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
         </dependency>
-        <!--Test dependecies-->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>sk.r3n</groupId>
+            <artifactId>r3n-sql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>oracle-xe</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <defaultGoal>package</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>sk.r3n</groupId>
                 <artifactId>r3n-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${sk.r3n.version}</version>
                 <configuration>
-                    <targetPackage>sk.r3n.example.ora</targetPackage>
+                    <targetPackage>sk.r3n.example.dal.domain</targetPackage>
                     <jdbcDriver>oracle.jdbc.driver.OracleDriver</jdbcDriver>
-                    <jdbcUrl>jdbc:oracle:thin:@10.0.0.9:1521:xe</jdbcUrl>
-                    <jdbcUser>test</jdbcUser>
-                    <jdbcPassword>test</jdbcPassword>
+                    <jdbcUrl>jdbc:oracle:thin:@localhost:1521:XE</jdbcUrl>
+                    <jdbcUser>app</jdbcUser>
+                    <jdbcPassword>app</jdbcPassword>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.oracle.database.jdbc</groupId>
+                        <artifactId>ojdbc8</artifactId>
+                        <version>${com.oracle.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
-
 </project>
