@@ -13,7 +13,7 @@ is `r3n-sql` ready for you ;o)
 ## foreword
 
 It was sometime in the summer of 2012 when I met a somebody who wanted to create a program his nickname was r3ner. I
-didn't know where to start but because I am Java Developer, I programmed it all in Java. Set o libraries used with this
+didn't know where to start but because I am Java Developer, I programmed it all in Java. Set of libraries used with this
 program was designed. Originally also contained Swing components
 ([tag 1.0.0](https://github.com/janobono/r3n-api/tree/1.0.0/r3n/r3n-ui)), over time, it transformed into the form in
 which it is currently. Some things are historical, but I don't want to delete them. Use freely, copy redistribute or
