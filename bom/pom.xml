@@ -25,7 +25,7 @@
         <org.projectlombok.version>1.18.16</org.projectlombok.version>
 
         <org.junit.version>5.7.0</org.junit.version>
-        <org.testcontainers.version>1.14.3</org.testcontainers.version>
+        <org.testcontainers.version>1.15.1</org.testcontainers.version>
         <org.assertj.version>3.18.1</org.assertj.version>
 
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
