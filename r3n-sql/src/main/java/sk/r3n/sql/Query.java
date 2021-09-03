@@ -213,10 +213,7 @@ public class Query {
         }
 
         public Select ORDER_BY(Column column, Order order) {
-            OrderCriterion orderCriterion = new OrderCriterion();
-            orderCriterion.setColumn(column);
-            orderCriterion.setOrder(order);
-            orderCriteria.add(orderCriterion);
+            orderCriteria.add(new OrderCriterion(column, order));
             return this;
         }
 

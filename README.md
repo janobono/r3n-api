@@ -21,13 +21,9 @@ whatever you need license is just formal.
 
 ## project structure
 
-### r3n-util
-
-Just bunch of simple utils. [Some examples here...](./r3n-util/README.md)
-
 ### r3n-sql
 
-Final library to write SQL queries in java. [More here...](./r3n-sql/README.md)
+Final library to write SQL queries in java.
 
 ### r3n-maven-plugin
 
@@ -39,7 +35,7 @@ Maven plugin to generate meta object useful in query creation process. [Look her
 
 ## build
 
-- [OpenJDK 8](https://adoptopenjdk.net/)
+- [OpenJDK 16](https://adoptopenjdk.net/)
 - [Maven](https://maven.apache.org/download.cgi)
 - [Docker](https://www.docker.com/products/container-runtime)
 

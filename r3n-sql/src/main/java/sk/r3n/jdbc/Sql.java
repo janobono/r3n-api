@@ -5,11 +5,12 @@
  */
 package sk.r3n.jdbc;
 
+import sk.r3n.sql.DataType;
+import sk.r3n.sql.Query;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import sk.r3n.sql.DataType;
-import sk.r3n.sql.Query;
 
 /**
  * Sql command representation object.
@@ -27,7 +28,7 @@ public class Sql {
      * Adds parameter.
      *
      * @param dataType Parameter data type.
-     * @param param Parameter value.
+     * @param param    Parameter value.
      * @return Sql command representation object.
      */
     public Sql addParam(DataType dataType, Object param) {
@@ -64,7 +65,7 @@ public class Sql {
      * Appends to command.
      *
      * @param separator String separator.
-     * @param strings String array.
+     * @param strings   String array.
      * @return Sql command representation object.
      */
     public Sql append(String separator, String... strings) {
@@ -88,7 +89,7 @@ public class Sql {
     public Sql append(Sql sql) {
         append(sql.toSql());
         sql.getParams().forEach((param) -> {
-            addParam(param.getDataType(), param.getValue());
+            addParam(param.dataType(), param.value());
         });
         return this;
     }
@@ -97,7 +98,7 @@ public class Sql {
      * Appends to command.
      *
      * @param sqlBuilder Sql builder instance.
-     * @param select Select definition object.
+     * @param select     Select definition object.
      * @return Sql command representation object.
      */
     public Sql append(SqlBuilder sqlBuilder, Query.Select select) {
@@ -108,7 +109,7 @@ public class Sql {
      * Appends to command.
      *
      * @param sqlBuilder Sql builder instance.
-     * @param insert Insert definition object.
+     * @param insert     Insert definition object.
      * @return Sql command representation object.
      */
     public Sql append(SqlBuilder sqlBuilder, Query.Insert insert) {
@@ -119,7 +120,7 @@ public class Sql {
      * Appends to command.
      *
      * @param sqlBuilder Sql builder instance.
-     * @param update Update definition object.
+     * @param update     Update definition object.
      * @return Sql command representation object.
      */
     public Sql append(SqlBuilder sqlBuilder, Query.Update update) {
@@ -130,7 +131,7 @@ public class Sql {
      * Appends to command.
      *
      * @param sqlBuilder Sql builder instance.
-     * @param delete Delete definition object.
+     * @param delete     Delete definition object.
      * @return Sql command representation object.
      */
     public Sql append(SqlBuilder sqlBuilder, Query.Delete delete) {

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>r3n-example</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>5.0.0</version>
+        <version>6.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-example-ora</artifactId>
@@ -26,24 +26,15 @@
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
 
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <artifactId>ojdbc11</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>sk.r3n</groupId>
             <artifactId>r3n-sql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
         </dependency>
 
         <!-- test -->
@@ -80,8 +71,8 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.oracle.database.jdbc</groupId>
-                        <artifactId>ojdbc8</artifactId>
-                        <version>${com.oracle.version}</version>
+                        <artifactId>ojdbc11</artifactId>
+                        <version>21.3.0.0</version>
                     </dependency>
                 </dependencies>
             </plugin>

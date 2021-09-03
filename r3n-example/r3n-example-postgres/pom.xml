@@ -4,7 +4,7 @@
     <parent>
         <artifactId>r3n-example</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>5.0.0</version>
+        <version>6.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>r3n-example-postgres</artifactId>
@@ -31,19 +31,10 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
 
         <dependency>
             <groupId>sk.r3n</groupId>
             <artifactId>r3n-sql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
         </dependency>
 
         <!-- test -->
@@ -81,7 +72,7 @@
                     <dependency>
                         <groupId>org.postgresql</groupId>
                         <artifactId>postgresql</artifactId>
-                        <version>${postgresql.version}</version>
+                        <version>42.2.23</version>
                     </dependency>
                 </dependencies>
             </plugin>

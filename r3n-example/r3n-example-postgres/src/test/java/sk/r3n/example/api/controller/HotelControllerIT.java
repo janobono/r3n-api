@@ -76,7 +76,7 @@ public class HotelControllerIT {
         Map<Long, HotelSO> map = new HashMap<>();
         for (int i = 0; i < 10; i++) {
             HotelSO hotelSO = createHotel(i);
-            map.put(hotelSO.getId(), hotelSO);
+            map.put(hotelSO.id(), hotelSO);
         }
 
         int i = 0;
@@ -96,8 +96,8 @@ public class HotelControllerIT {
         assertThat(page.getTotalPages()).isEqualTo(1);
         assertThat(page.getNumberOfElements()).isEqualTo(10);
         page.get().forEach(hotelSO -> {
-            if (map.containsKey(hotelSO.getId()))
-                assertThat(hotelSO).usingRecursiveComparison().isEqualTo(map.get(hotelSO.getId()));
+            if (map.containsKey(hotelSO.id()))
+                assertThat(hotelSO).usingRecursiveComparison().isEqualTo(map.get(hotelSO.id()));
         });
 
         page = getHotels(0, 10);
@@ -105,8 +105,8 @@ public class HotelControllerIT {
         assertThat(page.getTotalPages()).isEqualTo(1);
         assertThat(page.getNumberOfElements()).isEqualTo(10);
         page.get().forEach(hotelSO -> {
-            if (map.containsKey(hotelSO.getId()))
-                assertThat(hotelSO).usingRecursiveComparison().isEqualTo(map.get(hotelSO.getId()));
+            if (map.containsKey(hotelSO.id()))
+                assertThat(hotelSO).usingRecursiveComparison().isEqualTo(map.get(hotelSO.id()));
         });
 
         for (Long id : map.keySet()) {
@@ -115,9 +115,7 @@ public class HotelControllerIT {
     }
 
     private HotelSO createHotel(int i) throws Exception {
-        HotelInputSO hotelInputSO = new HotelInputSO();
-        hotelInputSO.setName("CreatedName" + i);
-        hotelInputSO.setNote("CreatedNote" + i);
+        HotelInputSO hotelInputSO = new HotelInputSO("CreatedName" + i, "CreatedNote" + i);
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapToJson(hotelInputSO))).andReturn();
@@ -128,10 +126,7 @@ public class HotelControllerIT {
     }
 
     private HotelSO updateHotel(Long id, int i) throws Exception {
-        HotelSO hotelSO = new HotelSO();
-        hotelSO.setId(id);
-        hotelSO.setName("UpdatedName" + i);
-        hotelSO.setNote("UpdatedNote" + i);
+        HotelSO hotelSO = new HotelSO(id, "UpdatedName" + i, "UpdatedNote" + i);
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapToJson(hotelSO))).andReturn();

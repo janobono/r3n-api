@@ -5,13 +5,7 @@
  */
 package sk.r3n.jdbc;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import sk.r3n.sql.DataType;
-
-import java.io.Serializable;
 
 /**
  * Object to store parameters used in sql queries.
@@ -19,19 +13,5 @@ import java.io.Serializable;
  * @author janobono
  * @since 25 August 2014
  */
-@AllArgsConstructor
-@Getter
-@Setter
-@ToString
-public class SqlParam implements Serializable {
-
-    /**
-     * Parameter data type.
-     */
-    private DataType dataType;
-
-    /**
-     * Parameter value.
-     */
-    private Object value;
+public record SqlParam(DataType dataType, Object value) {
 }

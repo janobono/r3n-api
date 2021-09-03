@@ -5,8 +5,6 @@
  */
 package sk.r3n.sql;
 
-import lombok.Getter;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +15,6 @@ import java.util.List;
  * @author janobono
  * @since 18 August 2014
  */
-@Getter
 public class CriteriaManager implements Serializable {
 
     private Criteria criteria;
@@ -29,6 +26,14 @@ public class CriteriaManager implements Serializable {
         criteriaList = new ArrayList<>();
         criteria = new Criteria();
         criteriaList.add(criteria);
+    }
+
+    public Criteria getCriteria() {
+        return criteria;
+    }
+
+    public List<Criteria> getCriteriaList() {
+        return criteriaList;
     }
 
     public void addCriterion(Column column, Condition condition, Object value, String representation, Operator operator) {
@@ -77,7 +82,7 @@ public class CriteriaManager implements Serializable {
     public boolean isCriteria() {
         boolean result = false;
         for (Criteria c : criteriaList) {
-            result |= c.isCriteria();
+            result = c.isCriteria();
             if (result) {
                 break;
             }

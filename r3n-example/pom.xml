@@ -4,22 +4,17 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.1</version>
+        <version>2.5.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>sk.r3n</groupId>
     <artifactId>r3n-example</artifactId>
-    <version>5.0.0</version>
+    <version>6.0.0</version>
     <packaging>pom</packaging>
 
     <properties>
-        <java.version>1.8</java.version>
-
-        <sk.r3n.version>5.0.0</sk.r3n.version>
-        <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
-        <com.oracle.version>19.8.0.0</com.oracle.version>
-        <org.testcontainers.version>1.14.3</org.testcontainers.version>
-        <org.assertj.version>3.18.1</org.assertj.version>
+        <java.version>16</java.version>
+        <sk.r3n.version>6.0.0</sk.r3n.version>
     </properties>
 
     <dependencyManagement>
@@ -29,30 +24,27 @@
                 <artifactId>r3n-sql</artifactId>
                 <version>${sk.r3n.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct</artifactId>
-                <version>${org.mapstruct.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
-                <artifactId>ojdbc8</artifactId>
-                <version>${com.oracle.version}</version>
+                <artifactId>ojdbc11</artifactId>
+                <version>21.3.0.0</version>
             </dependency>
+
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>${org.testcontainers.version}</version>
+                <version>1.16.0</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>oracle-xe</artifactId>
-                <version>${org.testcontainers.version}</version>
+                <version>1.16.0</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>${org.assertj.version}</version>
+                <version>3.20.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -96,38 +88,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                    <compilerArgs>
-                        <compilerArg>
-                            -Amapstruct.defaultComponentModel=spring
-                        </compilerArg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>

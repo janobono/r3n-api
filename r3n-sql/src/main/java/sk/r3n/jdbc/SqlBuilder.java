@@ -5,21 +5,19 @@
  */
 package sk.r3n.jdbc;
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sk.r3n.dto.Dto;
 import sk.r3n.sql.DataType;
 import sk.r3n.sql.Query.Delete;
 import sk.r3n.sql.Query.Insert;
 import sk.r3n.sql.Query.Select;
 import sk.r3n.sql.Query.Update;
 import sk.r3n.sql.Sequence;
+
+import java.io.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Sql builder base class.
@@ -83,33 +81,6 @@ public abstract class SqlBuilder {
      * @throws SQLException
      */
     public abstract List<Object[]> select(Connection connection, Select select) throws SQLException;
-
-    /**
-     * Executes select.
-     *
-     * @param <T>        Dto object.
-     * @param connection Connection.
-     * @param select     Select definition object.
-     * @param clazz      Dto object class.
-     * @return List of result dto objects.
-     * @throws SQLException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     */
-    public <T> List<T> select(Connection connection, Select select, Class<T> clazz) throws SQLException, InstantiationException, IllegalAccessException {
-        List<T> result = new ArrayList<>();
-
-        List<Object[]> rows = select(connection, select);
-        Dto dto = new Dto();
-        for (Object[] row : rows) {
-            T t = clazz.newInstance();
-            dto.fill(t, row, select.getColumns());
-            result.add(t);
-            LOGGER.debug(t.toString());
-        }
-
-        return result;
-    }
 
     /**
      * Transforms definition to representation.
@@ -194,4 +165,83 @@ public abstract class SqlBuilder {
      */
     public abstract List<Object[]> executeQuery(Connection connection, Sql sql, DataType... dataTypes) throws SQLException;
 
+    /**
+     * Write file to stream.
+     *
+     * @param source source file
+     * @param target target output stream
+     */
+    protected void fileToStream(File source, OutputStream target) {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(source));
+             OutputStream os = new BufferedOutputStream(target)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead = 0;
+            while (bytesRead != -1) {
+                bytesRead = is.read(buffer);
+                if (bytesRead > 0) {
+                    os.write(buffer, 0, bytesRead);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Write stream to file.
+     *
+     * @param source source input stream
+     * @param target target file
+     */
+    protected void streamToFile(InputStream source, File target) {
+        try (
+                InputStream is = new BufferedInputStream(source);
+                OutputStream os = new BufferedOutputStream(new FileOutputStream(target, false))
+        ) {
+            byte[] buffer = new byte[1024];
+            int bytesRead = 0;
+            while (bytesRead != -1) {
+                bytesRead = is.read(buffer);
+                if (bytesRead > 0) {
+                    os.write(buffer, 0, bytesRead);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Delete file.
+     *
+     * @param file file to delete
+     */
+    protected void delete(File file) {
+        if (file != null) {
+            if (file.isDirectory()) {
+                File[] subFiles = file.listFiles();
+                for (File subFile : subFiles != null ? subFiles : new File[0]) {
+                    delete(subFile);
+                }
+            }
+            if (!file.delete()) {
+                throw new RuntimeException("Can't delete file!");
+            }
+        }
+    }
+
+    /**
+     * Close closeable.
+     *
+     * @param closeable object to close
+     */
+    protected void close(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ex) {
+                LOGGER.warn("close", ex);
+            }
+        }
+    }
 }

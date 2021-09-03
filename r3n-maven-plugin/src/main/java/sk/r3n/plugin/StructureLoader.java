@@ -24,18 +24,11 @@ import java.util.List;
 public abstract class StructureLoader implements Serializable {
 
     static StructureLoader getInstance(String jdbcDriver) {
-        StructureLoader result;
-        switch (jdbcDriver) {
-            case "oracle.jdbc.driver.OracleDriver":
-                result = new OracleStructureLoader();
-                break;
-            case "org.postgresql.Driver":
-                result = new PostgreStructureLoader();
-                break;
-            default:
-                throw new RuntimeException("Unsupported driver!");
-        }
-        return result;
+        return switch (jdbcDriver) {
+            case "oracle.jdbc.driver.OracleDriver" -> new OracleStructureLoader();
+            case "org.postgresql.Driver" -> new PostgreStructureLoader();
+            default -> throw new RuntimeException("Unsupported driver!");
+        };
     }
 
     Structure load(Log log, Connection connection) {

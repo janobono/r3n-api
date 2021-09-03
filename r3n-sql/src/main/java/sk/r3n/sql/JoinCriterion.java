@@ -5,9 +5,6 @@
  */
 package sk.r3n.sql;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 
 /**
@@ -16,8 +13,6 @@ import java.io.Serializable;
  * @author janobono
  * @since 18 August 2014
  */
-@Getter
-@Setter
 public class JoinCriterion implements Serializable {
 
     private Join join;
@@ -30,5 +25,25 @@ public class JoinCriterion implements Serializable {
         this.join = join;
         this.table = table;
         criteriaManager = new CriteriaManager();
+    }
+
+    public Join getJoin() {
+        return join;
+    }
+
+    public void setJoin(Join join) {
+        this.join = join;
+    }
+
+    public Table getTable() {
+        return table;
+    }
+
+    public void setTable(Table table) {
+        this.table = table;
+    }
+
+    public CriteriaManager getCriteriaManager() {
+        return criteriaManager;
     }
 }

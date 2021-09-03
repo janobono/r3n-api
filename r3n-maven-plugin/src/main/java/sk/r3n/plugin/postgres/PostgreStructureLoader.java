@@ -41,7 +41,7 @@ public class PostgreStructureLoader extends StructureLoader {
             while (resultSet.next()) {
                 Sequence sequence = new Sequence(resultSet.getString(1));
                 structure.getSequences().add(sequence);
-                log.info("Sequence found: " + sequence.getName());
+                log.info("Sequence found: " + sequence.name());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -70,7 +70,7 @@ public class PostgreStructureLoader extends StructureLoader {
             while (resultSet.next()) {
                 Table table = new Table(resultSet.getString(1), "T" + alias++);
                 structure.getTables().add(table);
-                log.info("Table found: " + table.getName());
+                log.info("Table found: " + table.name());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -93,10 +93,10 @@ public class PostgreStructureLoader extends StructureLoader {
             statement = connection.prepareStatement(
                     "SELECT column_name, data_type FROM information_schema.columns WHERE table_name  = ? order by ordinal_position"
             );
-            statement.setString(1, table.getName().toLowerCase());
+            statement.setString(1, table.name().toLowerCase());
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                Column column = new Column(resultSet.getString(1), table, getDataType(resultSet.getString(2)));
+                Column column = Column.column(resultSet.getString(1), getDataType(resultSet.getString(2)), table);
                 result.add(column);
             }
         } catch (SQLException e) {
@@ -110,7 +110,7 @@ public class PostgreStructureLoader extends StructureLoader {
     }
 
     private DataType getDataType(String typeName) {
-        DataType result = null;
+        DataType result;
 
         DATA_TYPE data_type = null;
         for (DATA_TYPE dt : DATA_TYPE.values()) {
@@ -122,40 +122,18 @@ public class PostgreStructureLoader extends StructureLoader {
         if (data_type == null) {
             throw new RuntimeException("Unsupported data type");
         }
-        switch (data_type) {
-            case SMALLINT:
-                result = DataType.SHORT;
-                break;
-            case INTEGER:
-                result = DataType.INTEGER;
-                break;
-            case BIGINT:
-                result = DataType.LONG;
-                break;
-            case DECIMAL:
-            case NUMERIC:
-                result = DataType.BIG_DECIMAL;
-                break;
-            case CHARACTER:
-            case TEXT:
-                result = DataType.STRING;
-                break;
-            case BYTEA:
-                result = DataType.BLOB;
-                break;
-            case TIMESTAMP:
-                result = DataType.TIME_STAMP;
-                break;
-            case TIME:
-                result = DataType.TIME;
-                break;
-            case DATE:
-                result = DataType.DATE;
-                break;
-            case BOOLEAN:
-                result = DataType.BOOLEAN;
-                break;
-        }
+        result = switch (data_type) {
+            case SMALLINT -> DataType.SHORT;
+            case INTEGER -> DataType.INTEGER;
+            case BIGINT -> DataType.LONG;
+            case DECIMAL, NUMERIC -> DataType.BIG_DECIMAL;
+            case CHARACTER, TEXT -> DataType.STRING;
+            case BYTEA -> DataType.BLOB;
+            case TIMESTAMP -> DataType.TIME_STAMP;
+            case TIME -> DataType.TIME;
+            case DATE -> DataType.DATE;
+            case BOOLEAN -> DataType.BOOLEAN;
+        };
         return result;
     }
 }

@@ -25,7 +25,7 @@
 |PARAMETER|DEFINITION|EXAMPLE|
 |---|---|---|
 |OVERWRITE|Flag to rewrite existing files. Default value is **true**|true, false|
-|TARGET_PACKAGE|Target package for generated java files.|your.project.dal.r3n|
+|TARGET_PACKAGE|Target package for generated java files.|your.project.dal|
 |JDBC_DRIVER|Jdbc driver class.|PostgreSQL: org.postgresql.Driver, Oracle: oracle.jdbc.driver.OracleDriver|
 |JDBC_URL|Jdbc url.|PostgreSQL: jdbc:postgresql://{host}:{port}/{db}, Oracle: jdbc:oracle:thin:@{host}:{port}:{db}|
 |JDBC_USER|Database user name.||
@@ -39,7 +39,7 @@
 <dependency>
     <groupId>org.postgresql</groupId>
     <artifactId>postgresql</artifactId>
-    <version>${org.postgresql.version}</version>
+    <version>42.2.23</version>
 </dependency>
 ```
 
@@ -49,8 +49,8 @@
 
 <dependency>
     <groupId>com.oracle.database.jdbc</groupId>
-    <artifactId>ojdbc8</artifactId>
-    <version>${com.oracle.version}</version>
+    <artifactId>ojdbc11</artifactId>
+    <version>21.3.0.0</version>
 </dependency>
 ```
 
@@ -62,12 +62,12 @@ mvn r3n:r3n-gen
 
 ### meta objects
 
-Meta database objects will be saved in `r3n` package with prefix `Meta`.
+Meta database objects will be saved in `r3n.meta` package with prefix `Meta`.
 
 - example MetaSequence:
 
 ```java
-package sk.r3n.example.dal.domain.r3n;
+package sk.r3n.example.dal.domain.r3n.meta;
 
 import sk.r3n.sql.Sequence;
 
@@ -91,7 +91,7 @@ public enum MetaSequence {
 - example MetaTable:
 
 ```java
-package sk.r3n.example.dal.domain.r3n;
+package sk.r3n.example.dal.domain.r3n.meta;
 
 import sk.r3n.sql.Table;
 
@@ -122,6 +122,14 @@ public enum MetaTable {
 - example MetaColumn
 
 ```java
+package sk.r3n.example.dal.domain.r3n.meta;
+
+import sk.r3n.sql.Column;
+import sk.r3n.sql.DataType;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public enum MetaColumnHotel {
 
     ID("id", DataType.LONG),
@@ -138,11 +146,11 @@ public enum MetaColumnHotel {
     }
 
     public Column column() {
-        return new Column(columnName, MetaTable.HOTEL.table(), dataType);
+        return Column.column(columnName, dataType, MetaTable.HOTEL.table());
     }
 
     public Column column(String tableAlias) {
-        return new Column(columnName, MetaTable.HOTEL.table(tableAlias), dataType);
+        return Column.column(columnName, dataType, MetaTable.HOTEL.table(tableAlias));
     }
 
     public static Column[] columns() {
@@ -161,36 +169,39 @@ public enum MetaColumnHotel {
         return columnList.toArray(new Column[0]);
     }
 }
+
 ```
 
 ### dto objects
 
-**D**atabase **T**ransfer **O**bjects will be stored in target package.
+**D**atabase **T**ransfer **O**bjects will be saved in `r3n.dto` package.
 
 - example Dto:
 
 ```java
-package sk.r3n.example.dal.domain;
+package sk.r3n.example.dal.domain.r3n.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import sk.r3n.dto.ColumnId;
+public record HotelDto(
+        Long id,
+        String name,
+        String note
+) {
 
-import java.io.Serializable;
+    public static Object[] toArray(HotelDto hotelDto) {
+        return new Object[]{
+                hotelDto.id,
+                hotelDto.name,
+                hotelDto.note
+        };
+    }
 
-@Getter
-@Setter
-@ToString
-public class HotelDto implements Serializable {
-
-    @ColumnId(table = "hotel", column = "id")
-    private Long id;
-
-    @ColumnId(table = "hotel", column = "name")
-    private String name;
-
-    @ColumnId(table = "hotel", column = "note")
-    private String note;
+    public static HotelDto toObject(Object[] array) {
+        return new HotelDto(
+                (Long) array[0],
+                (String) array[1],
+                (String) array[2]
+        );
+    }
 }
+
 ```

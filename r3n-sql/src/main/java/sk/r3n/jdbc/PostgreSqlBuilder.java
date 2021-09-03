@@ -12,7 +12,9 @@ import sk.r3n.sql.Query.Delete;
 import sk.r3n.sql.Query.Insert;
 import sk.r3n.sql.Query.Select;
 import sk.r3n.sql.Query.Update;
-import sk.r3n.util.FileUtil;
+import sk.r3n.sql.impl.ColumnBase;
+import sk.r3n.sql.impl.ColumnFunction;
+import sk.r3n.sql.impl.ColumnSelect;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +45,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
     }
 
     private String sequenceSQL(Sequence sequence) {
-        return "nextval('" + sequence.getName() + "')";
+        return "nextval('" + sequence.name() + "')";
     }
 
     @Override
@@ -76,7 +78,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
             for (Select subSelect : select.getSubSelects()) {
                 int index = 0;
                 for (Column column : subSelect.getColumns()) {
-                    indexMap.put(column.getColumnId(), index);
+                    indexMap.put(column.columnId(), index);
                     index++;
                 }
             }
@@ -86,8 +88,8 @@ public class PostgreSqlBuilder extends SqlBuilder {
             }
             for (int i = 0; i < select.getColumns().length; i++) {
                 Column column = select.getColumns()[i];
-                indexMap.put(column.getColumnId(), i);
-                sql.append("col").append(Integer.toString(indexMap.get(column.getColumnId())));
+                indexMap.put(column.columnId(), i);
+                sql.append("col").append(Integer.toString(indexMap.get(column.columnId())));
                 if (i < select.getColumns().length - 1) {
                     sql.append(",");
                 }
@@ -123,7 +125,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
                 sql.append(" ").ORDER_BY();
                 for (int i = 0; i < select.getOrderCriteria().size(); i++) {
                     OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
-                    sql.append(columnSQL(false, orderCriterion.getColumn(), indexMap)).append(" ").append(orderCriterion.getOrder().name());
+                    sql.append(columnSQL(false, orderCriterion.column(), indexMap)).append(" ").append(orderCriterion.order().name());
                     if (i < select.getOrderCriteria().size() - 1) {
                         sql.append(",");
                     }
@@ -195,7 +197,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
             sql.append(" ").ORDER_BY();
             for (int i = 0; i < select.getOrderCriteria().size(); i++) {
                 OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
-                sql.append(columnSQL(false, orderCriterion.getColumn(), null)).append(" ").append(orderCriterion.getOrder().name());
+                sql.append(columnSQL(false, orderCriterion.column(), null)).append(" ").append(orderCriterion.order().name());
                 if (i < select.getOrderCriteria().size() - 1) {
                     sql.append(",");
                 }
@@ -216,9 +218,9 @@ public class PostgreSqlBuilder extends SqlBuilder {
 
     private String tableSQL(boolean onlyName, Table table) {
         StringBuilder sw = new StringBuilder();
-        sw.append(table.getName());
+        sw.append(table.name());
         if (!onlyName) {
-            sw.append(" ").append(table.getAlias());
+            sw.append(" ").append(table.alias());
         }
         return sw.toString();
     }
@@ -226,32 +228,28 @@ public class PostgreSqlBuilder extends SqlBuilder {
     private Sql columnSQL(boolean onlyName, Column column, Map<String, Integer> indexMap) {
         Sql sql = new Sql();
         if (indexMap != null) {
-            sql.append("col").append(Integer.toString(indexMap.get(column.getColumnId())));
+            sql.append("col").append(Integer.toString(indexMap.get(column.columnId())));
         } else {
-            if (column instanceof ColumnFunction) {
-                ColumnFunction columnFunction = (ColumnFunction) column;
-                if (columnFunction.getMembers() != null) {
+            if (column instanceof ColumnFunction columnFunction) {
+                if (columnFunction.members() != null) {
                     List<String> membersList = new ArrayList<>();
-                    for (Column member : columnFunction.getMembers()) {
+                    for (Column member : columnFunction.members()) {
                         Sql memberSql = columnSQL(onlyName, member, indexMap);
                         membersList.add(memberSql.toSql());
-                        memberSql.getParams().forEach((param) -> {
-                            sql.addParam(param.getDataType(), param.getValue());
-                        });
+                        memberSql.getParams().forEach((param) -> sql.addParam(param.dataType(), param.value()));
                     }
-                    sql.append(MessageFormat.format(columnFunction.getName(), membersList.toArray(new Object[membersList.size()])));
+                    sql.append(MessageFormat.format(columnFunction.function(), membersList.toArray(new Object[0])));
                 } else {
-                    sql.append(columnFunction.getName());
+                    sql.append(columnFunction.function());
                 }
-            } else if (column instanceof ColumnSelect) {
-                ColumnSelect columnSelect = (ColumnSelect) column;
-                sql.append("(").append(selectSQL(columnSelect.getSelect())).append(")");
-
+            } else if (column instanceof ColumnSelect columnSelect) {
+                sql.append("(").append(selectSQL(columnSelect.select())).append(")");
             } else {
-                if (!onlyName && column.getTable() != null) {
-                    sql.append(column.getTable().getAlias()).append(".");
+                ColumnBase columnBase = (ColumnBase) column;
+                if (!onlyName && columnBase.table() != null) {
+                    sql.append(columnBase.table().alias()).append(".");
                 }
-                sql.append(column.getName());
+                sql.append(columnBase.name());
             }
         }
         return sql;
@@ -265,7 +263,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
             sql.append(columnSQL(onlyName, (Column) value, indexMap));
         } else {
             if (value != null) {
-                sql.addParam(column.getDataType(), value);
+                sql.addParam(column.dataType(), value);
                 sql.append("?");
             } else {
                 sql.append("null");
@@ -335,8 +333,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
             if (criterion.getValue() instanceof Select) {
                 sql.append(columnSQL(onlyName, criterion.getColumn(), indexMap)).append(" ").append(criterion.getCondition().condition());
                 sql.append(" (").append(selectSQL((Select) criterion.getValue())).append(")");
-            } else if (criterion.getValue() instanceof Column) {
-                Column valueColumn = (Column) criterion.getValue();
+            } else if (criterion.getValue() instanceof Column valueColumn) {
                 if (criterion.getRepresentation() == null) {
                     sql.append(columnSQL(onlyName, criterion.getColumn(), indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
                     sql.append(columnSQL(onlyName, valueColumn, indexMap));
@@ -358,7 +355,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
                             sql.append("(");
                             for (int index = 0; index < valueArray.length; index++) {
                                 Object val = valueArray[index];
-                                sql.addParam(criterion.getColumn().getDataType(), val);
+                                sql.addParam(criterion.getColumn().dataType(), val);
                                 sql.append("?");
                                 if (index < valueArray.length - 1) {
                                     sql.append(", ");
@@ -366,13 +363,13 @@ public class PostgreSqlBuilder extends SqlBuilder {
                             }
                             sql.append(")");
                         } else {
-                            sql.addParam(criterion.getColumn().getDataType(), criterion.getValue());
+                            sql.addParam(criterion.getColumn().dataType(), criterion.getValue());
                             sql.append("?");
                         }
                     }
                 } else {
                     if (criterion.getValue() != null) {
-                        sql.addParam(criterion.getColumn().getDataType(), criterion.getValue());
+                        sql.addParam(criterion.getColumn().dataType(), criterion.getValue());
                         sql.append(MessageFormat.format(criterion.getRepresentation(), columnSQL(onlyName, criterion.getColumn(), indexMap), criterion.getCondition().condition(), "?"));
                     } else {
                         sql.append(MessageFormat.format(criterion.getRepresentation(), columnSQL(onlyName, criterion.getColumn(), indexMap), criterion.getCondition().condition()));
@@ -391,7 +388,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
         } else {
             dataTypes = new DataType[select.getColumns().length];
             for (int i = 0; i < dataTypes.length; i++) {
-                dataTypes[i] = select.getColumns()[i].getDataType();
+                dataTypes[i] = select.getColumns()[i].dataType();
             }
         }
         return executeQuery(connection, select(select), dataTypes);
@@ -430,7 +427,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
         if (insert.getReturning() == null) {
             execute(connection, insert(insert));
         } else {
-            result = execute(connection, insert(insert), insert.getReturning().getDataType());
+            result = execute(connection, insert(insert), insert.getReturning().dataType());
         }
         return result;
     }
@@ -485,48 +482,30 @@ public class PostgreSqlBuilder extends SqlBuilder {
         Object result = null;
         if (resultSet.getObject(index) != null) {
             switch (dataType) {
-                case BOOLEAN:
-                    result = resultSet.getBoolean(index);
-                    break;
-                case STRING:
-                    result = resultSet.getString(index);
-                    break;
-                case SHORT:
-                    result = resultSet.getShort(index);
-                    break;
-                case INTEGER:
-                    result = resultSet.getInt(index);
-                    break;
-                case LONG:
-                    result = resultSet.getLong(index);
-                    break;
-                case BIG_DECIMAL:
-                    result = resultSet.getBigDecimal(index);
-                    break;
-                case DATE:
-                    result = resultSet.getDate(index).toLocalDate();
-                    break;
-                case TIME:
-                    result = resultSet.getTime(index).toLocalTime();
-                    break;
-                case TIME_STAMP:
-                    result = resultSet.getTimestamp(index).toLocalDateTime();
-                    break;
-                case BLOB:
+                case BOOLEAN -> result = resultSet.getBoolean(index);
+                case STRING -> result = resultSet.getString(index);
+                case SHORT -> result = resultSet.getShort(index);
+                case INTEGER -> result = resultSet.getInt(index);
+                case LONG -> result = resultSet.getLong(index);
+                case BIG_DECIMAL -> result = resultSet.getBigDecimal(index);
+                case DATE -> result = resultSet.getDate(index).toLocalDate();
+                case TIME -> result = resultSet.getTime(index).toLocalTime();
+                case TIME_STAMP -> result = resultSet.getTimestamp(index).toLocalDateTime();
+                case BLOB -> {
                     InputStream is = null;
                     File file = null;
                     try {
                         file = File.createTempFile("SQL", ".BIN", dir);
                         is = resultSet.getBinaryStream(index);
-                        FileUtil.streamToFile(is, file);
+                        streamToFile(is, file);
                         result = file;
                     } catch (IOException e) {
-                        FileUtil.delete(file);
+                        delete(file);
                         throw new SQLException(e);
                     } finally {
-                        FileUtil.close(is);
+                        close(is);
                     }
-                    break;
+                }
             }
         }
         return result;
@@ -540,11 +519,11 @@ public class PostgreSqlBuilder extends SqlBuilder {
     }
 
     private void setParam(PreparedStatement preparedStatement, int index, SqlParam param, List<InputStream> streams) throws SQLException {
-        if (param.getValue() != null) {
-            switch (param.getDataType()) {
+        if (param.value() != null) {
+            switch (param.dataType()) {
                 case BLOB:
                     try {
-                        File file = (File) param.getValue();
+                        File file = (File) param.value();
                         InputStream is = new FileInputStream(file);
                         streams.add(is);
                         preparedStatement.setBinaryStream(index, is, (int) file.length());
@@ -553,16 +532,16 @@ public class PostgreSqlBuilder extends SqlBuilder {
                     }
                     break;
                 case DATE:
-                    preparedStatement.setDate(index, Date.valueOf(((LocalDate) param.getValue())));
+                    preparedStatement.setDate(index, Date.valueOf(((LocalDate) param.value())));
                     break;
                 case TIME:
-                    preparedStatement.setTime(index, Time.valueOf(((LocalTime) param.getValue())));
+                    preparedStatement.setTime(index, Time.valueOf(((LocalTime) param.value())));
                     break;
                 case TIME_STAMP:
-                    preparedStatement.setTimestamp(index, Timestamp.valueOf(((LocalDateTime) param.getValue())));
+                    preparedStatement.setTimestamp(index, Timestamp.valueOf(((LocalDateTime) param.value())));
                     break;
                 default:
-                    preparedStatement.setObject(index, param.getValue());
+                    preparedStatement.setObject(index, param.value());
                     break;
             }
         } else {
@@ -581,7 +560,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
                 setParams(preparedStatement, sql.getParams().toArray(new SqlParam[0]), streams);
                 preparedStatement.executeUpdate();
             } finally {
-                streams.forEach(FileUtil::close);
+                streams.forEach(this::close);
             }
         }
     }
@@ -599,7 +578,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
             result = getColumn(resultSet, 1, dataType, getTmpDir());
         } finally {
             SqlUtil.close(resultSet);
-            streams.forEach(FileUtil::close);
+            streams.forEach(this::close);
         }
         return result;
     }
@@ -620,7 +599,7 @@ public class PostgreSqlBuilder extends SqlBuilder {
             }
         } finally {
             SqlUtil.close(resultSet);
-            streams.forEach(FileUtil::close);
+            streams.forEach(this::close);
         }
         LOGGER.debug("RESULT SIZE:{}", result.size());
         return result;

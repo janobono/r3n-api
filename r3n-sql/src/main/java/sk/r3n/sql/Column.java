@@ -5,12 +5,9 @@
  */
 package sk.r3n.sql;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-import java.io.Serializable;
+import sk.r3n.sql.impl.ColumnBase;
+import sk.r3n.sql.impl.ColumnFunction;
+import sk.r3n.sql.impl.ColumnSelect;
 
 /**
  * Base column definition object.
@@ -18,24 +15,21 @@ import java.io.Serializable;
  * @author janobono
  * @since 18 August 2014
  */
-@AllArgsConstructor
-@Getter
-@Setter
-@ToString
-public class Column implements Serializable {
+public interface Column {
 
-    private String name;
-
-    private Table table;
-
-    private DataType dataType;
-
-    public String getColumnId() {
-        StringBuilder sb = new StringBuilder();
-        if (table != null) {
-            sb.append(table.getAlias()).append(".");
-        }
-        sb.append(name);
-        return sb.toString();
+    static Column column(String name, DataType dataType, Table table) {
+        return new ColumnBase(name, dataType, table);
     }
+
+    static Column column(String columnId, DataType dataType, String function, Column... members) {
+        return new ColumnFunction(columnId, dataType, function, members);
+    }
+
+    static Column column(String columnId, DataType dataType, Query.Select select) {
+        return new ColumnSelect(columnId, dataType, select);
+    }
+
+    String columnId();
+
+    DataType dataType();
 }

@@ -10,23 +10,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import sk.r3n.example.api.service.so.HotelInputSO;
 import sk.r3n.example.api.service.so.HotelSO;
-import sk.r3n.example.dal.domain.HotelDto;
+import sk.r3n.example.dal.domain.r3n.dto.HotelDto;
 import sk.r3n.example.dal.repository.HotelRepository;
-import sk.r3n.example.mapper.HotelMapper;
 
 @Service
 public class HotelApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HotelApiService.class);
 
-    private HotelMapper hotelMapper;
-
     private HotelRepository hotelRepository;
-
-    @Autowired
-    public void setHotelMapper(HotelMapper hotelMapper) {
-        this.hotelMapper = hotelMapper;
-    }
 
     @Autowired
     public void setHotelRepository(HotelRepository hotelRepository) {
@@ -35,29 +27,32 @@ public class HotelApiService {
 
     public Page<HotelSO> getHotels(Pageable pageable) {
         LOGGER.debug("getHotels({})", pageable);
-        return hotelRepository.getHotels(pageable).map(hotelMapper::hotelDtoToHotelSO);
+        return hotelRepository.getHotels(pageable)
+                .map(hotelDto -> new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note()));
     }
 
     public HotelSO getHotel(Long id) {
         LOGGER.debug("getHotel({})", id);
         HotelDto hotelDto = hotelRepository.getHotel(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hotel not found."));
-        return hotelMapper.hotelDtoToHotelSO(hotelDto);
+        return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
     public HotelSO insertHotel(HotelInputSO hotelInputSO) {
         LOGGER.debug("insertHotel({})", hotelInputSO);
-        HotelDto hotelDto = hotelMapper.hotelInputSOtoHotelDto(hotelInputSO);
-        return hotelMapper.hotelDtoToHotelSO(hotelRepository.insertHotel(hotelDto));
+        HotelDto hotelDto = new HotelDto(-1L, hotelInputSO.name(), hotelInputSO.note());
+        hotelDto = hotelRepository.insertHotel(hotelDto);
+        return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
     public HotelSO updateHotel(HotelSO hotelSO) {
         LOGGER.debug("updateHotel({})", hotelSO);
-        if (!hotelRepository.exists(hotelSO.getId())) {
+        if (!hotelRepository.exists(hotelSO.id())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hotel not found.");
         }
-        HotelDto hotelDto = hotelMapper.hotelSOtoHotelDto(hotelSO);
-        return hotelMapper.hotelDtoToHotelSO(hotelRepository.updateHotel(hotelDto));
+        HotelDto hotelDto = new HotelDto(hotelSO.id(), hotelSO.name(), hotelSO.note());
+        hotelDto = hotelRepository.updateHotel(hotelDto);
+        return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
     public void deleteHotel(Long id) {

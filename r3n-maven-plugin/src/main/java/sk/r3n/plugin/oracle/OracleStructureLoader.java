@@ -37,7 +37,7 @@ public class OracleStructureLoader extends StructureLoader {
             while (resultSet.next()) {
                 Sequence sequence = new Sequence(resultSet.getString(1));
                 structure.getSequences().add(sequence);
-                log.info("Sequence found: " + sequence.getName());
+                log.info("Sequence found: " + sequence.name());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -62,7 +62,7 @@ public class OracleStructureLoader extends StructureLoader {
             while (resultSet.next()) {
                 Table table = new Table(resultSet.getString(1), "T" + alias++);
                 structure.getTables().add(table);
-                log.info("Table found: " + table.getName());
+                log.info("Table found: " + table.name());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -85,13 +85,13 @@ public class OracleStructureLoader extends StructureLoader {
             statement = connection.prepareStatement(
                     "select column_name, data_type, data_precision, data_scale from user_tab_columns where table_name = ? order by column_id"
             );
-            statement.setString(1, table.getName());
+            statement.setString(1, table.name());
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                Column column = new Column(
+                Column column = Column.column(
                         resultSet.getString(1),
-                        table,
-                        getDataType(resultSet.getString(2), resultSet.getInt(3), resultSet.getInt(4))
+                        getDataType(resultSet.getString(2), resultSet.getInt(3), resultSet.getInt(4)),
+                        table
                 );
                 result.add(column);
             }

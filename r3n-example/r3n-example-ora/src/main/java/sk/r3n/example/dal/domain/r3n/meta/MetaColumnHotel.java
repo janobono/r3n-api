@@ -1,4 +1,4 @@
-package <REPLACE_PACKAGE>;
+package sk.r3n.example.dal.domain.r3n.meta;
 
 import sk.r3n.sql.Column;
 import sk.r3n.sql.DataType;
@@ -6,39 +6,41 @@ import sk.r3n.sql.DataType;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum MetaColumn<REPLACE_ENUM_NAME> {
+public enum MetaColumnHotel {
 
-<REPLACE_DEFINITION>
+    ID("id", DataType.LONG),
+    NAME("name", DataType.STRING),
+    NOTE("note", DataType.STRING);
 
     private final String columnName;
 
     private final DataType dataType;
 
-    MetaColumn<REPLACE_ENUM_NAME>(String columnName, DataType dataType) {
+    MetaColumnHotel(String columnName, DataType dataType) {
         this.columnName = columnName;
         this.dataType = dataType;
     }
 
     public Column column() {
-        return Column.column(columnName, dataType, MetaTable.<REPLACE_TABLE_NAME>.table());
+        return Column.column(columnName, dataType, MetaTable.HOTEL.table());
     }
 
     public Column column(String tableAlias) {
-        return Column.column(columnName, dataType, MetaTable.<REPLACE_TABLE_NAME>.table(tableAlias));
+        return Column.column(columnName, dataType, MetaTable.HOTEL.table(tableAlias));
     }
 
     public static Column[] columns() {
         List<Column> columnList = new ArrayList<>();
-        for (MetaColumn<REPLACE_ENUM_NAME> metaColumn<REPLACE_ENUM_NAME> : values()) {
-            columnList.add(metaColumn<REPLACE_ENUM_NAME>.column());
+        for (MetaColumnHotel metaColumnHotel : values()) {
+            columnList.add(metaColumnHotel.column());
         }
         return columnList.toArray(new Column[0]);
     }
 
     public static Column[] columns(String tableAlias) {
         List<Column> columnList = new ArrayList<>();
-        for (MetaColumn<REPLACE_ENUM_NAME> metaColumn<REPLACE_ENUM_NAME> : values()) {
-            columnList.add(metaColumn<REPLACE_ENUM_NAME>.column(tableAlias));
+        for (MetaColumnHotel metaColumnHotel : values()) {
+            columnList.add(metaColumnHotel.column(tableAlias));
         }
         return columnList.toArray(new Column[0]);
     }

@@ -96,7 +96,7 @@ public class SqlUtil {
         LineNumberReader lineReader = new LineNumberReader(reader);
         String line;
 
-        StringBuffer command = new StringBuffer();
+        StringBuilder command = new StringBuilder();
         while ((line = lineReader.readLine()) != null) {
             String trimmedLine = line.trim();
 
@@ -108,7 +108,7 @@ public class SqlUtil {
                 command.append(line.replace("\\" + commandsDelimiter, ";")).append(" ");
             } else if (trimmedLine.endsWith(commandsDelimiter)) {
                 commands.add(command.append(line.substring(0, line.lastIndexOf(commandsDelimiter))).append(" ").toString());
-                command = new StringBuffer();
+                command = new StringBuilder();
             } else {
                 command.append(line).append(" ");
             }

@@ -5,8 +5,7 @@
  */
 package sk.r3n.sql;
 
-import lombok.Getter;
-import lombok.Setter;
+import sk.r3n.sql.impl.ColumnBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +16,6 @@ import java.util.List;
  * @author janobono
  * @since 18 August 2014
  */
-@Getter
-@Setter
 public class Criteria implements CriteriaContent {
 
     private final List<CriteriaContent> content;
@@ -31,6 +28,26 @@ public class Criteria implements CriteriaContent {
         super();
         content = new ArrayList<>();
         operator = Operator.AND;
+    }
+
+    public List<CriteriaContent> getContent() {
+        return content;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public Criteria getParent() {
+        return parent;
+    }
+
+    public void setParent(Criteria parent) {
+        this.parent = parent;
     }
 
     public void addCriterion(Column column, Condition condition, Object value, String representation, Operator operator) {
@@ -64,7 +81,7 @@ public class Criteria implements CriteriaContent {
         boolean result = false;
         for (Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
-                result = ((Criterion) contentObject).getColumn().getColumnId().equals(column.getColumnId());
+                result = ((Criterion) contentObject).getColumn().columnId().equals(column.columnId());
             } else {
                 result = contains((Criteria) contentObject, column);
             }
@@ -83,7 +100,10 @@ public class Criteria implements CriteriaContent {
         boolean result = false;
         for (Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
-                result = ((Criterion) contentObject).getColumn().getTable().getName().equals(table.getName());
+                Column column = ((Criterion) contentObject).getColumn();
+                if (column instanceof ColumnBase) {
+                    result = ((ColumnBase) column).table().name().equals(table.name());
+                }
             } else {
                 result = contains((Criteria) contentObject, table);
             }
@@ -103,9 +123,12 @@ public class Criteria implements CriteriaContent {
     private void aliasList(Criteria criteria, String tableName, List<String> aliasList) {
         criteria.getContent().forEach((contentObject) -> {
             if (contentObject instanceof Criterion) {
-                if (((Criterion) contentObject).getColumn().getTable().getName().equals(tableName)) {
-                    if (!aliasList.contains(((Criterion) contentObject).getColumn().getTable().getAlias())) {
-                        aliasList.add(((Criterion) contentObject).getColumn().getTable().getAlias());
+                Column column = ((Criterion) contentObject).getColumn();
+                if (column instanceof ColumnBase) {
+                    if (((ColumnBase) column).table().name().equals(tableName)) {
+                        if (!aliasList.contains(((ColumnBase) column).table().alias())) {
+                            aliasList.add(((ColumnBase) column).table().alias());
+                        }
                     }
                 }
             } else {
