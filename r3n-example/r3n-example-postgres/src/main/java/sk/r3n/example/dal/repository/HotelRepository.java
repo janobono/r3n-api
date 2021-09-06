@@ -58,7 +58,7 @@ public class HotelRepository {
                                 .FROM(MetaTable.HOTEL.table())
                 );
             }
-            result = new PageImpl(rows.stream().map(HotelDto::toObject).collect(Collectors.toList()), pageable, totalRows);
+            result = new PageImpl<>(rows.stream().map(HotelDto::toObject).collect(Collectors.toList()), pageable, totalRows);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
