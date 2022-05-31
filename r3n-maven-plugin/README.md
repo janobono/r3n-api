@@ -39,7 +39,7 @@
 <dependency>
     <groupId>org.postgresql</groupId>
     <artifactId>postgresql</artifactId>
-    <version>42.2.23</version>
+    <version>42.3.6</version>
 </dependency>
 ```
 
@@ -50,7 +50,7 @@
 <dependency>
     <groupId>com.oracle.database.jdbc</groupId>
     <artifactId>ojdbc11</artifactId>
-    <version>21.3.0.0</version>
+    <version>21.5.0.0</version>
 </dependency>
 ```
 
