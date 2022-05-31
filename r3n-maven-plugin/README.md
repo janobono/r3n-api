@@ -7,7 +7,7 @@
 <plugin>
     <groupId>sk.r3n</groupId>
     <artifactId>r3n-maven-plugin</artifactId>
-    <version>5.0.0</version>
+    <version>6.0.0</version>
     <configuration>
         <overwrite>OVERWRITE</overwrite>
         <targetPackage>TARGET_PACKAGE</targetPackage>
