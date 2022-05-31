@@ -25,4 +25,4 @@ spring:
   # = FLYWAY
   # ===============================
   flyway:
-    check-location: true
+    fail-on-missing-locations: true

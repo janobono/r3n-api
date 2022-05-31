@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -22,6 +23,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.OracleContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import sk.r3n.example.api.service.so.HotelInputSO;
 import sk.r3n.example.api.service.so.HotelSO;
 
@@ -32,16 +35,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Testcontainers
 public class HotelControllerIT {
 
-    private static final OracleContainer oracle = new OracleContainer("oracleinanutshell/oracle-xe-11g");
+    @Container
+    private static final OracleContainer oracle = new OracleContainer("gvenzl/oracle-xe");
 
-    @BeforeAll
-    public static void startContainers() {
-        oracle.start();
-        System.setProperty("EXAMPLE_DB_URL", oracle.getJdbcUrl());
-        System.setProperty("EXAMPLE_DB_USER", oracle.getUsername());
-        System.setProperty("EXAMPLE_DB_PASS", oracle.getPassword());
+    @DynamicPropertySource
+    public static void properties(DynamicPropertyRegistry registry) throws Exception {
+        registry.add("spring.datasource.url", oracle::getJdbcUrl);
+        registry.add("spring.datasource.username", oracle::getUsername);
+        registry.add("spring.datasource.password", oracle::getPassword);
     }
 
     @AfterAll

@@ -2,6 +2,6 @@ version: '3.2'
 
 services:
   postgresdb:
-    image: oracleinanutshell/oracle-xe-11g:latest
+    image: gvenzl/oracle-xe:latest
     ports:
       - 1521:1521
