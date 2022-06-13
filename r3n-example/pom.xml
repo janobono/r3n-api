@@ -14,7 +14,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <sk.r3n.version>6.0.0</sk.r3n.version>
+        <sk.r3n.version>6.0.1</sk.r3n.version>
     </properties>
 
     <dependencyManagement>
