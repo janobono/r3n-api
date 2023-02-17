@@ -33,9 +33,13 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @Testcontainers
+@AutoConfigureMockMvc
+@SpringBootTest(
+        properties = {
+                "spring.flyway.clean-disabled=false"
+        }
+)
 public class HotelControllerIT {
 
     @Container
