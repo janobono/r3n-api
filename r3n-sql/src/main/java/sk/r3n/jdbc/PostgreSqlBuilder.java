@@ -37,6 +37,13 @@ public class PostgreSqlBuilder extends SqlBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSqlBuilder.class);
 
+    public PostgreSqlBuilder() {
+    }
+
+    public PostgreSqlBuilder(Boolean blobFile) {
+        super(blobFile);
+    }
+
     @Override
     public Sql nextVal(Sequence sequence) {
         Sql sql = new Sql();

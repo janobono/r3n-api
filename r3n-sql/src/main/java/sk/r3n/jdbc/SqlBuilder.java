@@ -29,6 +29,13 @@ public abstract class SqlBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlBuilder.class);
 
+    public SqlBuilder() {
+    }
+
+    public SqlBuilder(Boolean blobFile) {
+        this.blobFile = blobFile;
+    }
+
     /**
      * Blob data type as File.
      */

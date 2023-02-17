@@ -38,6 +38,13 @@ public class OraSqlBuilder extends SqlBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OraSqlBuilder.class);
 
+    public OraSqlBuilder() {
+    }
+
+    public OraSqlBuilder(Boolean blobFile) {
+        super(blobFile);
+    }
+
     @Override
     public Sql nextVal(Sequence sequence) {
         Sql sql = new Sql();
