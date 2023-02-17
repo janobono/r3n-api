@@ -47,7 +47,7 @@ class StructureWriter implements Serializable {
         this.dtoTemplate = dtoTemplate;
     }
 
-    public void write(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
+    public void write(Log log, boolean blobFile, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
         File r3nDir = new File(targetDir, "r3n");
         r3nDir.mkdirs();
 
@@ -61,7 +61,7 @@ class StructureWriter implements Serializable {
         File r3nDtoDir = new File(r3nDir, "dto");
         r3nDtoDir.mkdirs();
         log.info("Dtos");
-        writeDtos(log, overwrite, r3nDtoDir, targetPackage + ".r3n.dto", structure);
+        writeDtos(log, blobFile, overwrite, r3nDtoDir, targetPackage + ".r3n.dto", structure);
     }
 
     private void writeSequences(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
@@ -100,14 +100,14 @@ class StructureWriter implements Serializable {
         }
     }
 
-    private void writeDtos(Log log, boolean overwrite, File dtoDir, String targetPackage, Structure structure) {
+    private void writeDtos(Log log, boolean blobFile, boolean overwrite, File dtoDir, String targetPackage, Structure structure) {
         for (Table table : structure.getTables()) {
             String recordName = toCamelCase(false, table.name()) + "Dto";
             File file = new File(dtoDir, recordName + ".java");
             if (!file.exists() || overwrite) {
                 String content = dtoTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
                 List<String> lines = new ArrayList<>();
-                if (containsDataType(structure.getColumns(table), DataType.BLOB)) {
+                if (blobFile && containsDataType(structure.getColumns(table), DataType.BLOB)) {
                     lines.add("import java.io.File;");
                 }
                 if (containsDataType(structure.getColumns(table), DataType.BIG_DECIMAL)) {
@@ -129,8 +129,8 @@ class StructureWriter implements Serializable {
                 content = content.replaceAll(REPLACE_IMPORT, importLines);
                 content = content.replaceAll(REPLACE_RECORD_NAME, recordName);
                 List<Column> columns = structure.getColumns(table);
-                content = content.replaceAll(REPLACE_RECORD_MEMBERS, columnsToDtoMembers(columns));
-                content = content.replaceAll(REPLACE_RECORD_METHODS, columnsToDtoMethods(table, columns));
+                content = content.replaceAll(REPLACE_RECORD_MEMBERS, columnsToDtoMembers(columns, blobFile));
+                content = content.replaceAll(REPLACE_RECORD_METHODS, columnsToDtoMethods(table, columns, blobFile));
                 write(file, content.getBytes());
             } else {
                 log.info("SKIPPED");
@@ -205,14 +205,14 @@ class StructureWriter implements Serializable {
         return false;
     }
 
-    private String columnsToDtoMembers(List<Column> columns) {
+    private String columnsToDtoMembers(List<Column> columns, boolean blobFile) {
         StringBuilder sb = new StringBuilder();
         if (columns.size() > 0) {
             sb.append("\n");
         }
         for (int index = 0; index < columns.size(); index++) {
             Column column = columns.get(index);
-            sb.append("        ").append(dataTypeToJava(column.dataType())).append(" ");
+            sb.append("        ").append(dataTypeToJava(column.dataType(), blobFile)).append(" ");
             sb.append(toCamelCase(true, ((ColumnBase) column).name()));
             if (index < columns.size() - 1) {
                 sb.append(",\n");
@@ -223,7 +223,7 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private String columnsToDtoMethods(Table table, List<Column> columns) {
+    private String columnsToDtoMethods(Table table, List<Column> columns, boolean blobFile) {
         String recordName = toCamelCase(false, table.name()) + "Dto";
         String instanceName = toCamelCase(true, table.name()) + "Dto";
         StringBuilder sb = new StringBuilder();
@@ -249,7 +249,7 @@ class StructureWriter implements Serializable {
             sb.append("\n        return new ").append(recordName).append("(");
             for (int index = 0; index < columns.size(); index++) {
                 Column column = columns.get(index);
-                sb.append("\n                (").append(dataTypeToJava(column.dataType())).append(") array[").append(index).append("]");
+                sb.append("\n                (").append(dataTypeToJava(column.dataType(), blobFile)).append(") array[").append(index).append("]");
                 if (index < columns.size() - 1) {
                     sb.append(",");
                 }
@@ -260,7 +260,7 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private String dataTypeToJava(DataType dataType) {
+    private String dataTypeToJava(DataType dataType, boolean blobFile) {
         return switch (dataType) {
             case BOOLEAN -> "Boolean";
             case STRING -> "String";
@@ -271,7 +271,7 @@ class StructureWriter implements Serializable {
             case DATE -> "LocalDate";
             case TIME -> "LocalTime";
             case TIME_STAMP -> "LocalDateTime";
-            case BLOB -> "File";
+            case BLOB -> blobFile ? "File" : "byte[]";
         };
     }
 

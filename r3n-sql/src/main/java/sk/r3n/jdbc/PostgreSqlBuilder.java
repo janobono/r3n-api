@@ -492,18 +492,22 @@ public class PostgreSqlBuilder extends SqlBuilder {
                 case TIME -> result = resultSet.getTime(index).toLocalTime();
                 case TIME_STAMP -> result = resultSet.getTimestamp(index).toLocalDateTime();
                 case BLOB -> {
-                    InputStream is = null;
-                    File file = null;
-                    try {
-                        file = File.createTempFile("SQL", ".BIN", dir);
-                        is = resultSet.getBinaryStream(index);
-                        streamToFile(is, file);
-                        result = file;
-                    } catch (IOException e) {
-                        delete(file);
-                        throw new SQLException(e);
-                    } finally {
-                        close(is);
+                    if (getBlobFile()) {
+                        InputStream is = null;
+                        File file = null;
+                        try {
+                            file = File.createTempFile("SQL", ".BIN", dir);
+                            is = resultSet.getBinaryStream(index);
+                            streamToFile(is, file);
+                            result = file;
+                        } catch (IOException e) {
+                            delete(file);
+                            throw new SQLException(e);
+                        } finally {
+                            close(is);
+                        }
+                    } else {
+                        result = resultSet.getBytes(index);
                     }
                 }
             }
@@ -521,28 +525,25 @@ public class PostgreSqlBuilder extends SqlBuilder {
     private void setParam(PreparedStatement preparedStatement, int index, SqlParam param, List<InputStream> streams) throws SQLException {
         if (param.value() != null) {
             switch (param.dataType()) {
-                case BLOB:
-                    try {
-                        File file = (File) param.value();
-                        InputStream is = new FileInputStream(file);
-                        streams.add(is);
-                        preparedStatement.setBinaryStream(index, is, (int) file.length());
-                    } catch (IOException e) {
-                        throw new SQLException(e);
+                case BLOB -> {
+                    if (getBlobFile()) {
+                        try {
+                            File file = (File) param.value();
+                            InputStream is = new FileInputStream(file);
+                            streams.add(is);
+                            preparedStatement.setBinaryStream(index, is, (int) file.length());
+                        } catch (IOException e) {
+                            throw new SQLException(e);
+                        }
+                    } else {
+                        preparedStatement.setBytes(index, (byte[]) param.value());
                     }
-                    break;
-                case DATE:
-                    preparedStatement.setDate(index, Date.valueOf(((LocalDate) param.value())));
-                    break;
-                case TIME:
-                    preparedStatement.setTime(index, Time.valueOf(((LocalTime) param.value())));
-                    break;
-                case TIME_STAMP:
-                    preparedStatement.setTimestamp(index, Timestamp.valueOf(((LocalDateTime) param.value())));
-                    break;
-                default:
-                    preparedStatement.setObject(index, param.value());
-                    break;
+                }
+                case DATE -> preparedStatement.setDate(index, Date.valueOf(((LocalDate) param.value())));
+                case TIME -> preparedStatement.setTime(index, Time.valueOf(((LocalTime) param.value())));
+                case TIME_STAMP ->
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(((LocalDateTime) param.value())));
+                default -> preparedStatement.setObject(index, param.value());
             }
         } else {
             preparedStatement.setNull(index, Types.NULL);

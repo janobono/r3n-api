@@ -30,6 +30,22 @@ public abstract class SqlBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlBuilder.class);
 
     /**
+     * Blob data type as File.
+     */
+    private Boolean blobFile;
+
+    public Boolean getBlobFile() {
+        if (blobFile == null) {
+            blobFile = true;
+        }
+        return blobFile;
+    }
+
+    public void setBlobFile(Boolean blobFile) {
+        this.blobFile = blobFile;
+    }
+
+    /**
      * Temporary directory used to store BLOB data from database.
      */
     private File tmpDir;

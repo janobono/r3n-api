@@ -521,17 +521,21 @@ public class OraSqlBuilder extends SqlBuilder {
                 case TIME -> result = resultSet.getTime(index).toLocalTime();
                 case TIME_STAMP -> result = resultSet.getTimestamp(index).toLocalDateTime();
                 case BLOB -> {
-                    File file = null;
-                    try {
-                        file = File.createTempFile("SQL", ".BIN", dir);
-                        Blob blob = resultSet.getBlob(index);
-                        if (blob.length() > 0) {
-                            streamToFile(blob.getBinaryStream(1, blob.length()), file);
+                    if (getBlobFile()) {
+                        File file = null;
+                        try {
+                            file = File.createTempFile("SQL", ".BIN", dir);
+                            Blob blob = resultSet.getBlob(index);
+                            if (blob.length() > 0) {
+                                streamToFile(blob.getBinaryStream(1, blob.length()), file);
+                            }
+                            result = file;
+                        } catch (IOException e) {
+                            delete(file);
+                            throw new SQLException(e);
                         }
-                        result = file;
-                    } catch (IOException e) {
-                        delete(file);
-                        throw new SQLException(e);
+                    } else {
+                        result = resultSet.getBytes(index);
                     }
                 }
             }
@@ -549,23 +553,20 @@ public class OraSqlBuilder extends SqlBuilder {
     private void setParam(Connection connection, PreparedStatement preparedStatement, int index, SqlParam param) throws SQLException {
         if (param.value() != null) {
             switch (param.dataType()) {
-                case BLOB:
-                    Blob blob = connection.createBlob();
-                    fileToStream((File) param.value(), blob.setBinaryStream(1));
-                    preparedStatement.setBlob(index, blob);
-                    break;
-                case DATE:
-                    preparedStatement.setDate(index, Date.valueOf(((LocalDate) param.value())));
-                    break;
-                case TIME:
-                    preparedStatement.setTime(index, Time.valueOf(((LocalTime) param.value())));
-                    break;
-                case TIME_STAMP:
-                    preparedStatement.setTimestamp(index, Timestamp.valueOf(((LocalDateTime) param.value())));
-                    break;
-                default:
-                    preparedStatement.setObject(index, param.value());
-                    break;
+                case BLOB -> {
+                    if (getBlobFile()) {
+                        Blob blob = connection.createBlob();
+                        fileToStream((File) param.value(), blob.setBinaryStream(1));
+                        preparedStatement.setBlob(index, blob);
+                    } else {
+                        preparedStatement.setBytes(index, (byte[]) param.value());
+                    }
+                }
+                case DATE -> preparedStatement.setDate(index, Date.valueOf(((LocalDate) param.value())));
+                case TIME -> preparedStatement.setTime(index, Time.valueOf(((LocalTime) param.value())));
+                case TIME_STAMP ->
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(((LocalDateTime) param.value())));
+                default -> preparedStatement.setObject(index, param.value());
             }
         } else {
             preparedStatement.setNull(index, Types.NULL);

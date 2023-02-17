@@ -22,15 +22,16 @@
 </plugin>
 ```
 
-|PARAMETER|DEFINITION|EXAMPLE|
-|---|---|---|
-|OVERWRITE|Flag to rewrite existing files. Default value is **true**|true, false|
-|TARGET_PACKAGE|Target package for generated java files.|your.project.dal|
-|JDBC_DRIVER|Jdbc driver class.|PostgreSQL: org.postgresql.Driver, Oracle: oracle.jdbc.driver.OracleDriver|
-|JDBC_URL|Jdbc url.|PostgreSQL: jdbc:postgresql://{host}:{port}/{db}, Oracle: jdbc:oracle:thin:@{host}:{port}:{db}|
-|JDBC_USER|Database user name.||
-|JDBC_PASSWORD|Database user password.||
-|JDBC_DRIVER_DEPENDENCY|Driver jar dependency.|PostgreSQL: *1, Oracle: *2|
+| PARAMETER              | DEFINITION                                                      | EXAMPLE                                                                                        |
+|------------------------|-----------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| BLOBFILE               | Flag to use files for BLOB data type. Default value is **true** | true, false                                                                                    |
+| OVERWRITE              | Flag to rewrite existing files. Default value is **true**       | true, false                                                                                    |
+| TARGET_PACKAGE         | Target package for generated java files.                        | your.project.dal                                                                               |
+| JDBC_DRIVER            | Jdbc driver class.                                              | PostgreSQL: org.postgresql.Driver, Oracle: oracle.jdbc.driver.OracleDriver                     |
+| JDBC_URL               | Jdbc url.                                                       | PostgreSQL: jdbc:postgresql://{host}:{port}/{db}, Oracle: jdbc:oracle:thin:@{host}:{port}:{db} |
+| JDBC_USER              | Database user name.                                             |                                                                                                |
+| JDBC_PASSWORD          | Database user password.                                         |                                                                                                |
+| JDBC_DRIVER_DEPENDENCY | Driver jar dependency.                                          | PostgreSQL: *1, Oracle: *2                                                                     |
 
 - *1
 

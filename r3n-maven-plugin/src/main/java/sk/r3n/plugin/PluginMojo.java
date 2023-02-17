@@ -5,19 +5,16 @@
  */
 package sk.r3n.plugin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import sk.r3n.jdbc.SqlUtil;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 /**
  * Plugin mojo.
@@ -27,6 +24,9 @@ import sk.r3n.jdbc.SqlUtil;
  */
 @Mojo(name = "r3n-gen")
 public class PluginMojo extends AbstractMojo {
+
+    @Parameter(defaultValue = "true", required = true)
+    private boolean blobFile;
 
     @Parameter(defaultValue = "true", required = true)
     private boolean overwrite;
@@ -67,7 +67,7 @@ public class PluginMojo extends AbstractMojo {
                     readTemplate("/MetaTable.txt"),
                     readTemplate("/MetaColumn.txt"),
                     readTemplate("/Dto.txt")
-            ).write(getLog(), overwrite, baseDir, targetPackage, structure);
+            ).write(getLog(), blobFile, overwrite, baseDir, targetPackage, structure);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
