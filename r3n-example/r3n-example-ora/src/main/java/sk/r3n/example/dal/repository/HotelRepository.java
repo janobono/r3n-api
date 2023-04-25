@@ -28,21 +28,21 @@ public class HotelRepository {
 
     private final DataSource dataSource;
 
-    public HotelRepository(DataSource dataSource) {
+    public HotelRepository(final DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public Page<HotelDto> getHotels(Pageable pageable) {
+    public Page<HotelDto> getHotels(final Pageable pageable) {
         LOGGER.debug("getHotels({})", pageable);
-        Page<HotelDto> result;
-        try (Connection connection = dataSource.getConnection()) {
-            int totalRows = (Integer) new OraSqlBuilder().select(
+        final Page<HotelDto> result;
+        try (final Connection connection = dataSource.getConnection()) {
+            final int totalRows = (Integer) new OraSqlBuilder().select(
                     connection,
                     Query
                             .SELECT(MetaColumnHotel.ID.column()).COUNT()
                             .FROM(MetaTable.HOTEL.table())
             ).get(0)[0];
-            List<Object[]> rows;
+            final List<Object[]> rows;
             if (pageable.isPaged()) {
                 rows = new OraSqlBuilder().select(
                         connection,
@@ -59,18 +59,18 @@ public class HotelRepository {
                 );
             }
             result = new PageImpl<>(rows.stream().map(HotelDto::toObject).collect(Collectors.toList()), pageable, totalRows);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
         LOGGER.debug("getHotel({})={}", pageable, result);
         return result;
     }
 
-    public boolean exists(Long id) {
+    public boolean exists(final Long id) {
         LOGGER.debug("exists({})", id);
-        boolean result;
-        try (Connection connection = dataSource.getConnection()) {
-            List<Object[]> rows = new OraSqlBuilder().select(
+        final boolean result;
+        try (final Connection connection = dataSource.getConnection()) {
+            final List<Object[]> rows = new OraSqlBuilder().select(
                     connection,
                     Query
                             .SELECT(MetaColumnHotel.ID.column()).COUNT()
@@ -78,18 +78,18 @@ public class HotelRepository {
                             .WHERE(MetaColumnHotel.ID.column(), Condition.EQUALS, id)
             );
             result = ((Integer) rows.get(0)[0]) > 0;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
         LOGGER.debug("exists({})={}", id, result);
         return result;
     }
 
-    public Optional<HotelDto> getHotel(Long id) {
+    public Optional<HotelDto> getHotel(final Long id) {
         LOGGER.debug("getHotel({})", id);
         Optional<HotelDto> result = Optional.empty();
-        try (Connection connection = dataSource.getConnection()) {
-            List<Object[]> rows = new OraSqlBuilder().select(
+        try (final Connection connection = dataSource.getConnection()) {
+            final List<Object[]> rows = new OraSqlBuilder().select(
                     connection,
                     Query
                             .SELECT(MetaColumnHotel.columns())
@@ -99,20 +99,20 @@ public class HotelRepository {
             if (rows.size() == 1) {
                 result = Optional.of(HotelDto.toObject(rows.get(0)));
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
         LOGGER.debug("getHotel({})={}", id, result);
         return result;
     }
 
-    public HotelDto insertHotel(HotelDto hotelDto) {
+    public HotelDto insertHotel(final HotelDto hotelDto) {
         LOGGER.debug("insertHotel({})", hotelDto);
-        HotelDto result;
-        try (Connection connection = dataSource.getConnection()) {
-            Object[] row = HotelDto.toArray(hotelDto);
+        final HotelDto result;
+        try (final Connection connection = dataSource.getConnection()) {
+            final Object[] row = HotelDto.toArray(hotelDto);
             row[0] = MetaSequence.SQ_HOTEL.sequence();
-            Long id = (Long) new OraSqlBuilder().insert(
+            final Long id = (Long) new OraSqlBuilder().insert(
                     connection,
                     Query
                             .INSERT()
@@ -122,17 +122,17 @@ public class HotelRepository {
             );
             row[0] = id;
             result = HotelDto.toObject(row);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
         LOGGER.debug("insertHotel({})={}", hotelDto, result);
         return result;
     }
 
-    public HotelDto updateHotel(HotelDto hotelDto) {
+    public HotelDto updateHotel(final HotelDto hotelDto) {
         LOGGER.debug("updateHotel({})", hotelDto);
-        HotelDto result;
-        try (Connection connection = dataSource.getConnection()) {
+        final HotelDto result;
+        try (final Connection connection = dataSource.getConnection()) {
             new OraSqlBuilder().update(
                     connection,
                     Query
@@ -144,16 +144,16 @@ public class HotelRepository {
                             .WHERE(MetaColumnHotel.ID.column(), Condition.EQUALS, hotelDto.id())
             );
             result = hotelDto;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
         LOGGER.debug("updateHotel({})={}", hotelDto, result);
         return result;
     }
 
-    public void deleteHotel(Long id) {
+    public void deleteHotel(final Long id) {
         LOGGER.debug("deleteHotel({})", id);
-        try (Connection connection = dataSource.getConnection()) {
+        try (final Connection connection = dataSource.getConnection()) {
             new OraSqlBuilder().delete(
                     connection,
                     Query
@@ -161,7 +161,7 @@ public class HotelRepository {
                             .FROM(MetaTable.HOTEL.table())
                             .WHERE(MetaColumnHotel.ID.column(), Condition.EQUALS, id)
             );
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }

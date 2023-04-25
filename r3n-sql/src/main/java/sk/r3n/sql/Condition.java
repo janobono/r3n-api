@@ -29,9 +29,9 @@ public enum Condition {
 
     private final String condition;
 
-    public static Condition byCondition(String condition) {
+    public static Condition byCondition(final String condition) {
         Condition result = null;
-        for (Condition cond : Condition.values()) {
+        for (final Condition cond : Condition.values()) {
             if (cond.condition().equals(condition)) {
                 result = cond;
                 break;
@@ -40,7 +40,7 @@ public enum Condition {
         return result;
     }
 
-    Condition(String condition) {
+    Condition(final String condition) {
         this.condition = condition;
     }
 

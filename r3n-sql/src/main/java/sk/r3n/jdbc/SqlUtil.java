@@ -44,7 +44,7 @@ public class SqlUtil {
      * @param is         Stream to sql script.
      * @throws Exception
      */
-    public static void runSqlScript(Connection connection, InputStream is) throws Exception {
+    public static void runSqlScript(final Connection connection, final InputStream is) throws Exception {
         runSqlScript(connection, is, null, DEFAULT_DELIMITER, null);
     }
 
@@ -57,7 +57,7 @@ public class SqlUtil {
      * @param commandsDelimiter Commands delimiter.
      * @throws Exception
      */
-    public static void runSqlScript(Connection connection, InputStream is, String fileEncoding, String commandsDelimiter)
+    public static void runSqlScript(final Connection connection, final InputStream is, final String fileEncoding, final String commandsDelimiter)
             throws Exception {
         runSqlScript(connection, is, fileEncoding, commandsDelimiter, null);
     }
@@ -73,8 +73,8 @@ public class SqlUtil {
      *                                 script will be replaced by values in map.
      * @throws Exception
      */
-    public static void runSqlScript(Connection connection, InputStream is, String fileEncoding, String commandsDelimiter,
-                                    Map<String, String> replacementParametersMap) throws Exception {
+    public static void runSqlScript(final Connection connection, final InputStream is, final String fileEncoding, final String commandsDelimiter,
+                                    final Map<String, String> replacementParametersMap) throws Exception {
         final Reader reader = getScriptReader(is, fileEncoding);
         final List<String> commands = getSqlCommands(reader, commandsDelimiter);
         final List<String> adaptedCommands = (replacementParametersMap == null)
@@ -83,22 +83,22 @@ public class SqlUtil {
         runSqlCommands(connection, adaptedCommands);
     }
 
-    private static Reader getScriptReader(InputStream is, String fileEncoding) throws Exception {
+    private static Reader getScriptReader(final InputStream is, String fileEncoding) throws Exception {
         if (fileEncoding == null) {
             fileEncoding = DEFAULT_ENCODING;
         }
         return new InputStreamReader(is, fileEncoding);
     }
 
-    private static List<String> getSqlCommands(Reader reader, String commandsDelimiter) throws Exception {
-        List<String> commands = new ArrayList<>();
+    private static List<String> getSqlCommands(final Reader reader, final String commandsDelimiter) throws Exception {
+        final List<String> commands = new ArrayList<>();
 
-        LineNumberReader lineReader = new LineNumberReader(reader);
+        final LineNumberReader lineReader = new LineNumberReader(reader);
         String line;
 
         StringBuilder command = new StringBuilder();
         while ((line = lineReader.readLine()) != null) {
-            String trimmedLine = line.trim();
+            final String trimmedLine = line.trim();
 
             if (trimmedLine.length() < 1
                     || trimmedLine.startsWith("//")
@@ -116,10 +116,10 @@ public class SqlUtil {
         return commands;
     }
 
-    private static List<String> adaptSql(List<String> sqls, Map<String, String> stringsToReplaceMap) {
-        List<String> adaptedSqls = new ArrayList<>();
+    private static List<String> adaptSql(final List<String> sqls, final Map<String, String> stringsToReplaceMap) {
+        final List<String> adaptedSqls = new ArrayList<>();
         sqls.stream().map((sql) -> sql).map((adaptedSql) -> {
-            for (Map.Entry<String, String> entry : stringsToReplaceMap.entrySet()) {
+            for (final Map.Entry<String, String> entry : stringsToReplaceMap.entrySet()) {
                 adaptedSql = adaptedSql.replace(entry.getKey(), entry.getValue());
             }
             return adaptedSql;
@@ -127,12 +127,12 @@ public class SqlUtil {
         return adaptedSqls;
     }
 
-    private static void runSqlCommands(Connection connection, List<String> commands) throws Exception {
+    private static void runSqlCommands(final Connection connection, final List<String> commands) throws Exception {
         SQLException se = null;
-        for (String command : commands) {
+        for (final String command : commands) {
             try {
                 execute(connection, command);
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 LOGGER.warn("", e);
                 if (se == null) {
                     se = e;
@@ -151,8 +151,8 @@ public class SqlUtil {
      * @param command    Command.
      * @throws SQLException
      */
-    public static void execute(Connection connection, String command) throws SQLException {
-        try (Statement statement = connection.createStatement()) {
+    public static void execute(final Connection connection, final String command) throws SQLException {
+        try (final Statement statement = connection.createStatement()) {
             statement.execute(command);
         }
     }
@@ -165,11 +165,11 @@ public class SqlUtil {
      * @param params     Parameters. Only base datatypes should be used.
      * @throws SQLException
      */
-    public static void execute(Connection connection, String command, Object... params) throws SQLException {
+    public static void execute(final Connection connection, final String command, final Object... params) throws SQLException {
         if (params == null || params.length < 1) {
             execute(connection, command);
         } else {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(command)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(command)) {
                 setParams(preparedStatement, params);
                 preparedStatement.execute();
             }
@@ -183,9 +183,9 @@ public class SqlUtil {
      * @param params            Parameters. Only base datatypes should be used.
      * @throws SQLException
      */
-    public static void setParams(PreparedStatement preparedStatement, Object... params) throws SQLException {
+    public static void setParams(final PreparedStatement preparedStatement, final Object... params) throws SQLException {
         int i = 1;
-        for (Object param : params) {
+        for (final Object param : params) {
             setParam(preparedStatement, i++, param);
         }
     }
@@ -198,7 +198,7 @@ public class SqlUtil {
      * @param param             Parameter. Only base datatypes should be used.
      * @throws SQLException
      */
-    public static void setParam(PreparedStatement preparedStatement, int index, Object param) throws SQLException {
+    public static void setParam(final PreparedStatement preparedStatement, final int index, final Object param) throws SQLException {
         if (param != null) {
             preparedStatement.setObject(index, param);
         } else {
@@ -211,11 +211,11 @@ public class SqlUtil {
      *
      * @param resultSet Result set.
      */
-    public static void close(ResultSet resultSet) {
+    public static void close(final ResultSet resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 LOGGER.warn("", e);
             }
         }
@@ -226,11 +226,11 @@ public class SqlUtil {
      *
      * @param statement Statement.
      */
-    public static void close(Statement statement) {
+    public static void close(final Statement statement) {
         if (statement != null) {
             try {
                 statement.close();
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 LOGGER.warn("", e);
             }
         }
@@ -241,11 +241,11 @@ public class SqlUtil {
      *
      * @param connection Connection.
      */
-    public static void close(Connection connection) {
+    public static void close(final Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 LOGGER.warn("", e);
             }
         }
@@ -256,11 +256,11 @@ public class SqlUtil {
      *
      * @param connection Connection.
      */
-    public static void rollback(Connection connection) {
+    public static void rollback(final Connection connection) {
         if (connection != null) {
             try {
                 connection.rollback();
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 LOGGER.warn("", e);
             }
         }
@@ -272,11 +272,11 @@ public class SqlUtil {
      *
      * @param connection Connection.
      */
-    public static void enableAutoCommit(Connection connection) {
+    public static void enableAutoCommit(final Connection connection) {
         if (connection != null) {
             try {
                 connection.setAutoCommit(true);
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 LOGGER.warn("", e);
             }
         }

@@ -16,7 +16,7 @@ public enum MetaColumnHotel {
 
     private final DataType dataType;
 
-    MetaColumnHotel(String columnName, DataType dataType) {
+    MetaColumnHotel(final String columnName, final DataType dataType) {
         this.columnName = columnName;
         this.dataType = dataType;
     }
@@ -25,21 +25,21 @@ public enum MetaColumnHotel {
         return Column.column(columnName, dataType, MetaTable.HOTEL.table());
     }
 
-    public Column column(String tableAlias) {
+    public Column column(final String tableAlias) {
         return Column.column(columnName, dataType, MetaTable.HOTEL.table(tableAlias));
     }
 
     public static Column[] columns() {
-        List<Column> columnList = new ArrayList<>();
-        for (MetaColumnHotel metaColumnHotel : values()) {
+        final List<Column> columnList = new ArrayList<>();
+        for (final MetaColumnHotel metaColumnHotel : values()) {
             columnList.add(metaColumnHotel.column());
         }
         return columnList.toArray(new Column[0]);
     }
 
-    public static Column[] columns(String tableAlias) {
-        List<Column> columnList = new ArrayList<>();
-        for (MetaColumnHotel metaColumnHotel : values()) {
+    public static Column[] columns(final String tableAlias) {
+        final List<Column> columnList = new ArrayList<>();
+        for (final MetaColumnHotel metaColumnHotel : values()) {
             columnList.add(metaColumnHotel.column(tableAlias));
         }
         return columnList.toArray(new Column[0]);

@@ -78,7 +78,7 @@ public enum MetaSequence {
 
     private final String sequenceName;
 
-    MetaSequence(String sequenceName) {
+    MetaSequence(final String sequenceName) {
         this.sequenceName = sequenceName;
     }
 
@@ -104,7 +104,7 @@ public enum MetaTable {
 
     private final String tableAlias;
 
-    MetaTable(String tableName, String tableAlias) {
+    MetaTable(final String tableName, final String tableAlias) {
         this.tableName = tableName;
         this.tableAlias = tableAlias;
     }
@@ -113,7 +113,7 @@ public enum MetaTable {
         return new Table(tableName, tableAlias);
     }
 
-    public Table table(String tableAlias) {
+    public Table table(final String tableAlias) {
         return new Table(tableName, tableAlias);
     }
 }
@@ -141,7 +141,7 @@ public enum MetaColumnHotel {
 
     private final DataType dataType;
 
-    MetaColumnHotel(String columnName, DataType dataType) {
+    MetaColumnHotel(final String columnName, final DataType dataType) {
         this.columnName = columnName;
         this.dataType = dataType;
     }
@@ -150,21 +150,21 @@ public enum MetaColumnHotel {
         return Column.column(columnName, dataType, MetaTable.HOTEL.table());
     }
 
-    public Column column(String tableAlias) {
+    public Column column(final String tableAlias) {
         return Column.column(columnName, dataType, MetaTable.HOTEL.table(tableAlias));
     }
 
     public static Column[] columns() {
-        List<Column> columnList = new ArrayList<>();
-        for (MetaColumnHotel metaColumnHotel : values()) {
+        final List<Column> columnList = new ArrayList<>();
+        for (final MetaColumnHotel metaColumnHotel : values()) {
             columnList.add(metaColumnHotel.column());
         }
         return columnList.toArray(new Column[0]);
     }
 
-    public static Column[] columns(String tableAlias) {
-        List<Column> columnList = new ArrayList<>();
-        for (MetaColumnHotel metaColumnHotel : values()) {
+    public static Column[] columns(final String tableAlias) {
+        final List<Column> columnList = new ArrayList<>();
+        for (final MetaColumnHotel metaColumnHotel : values()) {
             columnList.add(metaColumnHotel.column(tableAlias));
         }
         return columnList.toArray(new Column[0]);
@@ -188,7 +188,7 @@ public record HotelDto(
         String note
 ) {
 
-    public static Object[] toArray(HotelDto hotelDto) {
+    public static Object[] toArray(final HotelDto hotelDto) {
         return new Object[]{
                 hotelDto.id,
                 hotelDto.name,
@@ -196,7 +196,7 @@ public record HotelDto(
         };
     }
 
-    public static HotelDto toObject(Object[] array) {
+    public static HotelDto toObject(final Object[] array) {
         return new HotelDto(
                 (Long) array[0],
                 (String) array[1],

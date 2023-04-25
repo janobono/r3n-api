@@ -31,7 +31,7 @@ public class Sql {
      * @param param    Parameter value.
      * @return Sql command representation object.
      */
-    public Sql addParam(DataType dataType, Object param) {
+    public Sql addParam(final DataType dataType, final Object param) {
         params.add(new SqlParam(dataType, param));
         return this;
     }
@@ -56,7 +56,7 @@ public class Sql {
      * @param string String.
      * @return Sql command representation object.
      */
-    public Sql append(String string) {
+    public Sql append(final String string) {
         sql.append(string);
         return this;
     }
@@ -68,8 +68,8 @@ public class Sql {
      * @param strings   String array.
      * @return Sql command representation object.
      */
-    public Sql append(String separator, String... strings) {
-        for (String string : strings) {
+    public Sql append(final String separator, final String... strings) {
+        for (final String string : strings) {
             if (string != null && string.length() > 0) {
                 append(string);
             }
@@ -86,7 +86,7 @@ public class Sql {
      * @param sql Sql command representation object.
      * @return Sql command representation object.
      */
-    public Sql append(Sql sql) {
+    public Sql append(final Sql sql) {
         append(sql.toSql());
         sql.getParams().forEach((param) -> {
             addParam(param.dataType(), param.value());
@@ -101,7 +101,7 @@ public class Sql {
      * @param select     Select definition object.
      * @return Sql command representation object.
      */
-    public Sql append(SqlBuilder sqlBuilder, Query.Select select) {
+    public Sql append(final SqlBuilder sqlBuilder, final Query.Select select) {
         return append(sqlBuilder.select(select));
     }
 
@@ -112,7 +112,7 @@ public class Sql {
      * @param insert     Insert definition object.
      * @return Sql command representation object.
      */
-    public Sql append(SqlBuilder sqlBuilder, Query.Insert insert) {
+    public Sql append(final SqlBuilder sqlBuilder, final Query.Insert insert) {
         return append(sqlBuilder.insert(insert));
     }
 
@@ -123,7 +123,7 @@ public class Sql {
      * @param update     Update definition object.
      * @return Sql command representation object.
      */
-    public Sql append(SqlBuilder sqlBuilder, Query.Update update) {
+    public Sql append(final SqlBuilder sqlBuilder, final Query.Update update) {
         return append(sqlBuilder.update(update));
     }
 
@@ -134,7 +134,7 @@ public class Sql {
      * @param delete     Delete definition object.
      * @return Sql command representation object.
      */
-    public Sql append(SqlBuilder sqlBuilder, Query.Delete delete) {
+    public Sql append(final SqlBuilder sqlBuilder, final Query.Delete delete) {
         return append(sqlBuilder.delete(delete));
     }
 

@@ -23,7 +23,7 @@ import java.util.List;
  */
 public abstract class StructureLoader implements Serializable {
 
-    static StructureLoader getInstance(String jdbcDriver) {
+    static StructureLoader getInstance(final String jdbcDriver) {
         return switch (jdbcDriver) {
             case "oracle.jdbc.driver.OracleDriver" -> new OracleStructureLoader();
             case "org.postgresql.Driver" -> new PostgreStructureLoader();
@@ -31,8 +31,8 @@ public abstract class StructureLoader implements Serializable {
         };
     }
 
-    Structure load(Log log, Connection connection) {
-        Structure structure = new Structure();
+    Structure load(final Log log, final Connection connection) {
+        final Structure structure = new Structure();
 
         loadSequences(log, connection, structure);
         loadTables(log, connection, structure);

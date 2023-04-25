@@ -21,31 +21,31 @@ public class HotelApiService {
     private HotelRepository hotelRepository;
 
     @Autowired
-    public void setHotelRepository(HotelRepository hotelRepository) {
+    public void setHotelRepository(final HotelRepository hotelRepository) {
         this.hotelRepository = hotelRepository;
     }
 
-    public Page<HotelSO> getHotels(Pageable pageable) {
+    public Page<HotelSO> getHotels(final Pageable pageable) {
         LOGGER.debug("getHotels({})", pageable);
         return hotelRepository.getHotels(pageable)
                 .map(hotelDto -> new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note()));
     }
 
-    public HotelSO getHotel(Long id) {
+    public HotelSO getHotel(final Long id) {
         LOGGER.debug("getHotel({})", id);
-        HotelDto hotelDto = hotelRepository.getHotel(id)
+        final HotelDto hotelDto = hotelRepository.getHotel(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hotel not found."));
         return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
-    public HotelSO insertHotel(HotelInputSO hotelInputSO) {
+    public HotelSO insertHotel(final HotelInputSO hotelInputSO) {
         LOGGER.debug("insertHotel({})", hotelInputSO);
         HotelDto hotelDto = new HotelDto(-1L, hotelInputSO.name(), hotelInputSO.note());
         hotelDto = hotelRepository.insertHotel(hotelDto);
         return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
-    public HotelSO updateHotel(HotelSO hotelSO) {
+    public HotelSO updateHotel(final HotelSO hotelSO) {
         LOGGER.debug("updateHotel({})", hotelSO);
         if (!hotelRepository.exists(hotelSO.id())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hotel not found.");
@@ -55,7 +55,7 @@ public class HotelApiService {
         return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
-    public void deleteHotel(Long id) {
+    public void deleteHotel(final Long id) {
         LOGGER.debug("deleteHotel({})", id);
         if (!hotelRepository.exists(id)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hotel not found.");

@@ -38,7 +38,7 @@ public class Criteria implements CriteriaContent {
         return operator;
     }
 
-    public void setOperator(Operator operator) {
+    public void setOperator(final Operator operator) {
         this.operator = operator;
     }
 
@@ -46,11 +46,11 @@ public class Criteria implements CriteriaContent {
         return parent;
     }
 
-    public void setParent(Criteria parent) {
+    public void setParent(final Criteria parent) {
         this.parent = parent;
     }
 
-    public void addCriterion(Column column, Condition condition, Object value, String representation, Operator operator) {
+    public void addCriterion(final Column column, final Condition condition, final Object value, final String representation, final Operator operator) {
         content.add(new Criterion(column, condition, value, representation, operator));
     }
 
@@ -58,9 +58,9 @@ public class Criteria implements CriteriaContent {
         return isCriteria(this);
     }
 
-    private boolean isCriteria(Criteria criteria) {
+    private boolean isCriteria(final Criteria criteria) {
         boolean result = false;
-        for (Object contentObject : criteria.getContent()) {
+        for (final Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
                 result = true;
             } else {
@@ -73,13 +73,13 @@ public class Criteria implements CriteriaContent {
         return result;
     }
 
-    public boolean contains(Column column) {
+    public boolean contains(final Column column) {
         return contains(this, column);
     }
 
-    private boolean contains(Criteria criteria, Column column) {
+    private boolean contains(final Criteria criteria, final Column column) {
         boolean result = false;
-        for (Object contentObject : criteria.getContent()) {
+        for (final Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
                 result = ((Criterion) contentObject).getColumn().columnId().equals(column.columnId());
             } else {
@@ -92,15 +92,15 @@ public class Criteria implements CriteriaContent {
         return result;
     }
 
-    public boolean contains(Table table) {
+    public boolean contains(final Table table) {
         return contains(this, table);
     }
 
-    private boolean contains(Criteria criteria, Table table) {
+    private boolean contains(final Criteria criteria, final Table table) {
         boolean result = false;
-        for (Object contentObject : criteria.getContent()) {
+        for (final Object contentObject : criteria.getContent()) {
             if (contentObject instanceof Criterion) {
-                Column column = ((Criterion) contentObject).getColumn();
+                final Column column = ((Criterion) contentObject).getColumn();
                 if (column instanceof ColumnBase) {
                     result = ((ColumnBase) column).table().name().equals(table.name());
                 }
@@ -114,16 +114,16 @@ public class Criteria implements CriteriaContent {
         return result;
     }
 
-    public List<String> aliasList(String tableName) {
-        List<String> result = new ArrayList<>();
+    public List<String> aliasList(final String tableName) {
+        final List<String> result = new ArrayList<>();
         aliasList(this, tableName, result);
         return result;
     }
 
-    private void aliasList(Criteria criteria, String tableName, List<String> aliasList) {
+    private void aliasList(final Criteria criteria, final String tableName, final List<String> aliasList) {
         criteria.getContent().forEach((contentObject) -> {
             if (contentObject instanceof Criterion) {
-                Column column = ((Criterion) contentObject).getColumn();
+                final Column column = ((Criterion) contentObject).getColumn();
                 if (column instanceof ColumnBase) {
                     if (((ColumnBase) column).table().name().equals(tableName)) {
                         if (!aliasList.contains(((ColumnBase) column).table().alias())) {

@@ -19,36 +19,36 @@ public class HotelController {
 
     private final HotelApiService hotelApiService;
 
-    public HotelController(HotelApiService hotelApiService) {
+    public HotelController(final HotelApiService hotelApiService) {
         this.hotelApiService = hotelApiService;
     }
 
     @GetMapping
-    public ResponseEntity<Page<HotelSO>> getHotels(Pageable pageable) {
+    public ResponseEntity<Page<HotelSO>> getHotels(final Pageable pageable) {
         LOGGER.debug("getHotels({})", pageable);
         return new ResponseEntity<>(hotelApiService.getHotels(pageable), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HotelSO> getHotel(@PathVariable("id") Long id) {
+    public ResponseEntity<HotelSO> getHotel(@PathVariable("id") final Long id) {
         LOGGER.debug("getHotel({})", id);
         return new ResponseEntity<>(hotelApiService.getHotel(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<HotelSO> addHotel(@RequestBody HotelInputSO hotel) {
+    public ResponseEntity<HotelSO> addHotel(@RequestBody final HotelInputSO hotel) {
         LOGGER.debug("addHotel({})", hotel);
         return new ResponseEntity<>(hotelApiService.insertHotel(hotel), HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<HotelSO> setHotel(@RequestBody HotelSO hotel) {
+    public ResponseEntity<HotelSO> setHotel(@RequestBody final HotelSO hotel) {
         LOGGER.debug("setHotel({})", hotel);
         return new ResponseEntity<>(hotelApiService.updateHotel(hotel), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteHotel(@PathVariable("id") long id) {
+    public void deleteHotel(@PathVariable("id") final long id) {
         LOGGER.debug("deleteHotel({})", id);
         hotelApiService.deleteHotel(id);
     }

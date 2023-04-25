@@ -23,7 +23,7 @@ public class Criterion implements CriteriaContent {
 
     private Operator operator;
 
-    public Criterion(Column column, Condition condition, Object value, String representation, Operator operator) {
+    public Criterion(final Column column, final Condition condition, final Object value, final String representation, final Operator operator) {
         this.column = column;
         this.condition = condition;
         this.value = value;
@@ -35,7 +35,7 @@ public class Criterion implements CriteriaContent {
         return column;
     }
 
-    public void setColumn(Column column) {
+    public void setColumn(final Column column) {
         this.column = column;
     }
 
@@ -43,7 +43,7 @@ public class Criterion implements CriteriaContent {
         return condition;
     }
 
-    public void setCondition(Condition condition) {
+    public void setCondition(final Condition condition) {
         this.condition = condition;
     }
 
@@ -51,7 +51,7 @@ public class Criterion implements CriteriaContent {
         return value;
     }
 
-    public void setValue(Object value) {
+    public void setValue(final Object value) {
         this.value = value;
     }
 
@@ -59,7 +59,7 @@ public class Criterion implements CriteriaContent {
         return representation;
     }
 
-    public void setRepresentation(String representation) {
+    public void setRepresentation(final String representation) {
         this.representation = representation;
     }
 
@@ -68,7 +68,7 @@ public class Criterion implements CriteriaContent {
         return operator;
     }
 
-    public void setOperator(Operator operator) {
+    public void setOperator(final Operator operator) {
         this.operator = operator;
     }
 

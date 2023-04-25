@@ -26,7 +26,7 @@ public class OracleStructureLoader extends StructureLoader {
     }
 
     @Override
-    protected void loadSequences(Log log, Connection connection, Structure structure) {
+    protected void loadSequences(final Log log, final Connection connection, final Structure structure) {
         log.info("Sequences loading");
 
         Statement statement = null;
@@ -35,11 +35,11 @@ public class OracleStructureLoader extends StructureLoader {
             statement = connection.createStatement();
             resultSet = statement.executeQuery("select sequence_name from user_sequences");
             while (resultSet.next()) {
-                Sequence sequence = new Sequence(resultSet.getString(1));
+                final Sequence sequence = new Sequence(resultSet.getString(1));
                 structure.getSequences().add(sequence);
                 log.info("Sequence found: " + sequence.name());
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
@@ -50,7 +50,7 @@ public class OracleStructureLoader extends StructureLoader {
     }
 
     @Override
-    protected void loadTables(Log log, Connection connection, Structure structure) {
+    protected void loadTables(final Log log, final Connection connection, final Structure structure) {
         log.info("Tables loading");
 
         Statement statement = null;
@@ -60,11 +60,11 @@ public class OracleStructureLoader extends StructureLoader {
             resultSet = statement.executeQuery("select table_name from user_tables");
             int alias = 1;
             while (resultSet.next()) {
-                Table table = new Table(resultSet.getString(1), "T" + alias++);
+                final Table table = new Table(resultSet.getString(1), "T" + alias++);
                 structure.getTables().add(table);
                 log.info("Table found: " + table.name());
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
@@ -75,9 +75,9 @@ public class OracleStructureLoader extends StructureLoader {
     }
 
     @Override
-    protected List<Column> loadColumns(Log log, Connection connection, Table table) {
+    protected List<Column> loadColumns(final Log log, final Connection connection, final Table table) {
         log.info("Columns loading: " + table);
-        List<Column> result = new ArrayList<>();
+        final List<Column> result = new ArrayList<>();
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -88,14 +88,14 @@ public class OracleStructureLoader extends StructureLoader {
             statement.setString(1, table.name());
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                Column column = Column.column(
+                final Column column = Column.column(
                         resultSet.getString(1),
                         getDataType(resultSet.getString(2), resultSet.getInt(3), resultSet.getInt(4)),
                         table
                 );
                 result.add(column);
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
@@ -105,11 +105,11 @@ public class OracleStructureLoader extends StructureLoader {
         return result;
     }
 
-    private DataType getDataType(String typeName, int precision, int scale) {
+    private DataType getDataType(final String typeName, final int precision, final int scale) {
         DataType result = null;
 
         DATA_TYPE data_type = null;
-        for (DATA_TYPE dt : DATA_TYPE.values()) {
+        for (final DATA_TYPE dt : DATA_TYPE.values()) {
             if (typeName.toLowerCase().startsWith(dt.name().toLowerCase())) {
                 data_type = dt;
                 break;

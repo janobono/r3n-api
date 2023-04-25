@@ -46,7 +46,7 @@ public class Query {
 
         protected int lastRow;
 
-        public Select(Column... columns) {
+        public Select(final Column... columns) {
             cm = new CriteriaManager();
             joinCriteria = new ArrayList<>();
             orderCriteria = new ArrayList<>();
@@ -94,7 +94,7 @@ public class Query {
             return this;
         }
 
-        public Select page(int page, int size) {
+        public Select page(final int page, final int size) {
             return interval(page * size, size);
         }
 
@@ -111,78 +111,78 @@ public class Query {
             return this;
         }
 
-        public Select FROM(Table table) {
+        public Select FROM(final Table table) {
             this.table = table;
 
             subSelects = null;
             return this;
         }
 
-        public Select FROM(Select... subSelects) {
+        public Select FROM(final Select... subSelects) {
             return FROM(DataSetOperator.UNION_ALL, subSelects);
         }
 
-        public Select FROM(DataSetOperator dataSetOperator, Select... subSelects) {
+        public Select FROM(final DataSetOperator dataSetOperator, final Select... subSelects) {
             this.subSelects = subSelects;
             this.dataSetOperator = dataSetOperator;
 
             return this;
         }
 
-        public Select INNER_JOIN(Table table, Column col1, Column col2) {
-            JoinCriterion joinCriterion = new JoinCriterion(Join.INNER, table);
+        public Select INNER_JOIN(final Table table, final Column col1, final Column col2) {
+            final JoinCriterion joinCriterion = new JoinCriterion(Join.INNER, table);
             joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
             joinCriteria.add(joinCriterion);
             return this;
         }
 
-        public Select LEFT_JOIN(Table table, Column col1, Column col2) {
-            JoinCriterion joinCriterion = new JoinCriterion(Join.LEFT, table);
+        public Select LEFT_JOIN(final Table table, final Column col1, final Column col2) {
+            final JoinCriterion joinCriterion = new JoinCriterion(Join.LEFT, table);
             joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
             joinCriteria.add(joinCriterion);
             return this;
         }
 
-        public Select RIGHT_JOIN(Table table, Column col1, Column col2) {
-            JoinCriterion joinCriterion = new JoinCriterion(Join.RIGHT, table);
+        public Select RIGHT_JOIN(final Table table, final Column col1, final Column col2) {
+            final JoinCriterion joinCriterion = new JoinCriterion(Join.RIGHT, table);
             joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
             joinCriteria.add(joinCriterion);
             return this;
         }
 
-        public Select FULL_JOIN(Table table, Column col1, Column col2) {
-            JoinCriterion joinCriterion = new JoinCriterion(Join.FULL_OUTER, table);
+        public Select FULL_JOIN(final Table table, final Column col1, final Column col2) {
+            final JoinCriterion joinCriterion = new JoinCriterion(Join.FULL_OUTER, table);
             joinCriterion.getCriteriaManager().addCriterion(col1, Condition.EQUALS, col2, null, Operator.AND);
             joinCriteria.add(joinCriterion);
             return this;
         }
 
-        public Select WHERE(Column column, Condition condition, Object value, String representation) {
+        public Select WHERE(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
-        public Select WHERE(Column column, Condition condition, Object value) {
+        public Select WHERE(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
-        public Select AND(Column column, Condition condition, Object value, String representation) {
+        public Select AND(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
-        public Select AND(Column column, Condition condition, Object value) {
+        public Select AND(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
-        public Select OR(Column column, Condition condition, Object value, String representation) {
+        public Select OR(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.OR);
             return this;
         }
 
-        public Select OR(Column column, Condition condition, Object value) {
+        public Select OR(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.OR);
             return this;
         }
@@ -212,17 +212,17 @@ public class Query {
             return this;
         }
 
-        public Select ORDER_BY(Column column, Order order) {
+        public Select ORDER_BY(final Column column, final Order order) {
             orderCriteria.add(new OrderCriterion(column, order));
             return this;
         }
 
-        public Select GROUP_BY(Column... columns) {
+        public Select GROUP_BY(final Column... columns) {
             groupByColumns = columns;
             return this;
         }
 
-        public Select HAVING(Column column, Condition condition, Object value) {
+        public Select HAVING(final Column column, final Condition condition, final Object value) {
             havingCriterion = new Criterion(column, condition, value, null, Operator.AND);
             return this;
         }
@@ -304,18 +304,18 @@ public class Query {
 
         protected Column returning;
 
-        public Insert INTO(Table table, Column... columns) {
+        public Insert INTO(final Table table, final Column... columns) {
             this.table = table;
             this.columns = columns;
             return this;
         }
 
-        public Insert VALUES(Object... values) {
+        public Insert VALUES(final Object... values) {
             this.values = values;
             return this;
         }
 
-        public Insert RETURNING(Column returning) {
+        public Insert RETURNING(final Column returning) {
             this.returning = returning;
             return this;
         }
@@ -348,22 +348,22 @@ public class Query {
 
         protected Object[] values;
 
-        public Update(Table table) {
+        public Update(final Table table) {
             cm = new CriteriaManager();
             this.table = table;
         }
 
-        public Update SET(Column column, Object value) {
+        public Update SET(final Column column, final Object value) {
             if (this.columns == null) {
                 this.columns = new Column[]{};
             }
-            Column[] newColumns = Arrays.copyOf(this.columns, this.columns.length + 1);
+            final Column[] newColumns = Arrays.copyOf(this.columns, this.columns.length + 1);
             newColumns[newColumns.length - 1] = column;
 
             if (this.values == null) {
                 this.values = new Object[]{};
             }
-            Object[] newValues = Arrays.copyOf(this.values, this.values.length + 1);
+            final Object[] newValues = Arrays.copyOf(this.values, this.values.length + 1);
             newValues[newValues.length - 1] = value;
 
             this.columns = newColumns;
@@ -371,39 +371,39 @@ public class Query {
             return this;
         }
 
-        public Update SET(Column[] columns, Object[] values) {
+        public Update SET(final Column[] columns, final Object[] values) {
             for (int i = 0; i < columns.length; i++) {
                 SET(columns[i], values[i]);
             }
             return this;
         }
 
-        public Update WHERE(Column column, Condition condition, Object value, String representation) {
+        public Update WHERE(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
-        public Update WHERE(Column column, Condition condition, Object value) {
+        public Update WHERE(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
-        public Update AND(Column column, Condition condition, Object value, String representation) {
+        public Update AND(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
-        public Update AND(Column column, Condition condition, Object value) {
+        public Update AND(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
-        public Update OR(Column column, Condition condition, Object value, String representation) {
+        public Update OR(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.OR);
             return this;
         }
 
-        public Update OR(Column column, Condition condition, Object value) {
+        public Update OR(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.OR);
             return this;
         }
@@ -456,38 +456,38 @@ public class Query {
 
         protected Table table;
 
-        public Delete FROM(Table from) {
+        public Delete FROM(final Table from) {
             cm = new CriteriaManager();
             table = from;
             return this;
         }
 
-        public Delete WHERE(Column column, Condition condition, Object value, String representation) {
+        public Delete WHERE(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
-        public Delete WHERE(Column column, Condition condition, Object value) {
+        public Delete WHERE(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
-        public Delete AND(Column column, Condition condition, Object value, String representation) {
+        public Delete AND(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.AND);
             return this;
         }
 
-        public Delete AND(Column column, Condition condition, Object value) {
+        public Delete AND(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.AND);
             return this;
         }
 
-        public Delete OR(Column column, Condition condition, Object value, String representation) {
+        public Delete OR(final Column column, final Condition condition, final Object value, final String representation) {
             cm.addCriterion(column, condition, value, representation, Operator.OR);
             return this;
         }
 
-        public Delete OR(Column column, Condition condition, Object value) {
+        public Delete OR(final Column column, final Condition condition, final Object value) {
             cm.addCriterion(column, condition, value, null, Operator.OR);
             return this;
         }
@@ -526,7 +526,7 @@ public class Query {
         }
     }
 
-    public static Select SELECT(Column... columns) {
+    public static Select SELECT(final Column... columns) {
         return new Select(columns);
     }
 
@@ -534,7 +534,7 @@ public class Query {
         return new Insert();
     }
 
-    public static Update UPDATE(Table table) {
+    public static Update UPDATE(final Table table) {
         return new Update(table);
     }
 

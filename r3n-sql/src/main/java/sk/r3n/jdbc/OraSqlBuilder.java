@@ -41,29 +41,29 @@ public class OraSqlBuilder extends SqlBuilder {
     public OraSqlBuilder() {
     }
 
-    public OraSqlBuilder(Boolean blobFile) {
+    public OraSqlBuilder(final Boolean blobFile) {
         super(blobFile);
     }
 
     @Override
-    public Sql nextVal(Sequence sequence) {
-        Sql sql = new Sql();
+    public Sql nextVal(final Sequence sequence) {
+        final Sql sql = new Sql();
         sql.SELECT().append(sequenceSQL(sequence)).append(" ").FROM().append("dual");
         return sql;
     }
 
-    private String sequenceSQL(Sequence sequence) {
+    private String sequenceSQL(final Sequence sequence) {
         return sequence.name() + "." + "nextval";
     }
 
     @Override
-    public long nextVal(Connection connection, Sequence sequence) throws SQLException {
-        Sql sql = nextVal(sequence);
+    public long nextVal(final Connection connection, final Sequence sequence) throws SQLException {
+        final Sql sql = nextVal(sequence);
         LOGGER.debug(sql.toString());
-        long result;
+        final long result;
         try (
-                Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery(sql.toSql())
+                final Statement statement = connection.createStatement();
+                final ResultSet resultSet = statement.executeQuery(sql.toSql())
         ) {
             resultSet.next();
             result = resultSet.getLong(1);
@@ -73,10 +73,10 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public Sql select(Select select) {
-        Sql sql = new Sql();
+    public Sql select(final Select select) {
+        final Sql sql = new Sql();
         if (select.getSubSelects() != null && select.getSubSelects().length > 0) {
-            Map<String, Integer> indexMap = new HashMap<>();
+            final Map<String, Integer> indexMap = new HashMap<>();
             if (select.getCount()) {
                 sql.SELECT().append("count(*) ").FROM().append("(");
             }
@@ -94,9 +94,9 @@ public class OraSqlBuilder extends SqlBuilder {
                 }
                 sql.append("rownum rnm ").FROM().append("(");
             }
-            for (Select subSelect : select.getSubSelects()) {
+            for (final Select subSelect : select.getSubSelects()) {
                 int index = 0;
-                for (Column column : subSelect.getColumns()) {
+                for (final Column column : subSelect.getColumns()) {
                     indexMap.put(column.columnId(), index);
                     index++;
                 }
@@ -106,7 +106,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 sql.DISTINCT();
             }
             for (int i = 0; i < select.getColumns().length; i++) {
-                Column column = select.getColumns()[i];
+                final Column column = select.getColumns()[i];
                 indexMap.put(column.columnId(), i);
                 sql.append("col").append(Integer.toString(indexMap.get(column.columnId())));
                 if (i < select.getColumns().length - 1) {
@@ -116,7 +116,7 @@ public class OraSqlBuilder extends SqlBuilder {
             }
             sql.append(" ").FROM().append("(");
             for (int i = 0; i < select.getSubSelects().length; i++) {
-                Select subSelect = select.getSubSelects()[i];
+                final Select subSelect = select.getSubSelects()[i];
                 sql.append(selectSQL(subSelect));
                 if (i < select.getSubSelects().length - 1) {
                     sql.append(" ").append(select.getDataSetOperator().name().replaceAll("_", " ")).append(" ");
@@ -129,7 +129,7 @@ public class OraSqlBuilder extends SqlBuilder {
             if (select.getGroupByColumns() != null && select.getGroupByColumns().length > 0) {
                 sql.append(" ").GROUP_BY();
                 for (int i = 0; i < select.getGroupByColumns().length; i++) {
-                    Column column = select.getGroupByColumns()[i];
+                    final Column column = select.getGroupByColumns()[i];
                     sql.append(columnSQL(false, column, indexMap));
                     if (i < select.getGroupByColumns().length - 1) {
                         sql.append(",");
@@ -143,7 +143,7 @@ public class OraSqlBuilder extends SqlBuilder {
             if (!select.getOrderCriteria().isEmpty()) {
                 sql.append(" ").ORDER_BY();
                 for (int i = 0; i < select.getOrderCriteria().size(); i++) {
-                    OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
+                    final OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
                     sql.append(columnSQL(false, orderCriterion.column(), indexMap)).append(" ").append(orderCriterion.order().name());
                     if (i < select.getOrderCriteria().size() - 1) {
                         sql.append(",");
@@ -167,8 +167,8 @@ public class OraSqlBuilder extends SqlBuilder {
         return sql;
     }
 
-    private Sql selectSQL(Select select) {
-        Sql sql = new Sql();
+    private Sql selectSQL(final Select select) {
+        final Sql sql = new Sql();
         if (select.getCount()) {
             sql.SELECT().append("count(*) ").FROM().append("(");
         }
@@ -191,7 +191,7 @@ public class OraSqlBuilder extends SqlBuilder {
             sql.DISTINCT();
         }
         for (int index = 0; index < select.getColumns().length; index++) {
-            Column column = select.getColumns()[index];
+            final Column column = select.getColumns()[index];
             sql.append(columnSQL(false, column, null)).append(" as col").append(Integer.toString(index));
             if (index < select.getColumns().length - 1) {
                 sql.append(",");
@@ -212,7 +212,7 @@ public class OraSqlBuilder extends SqlBuilder {
         if (select.getGroupByColumns() != null && select.getGroupByColumns().length > 0) {
             sql.append(" ").GROUP_BY();
             for (int i = 0; i < select.getGroupByColumns().length; i++) {
-                Column column = select.getGroupByColumns()[i];
+                final Column column = select.getGroupByColumns()[i];
                 sql.append(columnSQL(false, column, null));
                 if (i < select.getGroupByColumns().length - 1) {
                     sql.append(",");
@@ -226,7 +226,7 @@ public class OraSqlBuilder extends SqlBuilder {
         if (!select.getOrderCriteria().isEmpty()) {
             sql.append(" ").ORDER_BY();
             for (int i = 0; i < select.getOrderCriteria().size(); i++) {
-                OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
+                final OrderCriterion orderCriterion = select.getOrderCriteria().get(i);
                 sql.append(columnSQL(false, orderCriterion.column(), null)).append(" ").append(orderCriterion.order().name());
                 if (i < select.getOrderCriteria().size() - 1) {
                     sql.append(",");
@@ -246,8 +246,8 @@ public class OraSqlBuilder extends SqlBuilder {
         return sql;
     }
 
-    private String tableSQL(boolean onlyName, Table table) {
-        StringBuilder sw = new StringBuilder();
+    private String tableSQL(final boolean onlyName, final Table table) {
+        final StringBuilder sw = new StringBuilder();
         sw.append(table.name());
         if (!onlyName) {
             sw.append(" ").append(table.alias());
@@ -255,16 +255,16 @@ public class OraSqlBuilder extends SqlBuilder {
         return sw.toString();
     }
 
-    private Sql columnSQL(boolean onlyName, Column column, Map<String, Integer> indexMap) {
-        Sql sql = new Sql();
+    private Sql columnSQL(final boolean onlyName, final Column column, final Map<String, Integer> indexMap) {
+        final Sql sql = new Sql();
         if (indexMap != null) {
             sql.append("col").append(Integer.toString(indexMap.get(column.columnId())));
         } else {
             if (column instanceof ColumnFunction columnFunction) {
                 if (columnFunction.members() != null) {
-                    List<String> membersList = new ArrayList<>();
-                    for (Column member : columnFunction.members()) {
-                        Sql memberSql = columnSQL(onlyName, member, indexMap);
+                    final List<String> membersList = new ArrayList<>();
+                    for (final Column member : columnFunction.members()) {
+                        final Sql memberSql = columnSQL(onlyName, member, indexMap);
                         membersList.add(memberSql.toSql());
                         memberSql.getParams().forEach((param) -> {
                             sql.addParam(param.dataType(), param.value());
@@ -277,7 +277,7 @@ public class OraSqlBuilder extends SqlBuilder {
             } else if (column instanceof ColumnSelect columnSelect) {
                 sql.append("(").append(selectSQL(columnSelect.select())).append(")");
             } else {
-                ColumnBase columnBase = (ColumnBase) column;
+                final ColumnBase columnBase = (ColumnBase) column;
                 if (!onlyName && columnBase.table() != null) {
                     sql.append(columnBase.table().alias()).append(".");
                 }
@@ -287,8 +287,8 @@ public class OraSqlBuilder extends SqlBuilder {
         return sql;
     }
 
-    private Sql valueSQL(boolean onlyName, Column column, Object value, Map<String, Integer> indexMap) {
-        Sql sql = new Sql();
+    private Sql valueSQL(final boolean onlyName, final Column column, final Object value, final Map<String, Integer> indexMap) {
+        final Sql sql = new Sql();
         if (value instanceof Sequence) {
             sql.append(sequenceSQL((Sequence) value));
         } else if (value instanceof Column) {
@@ -304,10 +304,10 @@ public class OraSqlBuilder extends SqlBuilder {
         return sql;
     }
 
-    private Sql criteriaManagerSQL(boolean onlyName, CriteriaManager criteriaManager, Map<String, Integer> indexMap) {
-        Sql sql = new Sql();
+    private Sql criteriaManagerSQL(final boolean onlyName, final CriteriaManager criteriaManager, final Map<String, Integer> indexMap) {
+        final Sql sql = new Sql();
         Criteria lastCriteria = null;
-        for (Criteria criteria : criteriaManager.getCriteriaList()) {
+        for (final Criteria criteria : criteriaManager.getCriteriaList()) {
             if (criteria.isCriteria()) {
                 if (lastCriteria != null) {
                     sql.append(" ").append(lastCriteria.getOperator().name()).append(" ");
@@ -319,12 +319,12 @@ public class OraSqlBuilder extends SqlBuilder {
         return sql;
     }
 
-    private Sql criteriaSQL(boolean onlyName, Criteria criteria, Map<String, Integer> indexMap) {
-        Sql sql = new Sql();
+    private Sql criteriaSQL(final boolean onlyName, final Criteria criteria, final Map<String, Integer> indexMap) {
+        final Sql sql = new Sql();
         CriteriaContent lastCriteriaContent = null;
         boolean criteriaSequence = false;
         sql.append("(");
-        for (CriteriaContent criteriaContent : criteria.getContent()) {
+        for (final CriteriaContent criteriaContent : criteria.getContent()) {
             if (criteriaContent instanceof Criterion) {
                 if (lastCriteriaContent != null) {
                     if (criteriaSequence) {
@@ -336,7 +336,7 @@ public class OraSqlBuilder extends SqlBuilder {
                 sql.append(criterionSQL(onlyName, (Criterion) criteriaContent, indexMap));
                 lastCriteriaContent = criteriaContent;
             } else {
-                Criteria subCriteria = (Criteria) criteriaContent;
+                final Criteria subCriteria = (Criteria) criteriaContent;
                 if (subCriteria.isCriteria()) {
                     if (lastCriteriaContent != null) {
                         sql.append(" ").append(lastCriteriaContent.getOperator().name()).append(" ");
@@ -357,8 +357,8 @@ public class OraSqlBuilder extends SqlBuilder {
         return sql;
     }
 
-    private Sql criterionSQL(boolean onlyName, Criterion criterion, Map<String, Integer> indexMap) {
-        Sql sql = new Sql();
+    private Sql criterionSQL(final boolean onlyName, final Criterion criterion, final Map<String, Integer> indexMap) {
+        final Sql sql = new Sql();
         if (criterion.getCondition() == Condition.DIRECT) {
             sql.append((String) criterion.getValue());
         } else {
@@ -378,7 +378,7 @@ public class OraSqlBuilder extends SqlBuilder {
                     sql.append(columnSQL(onlyName, criterion.getColumn(), indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
                     if (criterion.getValue() != null) {
                         if (criterion.getValue() instanceof List<?> || criterion.getValue() instanceof Object[]) {
-                            Object[] valueArray;
+                            final Object[] valueArray;
                             if (criterion.getValue() instanceof List<?>) {
                                 valueArray = ((List<?>) criterion.getValue()).toArray();
                             } else {
@@ -386,7 +386,7 @@ public class OraSqlBuilder extends SqlBuilder {
                             }
                             sql.append("(");
                             for (int index = 0; index < valueArray.length; index++) {
-                                Object val = valueArray[index];
+                                final Object val = valueArray[index];
                                 sql.addParam(criterion.getColumn().dataType(), val);
                                 sql.append("?");
                                 if (index < valueArray.length - 1) {
@@ -413,8 +413,8 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public List<Object[]> select(Connection connection, Select select) throws SQLException {
-        DataType[] dataTypes;
+    public List<Object[]> select(final Connection connection, final Select select) throws SQLException {
+        final DataType[] dataTypes;
         if (select.getCount()) {
             dataTypes = new DataType[]{DataType.INTEGER};
         } else {
@@ -427,14 +427,14 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public Sql insert(Insert insert) {
-        Sql sql = new Sql();
+    public Sql insert(final Insert insert) {
+        final Sql sql = new Sql();
         if (insert.getReturning() != null) {
             sql.append("begin ");
         }
         sql.INSERT().INTO().append(tableSQL(true, insert.getTable())).append(" (");
         for (int index = 0; index < insert.getColumns().length; index++) {
-            Column column = insert.getColumns()[index];
+            final Column column = insert.getColumns()[index];
 
             sql.append(columnSQL(true, column, null));
             if (index < insert.getColumns().length - 1) {
@@ -443,8 +443,8 @@ public class OraSqlBuilder extends SqlBuilder {
         }
         sql.append(") ").VALUES().append("(");
         for (int index = 0; index < insert.getColumns().length; index++) {
-            Column column = insert.getColumns()[index];
-            Object value = insert.getValues()[index];
+            final Column column = insert.getColumns()[index];
+            final Object value = insert.getValues()[index];
             sql.append(valueSQL(true, column, value, null));
             if (index < insert.getColumns().length - 1) {
                 sql.append(", ");
@@ -458,7 +458,7 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public Object insert(Connection connection, Insert insert) throws SQLException {
+    public Object insert(final Connection connection, final Insert insert) throws SQLException {
         Object result = null;
         if (insert.getReturning() == null) {
             execute(connection, insert(insert));
@@ -469,12 +469,12 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public Sql update(Update update) {
-        Sql sql = new Sql();
+    public Sql update(final Update update) {
+        final Sql sql = new Sql();
         sql.UPDATE().append(tableSQL(true, update.getTable())).append(" ").SET();
         for (int index = 0; index < update.getColumns().length; index++) {
-            Column column = update.getColumns()[index];
-            Object value = update.getValues()[index];
+            final Column column = update.getColumns()[index];
+            final Object value = update.getValues()[index];
             sql.append(columnSQL(true, column, null)).append(" = ").append(valueSQL(true, column, value, null));
             if (index < update.getColumns().length - 1) {
                 sql.append(", ");
@@ -487,13 +487,13 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public void update(Connection connection, Update update) throws SQLException {
+    public void update(final Connection connection, final Update update) throws SQLException {
         execute(connection, update(update));
     }
 
     @Override
-    public Sql delete(Delete delete) {
-        Sql sql = new Sql();
+    public Sql delete(final Delete delete) {
+        final Sql sql = new Sql();
         sql.DELETE().FROM().append(tableSQL(true, delete.getTable()));
         if (delete.getCriteriaManager().isCriteria()) {
             sql.append(" ").WHERE().append(criteriaManagerSQL(true, delete.getCriteriaManager(), null));
@@ -502,19 +502,19 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public void delete(Connection connection, Delete delete) throws SQLException {
+    public void delete(final Connection connection, final Delete delete) throws SQLException {
         execute(connection, delete(delete));
     }
 
-    private Object[] getRow(ResultSet resultSet, DataType... dataTypes) throws SQLException {
-        Object[] result = new Object[dataTypes.length];
+    private Object[] getRow(final ResultSet resultSet, final DataType... dataTypes) throws SQLException {
+        final Object[] result = new Object[dataTypes.length];
         for (int i = 0; i < result.length; i++) {
             result[i] = getColumn(resultSet, i + 1, dataTypes[i], getTmpDir());
         }
         return result;
     }
 
-    private Object getColumn(ResultSet resultSet, int index, DataType dataType, File dir) throws SQLException {
+    private Object getColumn(final ResultSet resultSet, final int index, final DataType dataType, final File dir) throws SQLException {
         Object result = null;
         if (resultSet.getObject(index) != null) {
             switch (dataType) {
@@ -532,12 +532,12 @@ public class OraSqlBuilder extends SqlBuilder {
                         File file = null;
                         try {
                             file = File.createTempFile("SQL", ".BIN", dir);
-                            Blob blob = resultSet.getBlob(index);
+                            final Blob blob = resultSet.getBlob(index);
                             if (blob.length() > 0) {
                                 streamToFile(blob.getBinaryStream(1, blob.length()), file);
                             }
                             result = file;
-                        } catch (IOException e) {
+                        } catch (final IOException e) {
                             delete(file);
                             throw new SQLException(e);
                         }
@@ -550,19 +550,19 @@ public class OraSqlBuilder extends SqlBuilder {
         return result;
     }
 
-    private void setParams(Connection connection, PreparedStatement preparedStatement, SqlParam[] params) throws SQLException {
+    private void setParams(final Connection connection, final PreparedStatement preparedStatement, final SqlParam[] params) throws SQLException {
         int i = 1;
-        for (SqlParam param : params) {
+        for (final SqlParam param : params) {
             setParam(connection, preparedStatement, i++, param);
         }
     }
 
-    private void setParam(Connection connection, PreparedStatement preparedStatement, int index, SqlParam param) throws SQLException {
+    private void setParam(final Connection connection, final PreparedStatement preparedStatement, final int index, final SqlParam param) throws SQLException {
         if (param.value() != null) {
             switch (param.dataType()) {
                 case BLOB -> {
                     if (getBlobFile()) {
-                        Blob blob = connection.createBlob();
+                        final Blob blob = connection.createBlob();
                         fileToStream((File) param.value(), blob.setBinaryStream(1));
                         preparedStatement.setBlob(index, blob);
                     } else {
@@ -581,12 +581,12 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public void execute(Connection connection, Sql sql) throws SQLException {
+    public void execute(final Connection connection, final Sql sql) throws SQLException {
         LOGGER.debug(sql.toString());
         if (sql.getParams().isEmpty()) {
             SqlUtil.execute(connection, sql.toSql());
         } else {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql.toSql())) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(sql.toSql())) {
                 setParams(connection, preparedStatement, sql.getParams().toArray(new SqlParam[0]));
                 preparedStatement.executeUpdate();
             }
@@ -594,11 +594,11 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public Object execute(Connection connection, Sql sql, DataType dataType) throws SQLException {
+    public Object execute(final Connection connection, final Sql sql, final DataType dataType) throws SQLException {
         LOGGER.debug(sql.toString());
         Object result = null;
-        try (CallableStatement callableStatement = connection.prepareCall(sql.toSql())) {
-            int index = sql.getParams().size() + 1;
+        try (final CallableStatement callableStatement = connection.prepareCall(sql.toSql())) {
+            final int index = sql.getParams().size() + 1;
             setParams(connection, callableStatement, sql.getParams().toArray(new SqlParam[0]));
 
             switch (dataType) {
@@ -630,10 +630,10 @@ public class OraSqlBuilder extends SqlBuilder {
                     File file = null;
                     try {
                         file = File.createTempFile("SQL", ".BIN", getTmpDir());
-                        Blob blob = callableStatement.getBlob(index);
+                        final Blob blob = callableStatement.getBlob(index);
                         streamToFile(blob.getBinaryStream(1, blob.length()), file);
                         result = file;
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         delete(file);
                         throw new SQLException(e);
                     }
@@ -644,15 +644,15 @@ public class OraSqlBuilder extends SqlBuilder {
     }
 
     @Override
-    public List<Object[]> executeQuery(Connection connection, Sql sql, DataType... dataTypes) throws SQLException {
+    public List<Object[]> executeQuery(final Connection connection, final Sql sql, final DataType... dataTypes) throws SQLException {
         LOGGER.debug(sql.toString());
-        List<Object[]> result = new ArrayList<>();
+        final List<Object[]> result = new ArrayList<>();
         ResultSet resultSet = null;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql.toSql())) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(sql.toSql())) {
             setParams(connection, preparedStatement, sql.getParams().toArray(new SqlParam[0]));
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Object[] row = getRow(resultSet, dataTypes);
+                final Object[] row = getRow(resultSet, dataTypes);
                 LOGGER.debug("ROW:{}", row);
                 result.add(row);
             }

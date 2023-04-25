@@ -40,32 +40,32 @@ class StructureWriter implements Serializable {
     private final String columnTemplate;
     private final String dtoTemplate;
 
-    public StructureWriter(String sequenceTemplate, String tableTemplate, String columnTemplate, String dtoTemplate) {
+    public StructureWriter(final String sequenceTemplate, final String tableTemplate, final String columnTemplate, final String dtoTemplate) {
         this.sequenceTemplate = sequenceTemplate;
         this.tableTemplate = tableTemplate;
         this.columnTemplate = columnTemplate;
         this.dtoTemplate = dtoTemplate;
     }
 
-    public void write(Log log, boolean blobFile, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
-        File r3nDir = new File(targetDir, "r3n");
+    public void write(final Log log, final boolean blobFile, final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
+        final File r3nDir = new File(targetDir, "r3n");
         r3nDir.mkdirs();
 
-        File r3nMetaDir = new File(r3nDir, "meta");
+        final File r3nMetaDir = new File(r3nDir, "meta");
         r3nMetaDir.mkdirs();
         log.info("Sequences");
         writeSequences(log, overwrite, r3nMetaDir, targetPackage + ".r3n.meta", structure);
         log.info("Tables");
         writeTables(log, overwrite, r3nMetaDir, targetPackage + ".r3n.meta", structure);
 
-        File r3nDtoDir = new File(r3nDir, "dto");
+        final File r3nDtoDir = new File(r3nDir, "dto");
         r3nDtoDir.mkdirs();
         log.info("Dtos");
         writeDtos(log, blobFile, overwrite, r3nDtoDir, targetPackage + ".r3n.dto", structure);
     }
 
-    private void writeSequences(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
-        File file = new File(targetDir, "MetaSequence.java");
+    private void writeSequences(final Log log, final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
+        final File file = new File(targetDir, "MetaSequence.java");
         if (!file.exists() || overwrite) {
             String content = sequenceTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
             content = content.replaceAll(REPLACE_DEFINITION, sequencesToString(structure.getSequences()));
@@ -75,7 +75,7 @@ class StructureWriter implements Serializable {
         }
     }
 
-    private void writeTables(Log log, boolean overwrite, File targetDir, String targetPackage, Structure structure) {
+    private void writeTables(final Log log, final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
         File file = new File(targetDir, "MetaTable.java");
         if (!file.exists() || overwrite) {
             String content = tableTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
@@ -85,8 +85,8 @@ class StructureWriter implements Serializable {
             log.info("SKIPPED");
         }
 
-        for (Table table : structure.getTables()) {
-            String className = "MetaColumn" + toCamelCase(false, table.name());
+        for (final Table table : structure.getTables()) {
+            final String className = "MetaColumn" + toCamelCase(false, table.name());
             file = new File(targetDir, className + ".java");
             if (!file.exists() || overwrite) {
                 String content = columnTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
@@ -100,13 +100,13 @@ class StructureWriter implements Serializable {
         }
     }
 
-    private void writeDtos(Log log, boolean blobFile, boolean overwrite, File dtoDir, String targetPackage, Structure structure) {
-        for (Table table : structure.getTables()) {
-            String recordName = toCamelCase(false, table.name()) + "Dto";
-            File file = new File(dtoDir, recordName + ".java");
+    private void writeDtos(final Log log, final boolean blobFile, final boolean overwrite, final File dtoDir, final String targetPackage, final Structure structure) {
+        for (final Table table : structure.getTables()) {
+            final String recordName = toCamelCase(false, table.name()) + "Dto";
+            final File file = new File(dtoDir, recordName + ".java");
             if (!file.exists() || overwrite) {
                 String content = dtoTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
-                List<String> lines = new ArrayList<>();
+                final List<String> lines = new ArrayList<>();
                 if (blobFile && containsDataType(structure.getColumns(table), DataType.BLOB)) {
                     lines.add("import java.io.File;");
                 }
@@ -128,7 +128,7 @@ class StructureWriter implements Serializable {
                 }
                 content = content.replaceAll(REPLACE_IMPORT, importLines);
                 content = content.replaceAll(REPLACE_RECORD_NAME, recordName);
-                List<Column> columns = structure.getColumns(table);
+                final List<Column> columns = structure.getColumns(table);
                 content = content.replaceAll(REPLACE_RECORD_MEMBERS, columnsToDtoMembers(columns, blobFile));
                 content = content.replaceAll(REPLACE_RECORD_METHODS, columnsToDtoMethods(table, columns, blobFile));
                 write(file, content.getBytes());
@@ -138,8 +138,8 @@ class StructureWriter implements Serializable {
         }
     }
 
-    private String sequencesToString(List<Sequence> sequences) {
-        StringBuilder sb = new StringBuilder();
+    private String sequencesToString(final List<Sequence> sequences) {
+        final StringBuilder sb = new StringBuilder();
         for (int index = 0; index < sequences.size(); index++) {
             sb.append("    ");
             sb.append(sequences.get(index).name().toUpperCase());
@@ -156,8 +156,8 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private String tablesToString(List<Table> tables) {
-        StringBuilder sb = new StringBuilder();
+    private String tablesToString(final List<Table> tables) {
+        final StringBuilder sb = new StringBuilder();
         for (int index = 0; index < tables.size(); index++) {
             sb.append("    ");
             sb.append(tables.get(index).name().toUpperCase());
@@ -176,8 +176,8 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private String columnsToString(List<Column> columns) {
-        StringBuilder sb = new StringBuilder();
+    private String columnsToString(final List<Column> columns) {
+        final StringBuilder sb = new StringBuilder();
         for (int index = 0; index < columns.size(); index++) {
             sb.append("    ");
             sb.append(((ColumnBase) columns.get(index)).name().toUpperCase());
@@ -196,8 +196,8 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private boolean containsDataType(List<Column> columns, DataType dataType) {
-        for (Column column : columns) {
+    private boolean containsDataType(final List<Column> columns, final DataType dataType) {
+        for (final Column column : columns) {
             if (column.dataType() == dataType) {
                 return true;
             }
@@ -205,13 +205,13 @@ class StructureWriter implements Serializable {
         return false;
     }
 
-    private String columnsToDtoMembers(List<Column> columns, boolean blobFile) {
-        StringBuilder sb = new StringBuilder();
+    private String columnsToDtoMembers(final List<Column> columns, final boolean blobFile) {
+        final StringBuilder sb = new StringBuilder();
         if (columns.size() > 0) {
             sb.append("\n");
         }
         for (int index = 0; index < columns.size(); index++) {
-            Column column = columns.get(index);
+            final Column column = columns.get(index);
             sb.append("        ").append(dataTypeToJava(column.dataType(), blobFile)).append(" ");
             sb.append(toCamelCase(true, ((ColumnBase) column).name()));
             if (index < columns.size() - 1) {
@@ -223,16 +223,16 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private String columnsToDtoMethods(Table table, List<Column> columns, boolean blobFile) {
-        String recordName = toCamelCase(false, table.name()) + "Dto";
-        String instanceName = toCamelCase(true, table.name()) + "Dto";
-        StringBuilder sb = new StringBuilder();
+    private String columnsToDtoMethods(final Table table, final List<Column> columns, final boolean blobFile) {
+        final String recordName = toCamelCase(false, table.name()) + "Dto";
+        final String instanceName = toCamelCase(true, table.name()) + "Dto";
+        final StringBuilder sb = new StringBuilder();
         // toArray
         if (columns.size() > 0) {
-            sb.append("\n    public static Object[] toArray(").append(recordName).append(" ").append(instanceName).append(") {");
+            sb.append("\n    public static Object[] toArray(final ").append(recordName).append(" ").append(instanceName).append(") {");
             sb.append("\n        return new Object[]{");
             for (int index = 0; index < columns.size(); index++) {
-                Column column = columns.get(index);
+                final Column column = columns.get(index);
                 sb.append("\n                ").append(instanceName).append(".");
                 sb.append(toCamelCase(true, ((ColumnBase) column).name()));
                 if (index < columns.size() - 1) {
@@ -245,10 +245,10 @@ class StructureWriter implements Serializable {
         // toObject
         sb.append("\n");
         if (columns.size() > 0) {
-            sb.append("\n    public static ").append(recordName).append(" toObject(Object[] array) {");
+            sb.append("\n    public static ").append(recordName).append(" toObject(final Object[] array) {");
             sb.append("\n        return new ").append(recordName).append("(");
             for (int index = 0; index < columns.size(); index++) {
-                Column column = columns.get(index);
+                final Column column = columns.get(index);
                 sb.append("\n                (").append(dataTypeToJava(column.dataType(), blobFile)).append(") array[").append(index).append("]");
                 if (index < columns.size() - 1) {
                     sb.append(",");
@@ -260,7 +260,7 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private String dataTypeToJava(DataType dataType, boolean blobFile) {
+    private String dataTypeToJava(final DataType dataType, final boolean blobFile) {
         return switch (dataType) {
             case BOOLEAN -> "Boolean";
             case STRING -> "String";
@@ -275,14 +275,14 @@ class StructureWriter implements Serializable {
         };
     }
 
-    private String toCamelCase(boolean firstLower, String string) {
-        StringBuilder sb = new StringBuilder();
+    private String toCamelCase(final boolean firstLower, final String string) {
+        final StringBuilder sb = new StringBuilder();
 
-        String[] parts = string.toLowerCase().split("_");
+        final String[] parts = string.toLowerCase().split("_");
 
         boolean first = true;
 
-        for (String part : parts) {
+        for (final String part : parts) {
             if (first && firstLower) {
                 sb.append(part);
                 first = false;
@@ -298,10 +298,10 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private String linesToString(String... lines) {
-        StringBuilder sb = new StringBuilder();
+    private String linesToString(final String... lines) {
+        final StringBuilder sb = new StringBuilder();
         for (int index = 0; index < lines.length; index++) {
-            String line = lines[index];
+            final String line = lines[index];
             if (line.length() > 0) {
                 sb.append(line);
             }
@@ -312,10 +312,10 @@ class StructureWriter implements Serializable {
         return sb.toString();
     }
 
-    private void write(File file, byte[] data) {
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file, false))) {
+    private void write(final File file, final byte[] data) {
+        try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(file, false))) {
             os.write(data, 0, data.length);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }

@@ -50,7 +50,7 @@ public class Structure implements Serializable {
         return columns;
     }
 
-    List<Column> getColumns(Table table) {
+    List<Column> getColumns(final Table table) {
         getColumns().computeIfAbsent(table.name(), k -> new ArrayList<>());
         return getColumns().get(table.name());
     }

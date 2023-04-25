@@ -36,14 +36,14 @@ public class CriteriaManager implements Serializable {
         return criteriaList;
     }
 
-    public void addCriterion(Column column, Condition condition, Object value, String representation, Operator operator) {
+    public void addCriterion(final Column column, final Condition condition, final Object value, final String representation, final Operator operator) {
         setLastOperator(operator);
         criteria.addCriterion(column, condition, value, representation, Operator.AND);
     }
 
-    public void next(Operator operator) {
+    public void next(final Operator operator) {
         criteria.setOperator(operator);
-        Criteria next = new Criteria();
+        final Criteria next = new Criteria();
         if (criteria.getParent() == null) {
             criteriaList.add(next);
         } else {
@@ -53,24 +53,24 @@ public class CriteriaManager implements Serializable {
         criteria = next;
     }
 
-    public void in(Operator operator) {
+    public void in(final Operator operator) {
         setLastOperator(operator);
-        Criteria in = new Criteria();
+        final Criteria in = new Criteria();
         criteria.getContent().add(in);
         in.setParent(criteria);
         criteria = in;
     }
 
     public void out() {
-        Criteria out = criteria.getParent();
+        final Criteria out = criteria.getParent();
         if (out != null) {
             criteria = out;
         }
     }
 
-    private void setLastOperator(Operator operator) {
+    private void setLastOperator(final Operator operator) {
         if (!criteria.getContent().isEmpty()) {
-            Object object = criteria.getContent().get(criteria.getContent().size() - 1);
+            final Object object = criteria.getContent().get(criteria.getContent().size() - 1);
             if (object instanceof Criterion) {
                 ((Criterion) object).setOperator(operator);
             } else {
@@ -81,7 +81,7 @@ public class CriteriaManager implements Serializable {
 
     public boolean isCriteria() {
         boolean result = false;
-        for (Criteria c : criteriaList) {
+        for (final Criteria c : criteriaList) {
             result = c.isCriteria();
             if (result) {
                 break;

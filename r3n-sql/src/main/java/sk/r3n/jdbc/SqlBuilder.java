@@ -32,7 +32,7 @@ public abstract class SqlBuilder {
     public SqlBuilder() {
     }
 
-    public SqlBuilder(Boolean blobFile) {
+    public SqlBuilder(final Boolean blobFile) {
         this.blobFile = blobFile;
     }
 
@@ -48,7 +48,7 @@ public abstract class SqlBuilder {
         return blobFile;
     }
 
-    public void setBlobFile(Boolean blobFile) {
+    public void setBlobFile(final Boolean blobFile) {
         this.blobFile = blobFile;
     }
 
@@ -65,7 +65,7 @@ public abstract class SqlBuilder {
         return tmpDir;
     }
 
-    public void setTmpDir(File tmpDir) {
+    public void setTmpDir(final File tmpDir) {
         this.tmpDir = tmpDir;
     }
 
@@ -194,10 +194,10 @@ public abstract class SqlBuilder {
      * @param source source file
      * @param target target output stream
      */
-    protected void fileToStream(File source, OutputStream target) {
-        try (InputStream is = new BufferedInputStream(new FileInputStream(source));
-             OutputStream os = new BufferedOutputStream(target)) {
-            byte[] buffer = new byte[1024];
+    protected void fileToStream(final File source, final OutputStream target) {
+        try (final InputStream is = new BufferedInputStream(new FileInputStream(source));
+             final OutputStream os = new BufferedOutputStream(target)) {
+            final byte[] buffer = new byte[1024];
             int bytesRead = 0;
             while (bytesRead != -1) {
                 bytesRead = is.read(buffer);
@@ -205,7 +205,7 @@ public abstract class SqlBuilder {
                     os.write(buffer, 0, bytesRead);
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -216,12 +216,12 @@ public abstract class SqlBuilder {
      * @param source source input stream
      * @param target target file
      */
-    protected void streamToFile(InputStream source, File target) {
+    protected void streamToFile(final InputStream source, final File target) {
         try (
-                InputStream is = new BufferedInputStream(source);
-                OutputStream os = new BufferedOutputStream(new FileOutputStream(target, false))
+                final InputStream is = new BufferedInputStream(source);
+                final OutputStream os = new BufferedOutputStream(new FileOutputStream(target, false))
         ) {
-            byte[] buffer = new byte[1024];
+            final byte[] buffer = new byte[1024];
             int bytesRead = 0;
             while (bytesRead != -1) {
                 bytesRead = is.read(buffer);
@@ -229,7 +229,7 @@ public abstract class SqlBuilder {
                     os.write(buffer, 0, bytesRead);
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -239,11 +239,11 @@ public abstract class SqlBuilder {
      *
      * @param file file to delete
      */
-    protected void delete(File file) {
+    protected void delete(final File file) {
         if (file != null) {
             if (file.isDirectory()) {
-                File[] subFiles = file.listFiles();
-                for (File subFile : subFiles != null ? subFiles : new File[0]) {
+                final File[] subFiles = file.listFiles();
+                for (final File subFile : subFiles != null ? subFiles : new File[0]) {
                     delete(subFile);
                 }
             }
@@ -258,11 +258,11 @@ public abstract class SqlBuilder {
      *
      * @param closeable object to close
      */
-    protected void close(Closeable closeable) {
+    protected void close(final Closeable closeable) {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 LOGGER.warn("close", ex);
             }
         }

@@ -61,26 +61,26 @@ public class PluginMojo extends AbstractMojo {
         try {
             Class.forName(jdbcDriver);
             connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPassword);
-            Structure structure = StructureLoader.getInstance(jdbcDriver).load(getLog(), connection);
+            final Structure structure = StructureLoader.getInstance(jdbcDriver).load(getLog(), connection);
             new StructureWriter(
                     readTemplate("/MetaSequence.txt"),
                     readTemplate("/MetaTable.txt"),
                     readTemplate("/MetaColumn.txt"),
                     readTemplate("/Dto.txt")
             ).write(getLog(), blobFile, overwrite, baseDir, targetPackage, structure);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         } finally {
             SqlUtil.close(connection);
         }
     }
 
-    private String readTemplate(String templateName) {
+    private String readTemplate(final String templateName) {
         try (
-                InputStream is = this.getClass().getResourceAsStream(templateName);
-                ByteArrayOutputStream os = new ByteArrayOutputStream()
+                final InputStream is = this.getClass().getResourceAsStream(templateName);
+                final ByteArrayOutputStream os = new ByteArrayOutputStream()
         ) {
-            byte[] buffer = new byte[1024];
+            final byte[] buffer = new byte[1024];
             int bytesRead = 0;
             while (bytesRead != -1) {
                 bytesRead = is.read(buffer);
@@ -89,7 +89,7 @@ public class PluginMojo extends AbstractMojo {
                 }
             }
             return os.toString();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }

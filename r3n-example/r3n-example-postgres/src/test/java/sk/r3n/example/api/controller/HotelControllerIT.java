@@ -50,7 +50,7 @@ public class HotelControllerIT {
             .withPassword("app");
 
     @DynamicPropertySource
-    public static void properties(DynamicPropertyRegistry registry) throws Exception {
+    public static void properties(final DynamicPropertyRegistry registry) throws Exception {
         registry.add("spring.datasource.url", postgresDB::getJdbcUrl);
     }
 
@@ -77,21 +77,21 @@ public class HotelControllerIT {
 
     @Test
     public void fullTest() throws Exception {
-        Map<Long, HotelSO> map = new HashMap<>();
+        final Map<Long, HotelSO> map = new HashMap<>();
         for (int i = 0; i < 10; i++) {
-            HotelSO hotelSO = createHotel(i);
+            final HotelSO hotelSO = createHotel(i);
             map.put(hotelSO.id(), hotelSO);
         }
 
         int i = 0;
-        for (Long id : map.keySet()) {
-            HotelSO hotelSO = updateHotel(id, i);
+        for (final Long id : map.keySet()) {
+            final HotelSO hotelSO = updateHotel(id, i);
             map.put(id, hotelSO);
             i++;
         }
 
-        for (Long id : map.keySet()) {
-            HotelSO hotelSO = getHotel(id);
+        for (final Long id : map.keySet()) {
+            final HotelSO hotelSO = getHotel(id);
             assertThat(hotelSO).usingRecursiveComparison().isEqualTo(map.get(id));
         }
 
@@ -113,34 +113,34 @@ public class HotelControllerIT {
                 assertThat(hotelSO).usingRecursiveComparison().isEqualTo(map.get(hotelSO.id()));
         });
 
-        for (Long id : map.keySet()) {
+        for (final Long id : map.keySet()) {
             deleteHotel(id);
         }
     }
 
-    private HotelSO createHotel(int i) throws Exception {
-        HotelInputSO hotelInputSO = new HotelInputSO("CreatedName" + i, "CreatedNote" + i);
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(BASE_URL)
+    private HotelSO createHotel(final int i) throws Exception {
+        final HotelInputSO hotelInputSO = new HotelInputSO("CreatedName" + i, "CreatedNote" + i);
+        final MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapToJson(hotelInputSO))).andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
-        HotelSO hotelSO = mapFromJson(mvcResult.getResponse().getContentAsString(), HotelSO.class);
+        final HotelSO hotelSO = mapFromJson(mvcResult.getResponse().getContentAsString(), HotelSO.class);
         assertThat(hotelInputSO).usingRecursiveComparison().ignoringFields("id").isEqualTo(hotelSO);
         return hotelSO;
     }
 
-    private HotelSO updateHotel(Long id, int i) throws Exception {
-        HotelSO hotelSO = new HotelSO(id, "UpdatedName" + i, "UpdatedNote" + i);
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put(BASE_URL)
+    private HotelSO updateHotel(final Long id, final int i) throws Exception {
+        final HotelSO hotelSO = new HotelSO(id, "UpdatedName" + i, "UpdatedNote" + i);
+        final MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapToJson(hotelSO))).andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-        HotelSO result = mapFromJson(mvcResult.getResponse().getContentAsString(), HotelSO.class);
+        final HotelSO result = mapFromJson(mvcResult.getResponse().getContentAsString(), HotelSO.class);
         assertThat(hotelSO).usingRecursiveComparison().isEqualTo(result);
         return result;
     }
 
-    private void deleteHotel(Long id) throws Exception {
+    private void deleteHotel(final Long id) throws Exception {
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete(BASE_URL + "/" + id)).andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
 
@@ -148,41 +148,41 @@ public class HotelControllerIT {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
-    private HotelSO getHotel(Long id) throws Exception {
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + id)).andReturn();
+    private HotelSO getHotel(final Long id) throws Exception {
+        final MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + id)).andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         return mapFromJson(mvcResult.getResponse().getContentAsString(), HotelSO.class);
     }
 
-    private Page<HotelSO> getHotels(Integer page, Integer size) throws Exception {
-        MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(BASE_URL);
+    private Page<HotelSO> getHotels(final Integer page, final Integer size) throws Exception {
+        final MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(BASE_URL);
         if (Objects.nonNull(page)) {
             builder.param("page", page.toString());
         }
         if (Objects.nonNull(size)) {
             builder.param("size", size.toString());
         }
-        MvcResult mvcResult = mvc.perform(builder).andReturn();
+        final MvcResult mvcResult = mvc.perform(builder).andReturn();
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         return mapPagedResponse(mvcResult.getResponse().getContentAsString(), HotelSO.class);
     }
 
-    private String mapToJson(Object obj) throws JsonProcessingException {
+    private String mapToJson(final Object obj) throws JsonProcessingException {
         return objectMapper.writeValueAsString(obj);
     }
 
-    private <T> T mapFromJson(String json, Class<T> clazz)
+    private <T> T mapFromJson(final String json, final Class<T> clazz)
             throws IOException {
         return objectMapper.readValue(json, clazz);
     }
 
-    private <T> List<T> mapListFromJson(String json, Class<T> paramClazz) throws Exception {
+    private <T> List<T> mapListFromJson(final String json, final Class<T> paramClazz) throws Exception {
         return getListFromNode(objectMapper.readTree(json), paramClazz);
     }
 
-    private <T> Page<T> mapPagedResponse(String json, Class<T> paramClazz)
+    private <T> Page<T> mapPagedResponse(final String json, final Class<T> paramClazz)
             throws IOException {
-        JsonNode parent = objectMapper.readTree(json);
+        final JsonNode parent = objectMapper.readTree(json);
         return new PageImpl<>(
                 getListFromNode(parent.get("content"), paramClazz),
                 PageRequest.of(
@@ -191,9 +191,9 @@ public class HotelControllerIT {
                 parent.get("totalElements").asLong());
     }
 
-    private <T> List<T> getListFromNode(JsonNode node, Class<T> clazz) throws IOException {
-        List<T> content = new ArrayList<>();
-        for (JsonNode val : node) {
+    private <T> List<T> getListFromNode(final JsonNode node, final Class<T> clazz) throws IOException {
+        final List<T> content = new ArrayList<>();
+        for (final JsonNode val : node) {
             content.add(objectMapper.readValue(val.traverse(), clazz));
         }
         return content;

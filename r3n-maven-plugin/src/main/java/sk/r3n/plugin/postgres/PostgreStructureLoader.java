@@ -29,7 +29,7 @@ public class PostgreStructureLoader extends StructureLoader {
     }
 
     @Override
-    protected void loadSequences(Log log, Connection connection, Structure structure) {
+    protected void loadSequences(final Log log, final Connection connection, final Structure structure) {
         log.info("Sequences loading");
 
         PreparedStatement statement = null;
@@ -39,11 +39,11 @@ public class PostgreStructureLoader extends StructureLoader {
             statement.setString(1, "S");
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                Sequence sequence = new Sequence(resultSet.getString(1));
+                final Sequence sequence = new Sequence(resultSet.getString(1));
                 structure.getSequences().add(sequence);
                 log.info("Sequence found: " + sequence.name());
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
@@ -54,7 +54,7 @@ public class PostgreStructureLoader extends StructureLoader {
     }
 
     @Override
-    protected void loadTables(Log log, Connection connection, Structure structure) {
+    protected void loadTables(final Log log, final Connection connection, final Structure structure) {
         log.info("Tables loading");
 
         PreparedStatement statement = null;
@@ -68,11 +68,11 @@ public class PostgreStructureLoader extends StructureLoader {
             resultSet = statement.executeQuery();
             int alias = 1;
             while (resultSet.next()) {
-                Table table = new Table(resultSet.getString(1), "T" + alias++);
+                final Table table = new Table(resultSet.getString(1), "T" + alias++);
                 structure.getTables().add(table);
                 log.info("Table found: " + table.name());
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
@@ -83,9 +83,9 @@ public class PostgreStructureLoader extends StructureLoader {
     }
 
     @Override
-    protected List<Column> loadColumns(Log log, Connection connection, Table table) {
+    protected List<Column> loadColumns(final Log log, final Connection connection, final Table table) {
         log.info("Columns loading: " + table);
-        List<Column> result = new ArrayList<>();
+        final List<Column> result = new ArrayList<>();
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -96,10 +96,10 @@ public class PostgreStructureLoader extends StructureLoader {
             statement.setString(1, table.name().toLowerCase());
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                Column column = Column.column(resultSet.getString(1), getDataType(resultSet.getString(2)), table);
+                final Column column = Column.column(resultSet.getString(1), getDataType(resultSet.getString(2)), table);
                 result.add(column);
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         } finally {
             SqlUtil.close(resultSet);
@@ -109,11 +109,11 @@ public class PostgreStructureLoader extends StructureLoader {
         return result;
     }
 
-    private DataType getDataType(String typeName) {
-        DataType result;
+    private DataType getDataType(final String typeName) {
+        final DataType result;
 
         DATA_TYPE data_type = null;
-        for (DATA_TYPE dt : DATA_TYPE.values()) {
+        for (final DATA_TYPE dt : DATA_TYPE.values()) {
             if (typeName.toLowerCase().startsWith(dt.name().toLowerCase())) {
                 data_type = dt;
                 break;

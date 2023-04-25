@@ -17,15 +17,15 @@ import sk.r3n.sql.impl.ColumnSelect;
  */
 public interface Column {
 
-    static Column column(String name, DataType dataType, Table table) {
+    static Column column(final String name, final DataType dataType, final Table table) {
         return new ColumnBase(name, dataType, table);
     }
 
-    static Column column(String columnId, DataType dataType, String function, Column... members) {
+    static Column column(final String columnId, final DataType dataType, final String function, final Column... members) {
         return new ColumnFunction(columnId, dataType, function, members);
     }
 
-    static Column column(String columnId, DataType dataType, Query.Select select) {
+    static Column column(final String columnId, final DataType dataType, final Query.Select select) {
         return new ColumnSelect(columnId, dataType, select);
     }
 

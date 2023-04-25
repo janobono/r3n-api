@@ -14,7 +14,7 @@ public enum MetaColumn<REPLACE_ENUM_NAME> {
 
     private final DataType dataType;
 
-    MetaColumn<REPLACE_ENUM_NAME>(String columnName, DataType dataType) {
+    MetaColumn<REPLACE_ENUM_NAME>(final String columnName, final DataType dataType) {
         this.columnName = columnName;
         this.dataType = dataType;
     }
@@ -23,21 +23,21 @@ public enum MetaColumn<REPLACE_ENUM_NAME> {
         return Column.column(columnName, dataType, MetaTable.<REPLACE_TABLE_NAME>.table());
     }
 
-    public Column column(String tableAlias) {
+    public Column column(final String tableAlias) {
         return Column.column(columnName, dataType, MetaTable.<REPLACE_TABLE_NAME>.table(tableAlias));
     }
 
     public static Column[] columns() {
-        List<Column> columnList = new ArrayList<>();
-        for (MetaColumn<REPLACE_ENUM_NAME> metaColumn<REPLACE_ENUM_NAME> : values()) {
+        final List<Column> columnList = new ArrayList<>();
+        for (final MetaColumn<REPLACE_ENUM_NAME> metaColumn<REPLACE_ENUM_NAME> : values()) {
             columnList.add(metaColumn<REPLACE_ENUM_NAME>.column());
         }
         return columnList.toArray(new Column[0]);
     }
 
-    public static Column[] columns(String tableAlias) {
-        List<Column> columnList = new ArrayList<>();
-        for (MetaColumn<REPLACE_ENUM_NAME> metaColumn<REPLACE_ENUM_NAME> : values()) {
+    public static Column[] columns(final String tableAlias) {
+        final List<Column> columnList = new ArrayList<>();
+        for (final MetaColumn<REPLACE_ENUM_NAME> metaColumn<REPLACE_ENUM_NAME> : values()) {
             columnList.add(metaColumn<REPLACE_ENUM_NAME>.column(tableAlias));
         }
         return columnList.toArray(new Column[0]);

@@ -6,7 +6,7 @@ public record HotelDto(
         String note
 ) {
 
-    public static Object[] toArray(HotelDto hotelDto) {
+    public static Object[] toArray(final HotelDto hotelDto) {
         return new Object[]{
                 hotelDto.id,
                 hotelDto.name,
@@ -14,7 +14,7 @@ public record HotelDto(
         };
     }
 
-    public static HotelDto toObject(Object[] array) {
+    public static HotelDto toObject(final Object[] array) {
         return new HotelDto(
                 (Long) array[0],
                 (String) array[1],

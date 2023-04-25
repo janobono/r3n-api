@@ -21,7 +21,7 @@ public class JoinCriterion implements Serializable {
 
     private final CriteriaManager criteriaManager;
 
-    public JoinCriterion(Join join, Table table) {
+    public JoinCriterion(final Join join, final Table table) {
         this.join = join;
         this.table = table;
         criteriaManager = new CriteriaManager();
@@ -31,7 +31,7 @@ public class JoinCriterion implements Serializable {
         return join;
     }
 
-    public void setJoin(Join join) {
+    public void setJoin(final Join join) {
         this.join = join;
     }
 
@@ -39,7 +39,7 @@ public class JoinCriterion implements Serializable {
         return table;
     }
 
-    public void setTable(Table table) {
+    public void setTable(final Table table) {
         this.table = table;
     }
 

@@ -18,7 +18,7 @@ import sk.r3n.sql.Table;
 public record ColumnBase(String name, DataType dataType, Table table) implements Column {
 
     public String columnId() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         if (table != null) {
             sb.append(table.alias()).append(".");
         }

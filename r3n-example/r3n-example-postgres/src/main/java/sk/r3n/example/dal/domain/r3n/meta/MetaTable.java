@@ -10,7 +10,7 @@ public enum MetaTable {
 
     private final String tableAlias;
 
-    MetaTable(String tableName, String tableAlias) {
+    MetaTable(final String tableName, final String tableAlias) {
         this.tableName = tableName;
         this.tableAlias = tableAlias;
     }
@@ -19,7 +19,7 @@ public enum MetaTable {
         return new Table(tableName, tableAlias);
     }
 
-    public Table table(String tableAlias) {
+    public Table table(final String tableAlias) {
         return new Table(tableName, tableAlias);
     }
 }
