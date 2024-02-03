@@ -52,7 +52,7 @@ public class SqlUtil {
      * Runs sql script.
      *
      * @param connection        Connection to database.
-     * @param is                Strieam to sql script.
+     * @param is                Stream to sql script.
      * @param fileEncoding      Script encoding.
      * @param commandsDelimiter Commands delimiter.
      * @throws Exception
@@ -100,7 +100,7 @@ public class SqlUtil {
         while ((line = lineReader.readLine()) != null) {
             final String trimmedLine = line.trim();
 
-            if (trimmedLine.length() < 1
+            if (trimmedLine.isEmpty()
                     || trimmedLine.startsWith("//")
                     || trimmedLine.startsWith("--")) {
                 // Pass
