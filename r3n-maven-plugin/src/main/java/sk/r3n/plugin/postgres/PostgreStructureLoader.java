@@ -61,10 +61,11 @@ public class PostgreStructureLoader extends StructureLoader {
         ResultSet resultSet = null;
         try {
             statement = connection.prepareStatement(
-                    "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type =?"
+                    "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND (table_type =? OR table_type =?)"
             );
             statement.setString(1, "public");
             statement.setString(2, "BASE TABLE");
+            statement.setString(3, "VIEW");
             resultSet = statement.executeQuery();
             int alias = 1;
             while (resultSet.next()) {
