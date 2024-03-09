@@ -4,7 +4,7 @@
     <parent>
         <artifactId>r3n</artifactId>
         <groupId>sk.r3n</groupId>
-        <version>6.1.0</version>
+        <version>6.1.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>r3n-maven-plugin</artifactId>
