@@ -15,8 +15,8 @@ import sk.r3n.sql.Sequence;
 import sk.r3n.sql.Table;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class OracleStructureLoader extends StructureLoader {
@@ -77,7 +77,7 @@ public class OracleStructureLoader extends StructureLoader {
     @Override
     protected List<Column> loadColumns(final Log log, final Connection connection, final Table table) {
         log.info("Columns loading: " + table);
-        final List<Column> result = new ArrayList<>();
+        final List<Column> result = new LinkedList<>();
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;

@@ -192,7 +192,7 @@ public class HotelControllerIT {
     }
 
     private <T> List<T> getListFromNode(final JsonNode node, final Class<T> clazz) throws IOException {
-        final List<T> content = new ArrayList<>();
+        final List<T> content = new LinkedList<>();
         for (final JsonNode val : node) {
             content.add(objectMapper.readValue(val.traverse(), clazz));
         }

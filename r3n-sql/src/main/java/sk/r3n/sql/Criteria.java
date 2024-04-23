@@ -7,7 +7,7 @@ package sk.r3n.sql;
 
 import sk.r3n.sql.impl.ColumnBase;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -26,7 +26,7 @@ public class Criteria implements CriteriaContent {
 
     public Criteria() {
         super();
-        content = new ArrayList<>();
+        content = new LinkedList<>();
         operator = Operator.AND;
     }
 
@@ -115,7 +115,8 @@ public class Criteria implements CriteriaContent {
     }
 
     public List<String> aliasList(final String tableName) {
-        final List<String> result = new ArrayList<>();
+        final List<String> result = new LinkedList<>() {
+        };
         aliasList(this, tableName, result);
         return result;
     }

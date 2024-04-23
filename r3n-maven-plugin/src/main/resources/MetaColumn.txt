@@ -3,7 +3,7 @@ package <REPLACE_PACKAGE>;
 import sk.r3n.sql.Column;
 import sk.r3n.sql.DataType;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public enum MetaColumn<REPLACE_ENUM_NAME> {
@@ -28,7 +28,7 @@ public enum MetaColumn<REPLACE_ENUM_NAME> {
     }
 
     public static Column[] columns() {
-        final List<Column> columnList = new ArrayList<>();
+        final List<Column> columnList = new LinkedList<>();
         for (final MetaColumn<REPLACE_ENUM_NAME> metaColumn<REPLACE_ENUM_NAME> : values()) {
             columnList.add(metaColumn<REPLACE_ENUM_NAME>.column());
         }
@@ -36,7 +36,7 @@ public enum MetaColumn<REPLACE_ENUM_NAME> {
     }
 
     public static Column[] columns(final String tableAlias) {
-        final List<Column> columnList = new ArrayList<>();
+        final List<Column> columnList = new LinkedList<>();
         for (final MetaColumn<REPLACE_ENUM_NAME> metaColumn<REPLACE_ENUM_NAME> : values()) {
             columnList.add(metaColumn<REPLACE_ENUM_NAME>.column(tableAlias));
         }

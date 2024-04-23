@@ -6,8 +6,8 @@
 package sk.r3n.sql;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -48,8 +48,8 @@ public class Query {
 
         public Select(final Column... columns) {
             cm = new CriteriaManager();
-            joinCriteria = new ArrayList<>();
-            orderCriteria = new ArrayList<>();
+            joinCriteria = new LinkedList<>();
+            orderCriteria = new LinkedList<>();
             this.columns = columns;
             count = false;
             distinct = false;

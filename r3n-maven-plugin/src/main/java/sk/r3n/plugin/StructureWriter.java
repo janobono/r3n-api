@@ -13,7 +13,7 @@ import sk.r3n.sql.Table;
 import sk.r3n.sql.impl.ColumnBase;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -106,7 +106,7 @@ class StructureWriter implements Serializable {
             final File file = new File(dtoDir, recordName + ".java");
             if (!file.exists() || overwrite) {
                 String content = dtoTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
-                final List<String> lines = new ArrayList<>();
+                final List<String> lines = new LinkedList<>();
                 if (blobFile && containsDataType(structure.getColumns(table), DataType.BLOB)) {
                     lines.add("import java.io.File;");
                 }

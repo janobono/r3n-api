@@ -10,8 +10,8 @@ import sk.r3n.sql.Sequence;
 import sk.r3n.sql.Table;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,14 +31,14 @@ public class Structure implements Serializable {
 
     public List<Sequence> getSequences() {
         if (sequences == null) {
-            sequences = new ArrayList<>();
+            sequences = new LinkedList<>();
         }
         return sequences;
     }
 
     public List<Table> getTables() {
         if (tables == null) {
-            tables = new ArrayList<>();
+            tables = new LinkedList<>();
         }
         return tables;
     }
@@ -51,7 +51,7 @@ public class Structure implements Serializable {
     }
 
     List<Column> getColumns(final Table table) {
-        getColumns().computeIfAbsent(table.name(), k -> new ArrayList<>());
+        getColumns().computeIfAbsent(table.name(), k -> new LinkedList<>());
         return getColumns().get(table.name());
     }
 }

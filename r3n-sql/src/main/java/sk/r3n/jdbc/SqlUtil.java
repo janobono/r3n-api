@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class SqlUtil {
      *
      * @param connection Connection to database.
      * @param is         Stream to sql script.
-     * @throws Exception
+     * @throws Exception Any exception
      */
     public static void runSqlScript(final Connection connection, final InputStream is) throws Exception {
         runSqlScript(connection, is, null, DEFAULT_DELIMITER, null);
@@ -55,7 +55,7 @@ public class SqlUtil {
      * @param is                Stream to sql script.
      * @param fileEncoding      Script encoding.
      * @param commandsDelimiter Commands delimiter.
-     * @throws Exception
+     * @throws Exception Any exception
      */
     public static void runSqlScript(final Connection connection, final InputStream is, final String fileEncoding, final String commandsDelimiter)
             throws Exception {
@@ -66,12 +66,12 @@ public class SqlUtil {
      * Runs sql script.
      *
      * @param connection               Connection to database.
-     * @param is                       Strieam to sql script.
+     * @param is                       Stream to sql script.
      * @param fileEncoding             Script encoding.
      * @param commandsDelimiter        Commands delimiter.
      * @param replacementParametersMap Map with replacement parameters. Keys in
      *                                 script will be replaced by values in map.
-     * @throws Exception
+     * @throws Exception Any exception
      */
     public static void runSqlScript(final Connection connection, final InputStream is, final String fileEncoding, final String commandsDelimiter,
                                     final Map<String, String> replacementParametersMap) throws Exception {
@@ -83,15 +83,12 @@ public class SqlUtil {
         runSqlCommands(connection, adaptedCommands);
     }
 
-    private static Reader getScriptReader(final InputStream is, String fileEncoding) throws Exception {
-        if (fileEncoding == null) {
-            fileEncoding = DEFAULT_ENCODING;
-        }
-        return new InputStreamReader(is, fileEncoding);
+    private static Reader getScriptReader(final InputStream is, final String fileEncoding) throws Exception {
+        return new InputStreamReader(is, fileEncoding == null ? DEFAULT_DELIMITER : fileEncoding);
     }
 
     private static List<String> getSqlCommands(final Reader reader, final String commandsDelimiter) throws Exception {
-        final List<String> commands = new ArrayList<>();
+        final List<String> commands = new LinkedList<>();
 
         final LineNumberReader lineReader = new LineNumberReader(reader);
         String line;
@@ -107,7 +104,7 @@ public class SqlUtil {
             } else if (trimmedLine.endsWith("\\" + commandsDelimiter)) {
                 command.append(line.replace("\\" + commandsDelimiter, ";")).append(" ");
             } else if (trimmedLine.endsWith(commandsDelimiter)) {
-                commands.add(command.append(line.substring(0, line.lastIndexOf(commandsDelimiter))).append(" ").toString());
+                commands.add(command.append(line, 0, line.lastIndexOf(commandsDelimiter)).append(" ").toString());
                 command = new StringBuilder();
             } else {
                 command.append(line).append(" ");
@@ -117,7 +114,7 @@ public class SqlUtil {
     }
 
     private static List<String> adaptSql(final List<String> sqls, final Map<String, String> stringsToReplaceMap) {
-        final List<String> adaptedSqls = new ArrayList<>();
+        final List<String> adaptedSqls = new LinkedList<>();
         sqls.stream().map((sql) -> sql).map((adaptedSql) -> {
             for (final Map.Entry<String, String> entry : stringsToReplaceMap.entrySet()) {
                 adaptedSql = adaptedSql.replace(entry.getKey(), entry.getValue());
@@ -149,7 +146,7 @@ public class SqlUtil {
      *
      * @param connection Connection to database.
      * @param command    Command.
-     * @throws SQLException
+     * @throws SQLException Any exception
      */
     public static void execute(final Connection connection, final String command) throws SQLException {
         try (final Statement statement = connection.createStatement()) {
@@ -163,7 +160,7 @@ public class SqlUtil {
      * @param connection Connection to database.
      * @param command    Command.
      * @param params     Parameters. Only base datatypes should be used.
-     * @throws SQLException
+     * @throws SQLException Any exception
      */
     public static void execute(final Connection connection, final String command, final Object... params) throws SQLException {
         if (params == null || params.length < 1) {
@@ -181,7 +178,7 @@ public class SqlUtil {
      *
      * @param preparedStatement Prepared statement.
      * @param params            Parameters. Only base datatypes should be used.
-     * @throws SQLException
+     * @throws SQLException Any exception
      */
     public static void setParams(final PreparedStatement preparedStatement, final Object... params) throws SQLException {
         int i = 1;
@@ -196,7 +193,7 @@ public class SqlUtil {
      * @param preparedStatement Prepared statement.
      * @param index             Parameter index.
      * @param param             Parameter. Only base datatypes should be used.
-     * @throws SQLException
+     * @throws SQLException Any exception
      */
     public static void setParam(final PreparedStatement preparedStatement, final int index, final Object param) throws SQLException {
         if (param != null) {

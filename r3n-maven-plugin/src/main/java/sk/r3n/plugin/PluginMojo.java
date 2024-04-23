@@ -80,14 +80,8 @@ public class PluginMojo extends AbstractMojo {
                 final InputStream is = this.getClass().getResourceAsStream(templateName);
                 final ByteArrayOutputStream os = new ByteArrayOutputStream()
         ) {
-            final byte[] buffer = new byte[1024];
-            int bytesRead = 0;
-            while (bytesRead != -1) {
-                bytesRead = is.read(buffer);
-                if (bytesRead > 0) {
-                    os.write(buffer, 0, bytesRead);
-                }
-            }
+            assert is != null;
+            is.transferTo(os);
             return os.toString();
         } catch (final Exception e) {
             throw new RuntimeException(e);

@@ -3,7 +3,7 @@ package sk.r3n.example.dal.domain.r3n.meta;
 import sk.r3n.sql.Column;
 import sk.r3n.sql.DataType;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public enum MetaColumnHotel {
@@ -30,7 +30,7 @@ public enum MetaColumnHotel {
     }
 
     public static Column[] columns() {
-        final List<Column> columnList = new ArrayList<>();
+        final List<Column> columnList = new LinkedList<>();
         for (final MetaColumnHotel metaColumnHotel : values()) {
             columnList.add(metaColumnHotel.column());
         }
@@ -38,7 +38,7 @@ public enum MetaColumnHotel {
     }
 
     public static Column[] columns(final String tableAlias) {
-        final List<Column> columnList = new ArrayList<>();
+        final List<Column> columnList = new LinkedList<>();
         for (final MetaColumnHotel metaColumnHotel : values()) {
             columnList.add(metaColumnHotel.column(tableAlias));
         }

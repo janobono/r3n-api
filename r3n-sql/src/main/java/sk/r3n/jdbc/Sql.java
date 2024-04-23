@@ -8,8 +8,8 @@ package sk.r3n.jdbc;
 import sk.r3n.sql.DataType;
 import sk.r3n.sql.Query;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -22,7 +22,7 @@ public class Sql {
 
     private final StringBuilder sql = new StringBuilder();
 
-    private final List<SqlParam> params = new ArrayList<>();
+    private final List<SqlParam> params = new LinkedList<>();
 
     /**
      * Adds parameter.
@@ -70,10 +70,10 @@ public class Sql {
      */
     public Sql append(final String separator, final String... strings) {
         for (final String string : strings) {
-            if (string != null && string.length() > 0) {
+            if (string != null && !string.isEmpty()) {
                 append(string);
             }
-            if (separator != null && separator.length() > 0) {
+            if (separator != null && !separator.isEmpty()) {
                 append(separator);
             }
         }

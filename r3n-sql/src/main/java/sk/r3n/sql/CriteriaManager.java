@@ -6,7 +6,7 @@
 package sk.r3n.sql;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,7 +23,7 @@ public class CriteriaManager implements Serializable {
 
     public CriteriaManager() {
         super();
-        criteriaList = new ArrayList<>();
+        criteriaList = new LinkedList<>();
         criteria = new Criteria();
         criteriaList.add(criteria);
     }
@@ -70,7 +70,7 @@ public class CriteriaManager implements Serializable {
 
     private void setLastOperator(final Operator operator) {
         if (!criteria.getContent().isEmpty()) {
-            final Object object = criteria.getContent().get(criteria.getContent().size() - 1);
+            final Object object = criteria.getContent().getLast();
             if (object instanceof Criterion) {
                 ((Criterion) object).setOperator(operator);
             } else {

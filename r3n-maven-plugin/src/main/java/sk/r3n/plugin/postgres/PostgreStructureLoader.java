@@ -18,8 +18,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PostgreStructureLoader extends StructureLoader {
@@ -86,7 +86,7 @@ public class PostgreStructureLoader extends StructureLoader {
     @Override
     protected List<Column> loadColumns(final Log log, final Connection connection, final Table table) {
         log.info("Columns loading: " + table);
-        final List<Column> result = new ArrayList<>();
+        final List<Column> result = new LinkedList<>();
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;
