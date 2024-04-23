@@ -613,7 +613,7 @@ public abstract class SqlBuilder {
                 if (criterion.getRepresentation() == null) {
                     sql.append(columnSQL(onlyName, criterion.getColumn(), indexMap)).append(" ").append(criterion.getCondition().condition()).append(" ");
                     if (criterion.getValue() != null) {
-                        if (criterion.getValue() instanceof List<?> || criterion.getValue() instanceof Object[]) {
+                        if (criterion.getValue() instanceof Collection<?> || criterion.getValue() instanceof Object[]) {
                             final Object[] valueArray;
                             if (criterion.getValue() instanceof Collection<?>) {
                                 valueArray = ((Collection<?>) criterion.getValue()).toArray();
