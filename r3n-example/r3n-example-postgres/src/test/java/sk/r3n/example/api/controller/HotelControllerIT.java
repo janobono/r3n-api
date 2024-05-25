@@ -44,7 +44,7 @@ public class HotelControllerIT {
 
     @Container
     public static PostgreSQLContainer<?> postgresDB = new PostgreSQLContainer<>
-            ("postgres:13-alpine")
+            ("postgres:alpine")
             .withDatabaseName("app")
             .withUsername("app")
             .withPassword("app");
