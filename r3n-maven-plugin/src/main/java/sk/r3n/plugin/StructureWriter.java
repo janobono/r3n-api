@@ -5,7 +5,8 @@
  */
 package sk.r3n.plugin;
 
-import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sk.r3n.sql.Column;
 import sk.r3n.sql.DataType;
 import sk.r3n.sql.Sequence;
@@ -23,6 +24,8 @@ import java.util.List;
  * @since 21 August 2014
  */
 class StructureWriter implements Serializable {
+
+    final static Logger log = LoggerFactory.getLogger(StructureWriter.class);
 
     private static final String REPLACE_PACKAGE = "<REPLACE_PACKAGE>";
     private static final String REPLACE_DEFINITION = "<REPLACE_DEFINITION>";
@@ -47,24 +50,24 @@ class StructureWriter implements Serializable {
         this.dtoTemplate = dtoTemplate;
     }
 
-    public void write(final Log log, final boolean blobFile, final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
+    public void write(final boolean blobFile, final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
         final File r3nDir = new File(targetDir, "r3n");
         r3nDir.mkdirs();
 
         final File r3nMetaDir = new File(r3nDir, "meta");
         r3nMetaDir.mkdirs();
         log.info("Sequences");
-        writeSequences(log, overwrite, r3nMetaDir, targetPackage + ".r3n.meta", structure);
+        writeSequences(overwrite, r3nMetaDir, targetPackage + ".r3n.meta", structure);
         log.info("Tables");
-        writeTables(log, overwrite, r3nMetaDir, targetPackage + ".r3n.meta", structure);
+        writeTables(overwrite, r3nMetaDir, targetPackage + ".r3n.meta", structure);
 
         final File r3nDtoDir = new File(r3nDir, "dto");
         r3nDtoDir.mkdirs();
         log.info("Dtos");
-        writeDtos(log, blobFile, overwrite, r3nDtoDir, targetPackage + ".r3n.dto", structure);
+        writeDtos(blobFile, overwrite, r3nDtoDir, targetPackage + ".r3n.dto", structure);
     }
 
-    private void writeSequences(final Log log, final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
+    private void writeSequences(final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
         final File file = new File(targetDir, "MetaSequence.java");
         if (!file.exists() || overwrite) {
             String content = sequenceTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
@@ -75,7 +78,7 @@ class StructureWriter implements Serializable {
         }
     }
 
-    private void writeTables(final Log log, final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
+    private void writeTables(final boolean overwrite, final File targetDir, final String targetPackage, final Structure structure) {
         File file = new File(targetDir, "MetaTable.java");
         if (!file.exists() || overwrite) {
             String content = tableTemplate.replaceAll(REPLACE_PACKAGE, targetPackage);
@@ -100,7 +103,7 @@ class StructureWriter implements Serializable {
         }
     }
 
-    private void writeDtos(final Log log, final boolean blobFile, final boolean overwrite, final File dtoDir, final String targetPackage, final Structure structure) {
+    private void writeDtos(final boolean blobFile, final boolean overwrite, final File dtoDir, final String targetPackage, final Structure structure) {
         for (final Table table : structure.getTables()) {
             final String recordName = toCamelCase(false, table.name()) + "Dto";
             final File file = new File(dtoDir, recordName + ".java");
@@ -123,7 +126,7 @@ class StructureWriter implements Serializable {
                     lines.add("import java.time.LocalTime;");
                 }
                 String importLines = linesToString(lines.toArray(new String[0]));
-                if (importLines.length() > 0) {
+                if (!importLines.isEmpty()) {
                     importLines = "\n" + importLines + "\n";
                 }
                 content = content.replaceAll(REPLACE_IMPORT, importLines);
@@ -207,7 +210,7 @@ class StructureWriter implements Serializable {
 
     private String columnsToDtoMembers(final List<Column> columns, final boolean blobFile) {
         final StringBuilder sb = new StringBuilder();
-        if (columns.size() > 0) {
+        if (!columns.isEmpty()) {
             sb.append("\n");
         }
         for (int index = 0; index < columns.size(); index++) {
@@ -228,7 +231,7 @@ class StructureWriter implements Serializable {
         final String instanceName = toCamelCase(true, table.name()) + "Dto";
         final StringBuilder sb = new StringBuilder();
         // toArray
-        if (columns.size() > 0) {
+        if (!columns.isEmpty()) {
             sb.append("\n    public static Object[] toArray(final ").append(recordName).append(" ").append(instanceName).append(") {");
             sb.append("\n        return new Object[]{");
             for (int index = 0; index < columns.size(); index++) {
@@ -244,7 +247,7 @@ class StructureWriter implements Serializable {
         }
         // toObject
         sb.append("\n");
-        if (columns.size() > 0) {
+        if (!columns.isEmpty()) {
             sb.append("\n    public static ").append(recordName).append(" toObject(final Object[] array) {");
             sb.append("\n        return new ").append(recordName).append("(");
             for (int index = 0; index < columns.size(); index++) {
@@ -302,7 +305,7 @@ class StructureWriter implements Serializable {
         final StringBuilder sb = new StringBuilder();
         for (int index = 0; index < lines.length; index++) {
             final String line = lines[index];
-            if (line.length() > 0) {
+            if (!line.isEmpty()) {
                 sb.append(line);
             }
             if (index < lines.length - 1) {

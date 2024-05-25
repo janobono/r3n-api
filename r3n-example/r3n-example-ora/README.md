@@ -12,13 +12,13 @@
 ### start db
 
 ```
-docker-compose up
+docker compose up
 ```
 
 ### stop db
 
 ```
-docker-compose down
+docker compose down
 ```
 
 ### prepare app db

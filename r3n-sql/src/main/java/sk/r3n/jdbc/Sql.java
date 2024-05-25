@@ -44,6 +44,13 @@ public class Sql {
     }
 
     /**
+     * @return Array of parameter objects.
+     */
+    public Object[] getParamsObjects() {
+        return params.stream().map(SqlParam::value).toArray();
+    }
+
+    /**
      * @return Sql command string.
      */
     public String toSql() {

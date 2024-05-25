@@ -5,8 +5,8 @@
  */
 package sk.r3n.plugin.oracle;
 
-import org.apache.maven.plugin.logging.Log;
-import sk.r3n.jdbc.SqlUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sk.r3n.plugin.Structure;
 import sk.r3n.plugin.StructureLoader;
 import sk.r3n.sql.Column;
@@ -21,19 +21,19 @@ import java.util.List;
 
 public class OracleStructureLoader extends StructureLoader {
 
+    final static Logger log = LoggerFactory.getLogger(OracleStructureLoader.class);
+
     private enum DATA_TYPE {
         NUMBER, CHAR, NCHAR, VARCHAR, NVARCHAR, CLOB, NCLOB, BLOB, TIMESTAMP, DATE
     }
 
     @Override
-    protected void loadSequences(final Log log, final Connection connection, final Structure structure) {
+    protected void loadSequences(final Connection connection, final Structure structure) {
         log.info("Sequences loading");
 
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("select sequence_name from user_sequences");
+        try (final Statement statement = connection.createStatement();
+             final ResultSet resultSet = statement.executeQuery("select sequence_name from user_sequences");
+        ) {
             while (resultSet.next()) {
                 final Sequence sequence = new Sequence(resultSet.getString(1));
                 structure.getSequences().add(sequence);
@@ -41,23 +41,19 @@ public class OracleStructureLoader extends StructureLoader {
             }
         } catch (final SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            SqlUtil.close(resultSet);
-            SqlUtil.close(statement);
         }
 
         log.info("Sequences loaded");
     }
 
     @Override
-    protected void loadTables(final Log log, final Connection connection, final Structure structure) {
+    protected void loadTables(final Connection connection, final Structure structure) {
         log.info("Tables loading");
 
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("select table_name from user_tables");
+        try (
+                final Statement statement = connection.createStatement();
+                final ResultSet resultSet = statement.executeQuery("select table_name from user_tables");
+        ) {
             int alias = 1;
             while (resultSet.next()) {
                 final Table table = new Table(resultSet.getString(1), "T" + alias++);
@@ -66,27 +62,23 @@ public class OracleStructureLoader extends StructureLoader {
             }
         } catch (final SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            SqlUtil.close(resultSet);
-            SqlUtil.close(statement);
         }
 
         log.info("Tables loaded");
     }
 
     @Override
-    protected List<Column> loadColumns(final Log log, final Connection connection, final Table table) {
+    protected List<Column> loadColumns(final Connection connection, final Table table) {
         log.info("Columns loading: " + table);
         final List<Column> result = new LinkedList<>();
 
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement(
-                    "select column_name, data_type, data_precision, data_scale from user_tab_columns where table_name = ? order by column_id"
-            );
+        try (
+                final PreparedStatement statement = connection.prepareStatement(
+                        "select column_name, data_type, data_precision, data_scale from user_tab_columns where table_name = ? order by column_id"
+                )
+        ) {
             statement.setString(1, table.name());
-            resultSet = statement.executeQuery();
+            final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 final Column column = Column.column(
                         resultSet.getString(1),
@@ -95,11 +87,9 @@ public class OracleStructureLoader extends StructureLoader {
                 );
                 result.add(column);
             }
+            resultSet.close();
         } catch (final SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            SqlUtil.close(resultSet);
-            SqlUtil.close(statement);
         }
         log.info("Columns loaded: " + Arrays.toString(result.toArray()));
         return result;

@@ -16,12 +16,12 @@ import sk.r3n.sql.impl.ColumnBase;
 import sk.r3n.sql.impl.ColumnFunction;
 import sk.r3n.sql.impl.ColumnSelect;
 
-import java.io.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Date;
+import java.sql.*;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -34,46 +34,6 @@ public abstract class SqlBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlBuilder.class);
 
-    public SqlBuilder() {
-    }
-
-    public SqlBuilder(final Boolean blobFile) {
-        this.blobFile = blobFile;
-    }
-
-    /**
-     * Blob data type as File.
-     */
-    private Boolean blobFile;
-
-    public Boolean getBlobFile() {
-        if (blobFile == null) {
-            blobFile = true;
-        }
-        return blobFile;
-    }
-
-    public void setBlobFile(final Boolean blobFile) {
-        this.blobFile = blobFile;
-    }
-
-    /**
-     * Temporary directory used to store BLOB data from database.
-     */
-    private File tmpDir;
-
-    public File getTmpDir() {
-        if (tmpDir == null) {
-            tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            LOGGER.debug("Default tmp dir will be used - {}", tmpDir);
-        }
-        return tmpDir;
-    }
-
-    public void setTmpDir(final File tmpDir) {
-        this.tmpDir = tmpDir;
-    }
-
     /**
      * Transforms definition to representation.
      *
@@ -81,29 +41,6 @@ public abstract class SqlBuilder {
      * @return Sql next value from sequence representation.
      */
     public abstract Sql nextVal(Sequence sequence);
-
-    /**
-     * Executes nextval.
-     *
-     * @param connection Connection.
-     * @param sequence   Sequence definition object.
-     * @return Next value from sequence.
-     * @throws SQLException Any exception
-     */
-    public long nextVal(final Connection connection, final Sequence sequence) throws SQLException {
-        final Sql sql = nextVal(sequence);
-        LOGGER.debug(sql.toString());
-        final long result;
-        try (
-                final Statement statement = connection.createStatement();
-                final ResultSet resultSet = statement.executeQuery(sql.toSql())
-        ) {
-            resultSet.next();
-            result = resultSet.getLong(1);
-        }
-        LOGGER.debug("RESULT:{}", result);
-        return result;
-    }
 
     /**
      * Transforms definition to representation.
@@ -195,27 +132,6 @@ public abstract class SqlBuilder {
     protected abstract void selectSubSelectsEnd(Select select, Sql sql);
 
     /**
-     * Executes select.
-     *
-     * @param connection Connection.
-     * @param select     Select definition object.
-     * @return List of result rows like arrays of objects.
-     * @throws SQLException Any exception
-     */
-    public List<Object[]> select(final Connection connection, final Select select) throws SQLException {
-        final DataType[] dataTypes;
-        if (select.getCount()) {
-            dataTypes = new DataType[]{DataType.INTEGER};
-        } else {
-            dataTypes = new DataType[select.getColumns().length];
-            for (int i = 0; i < dataTypes.length; i++) {
-                dataTypes[i] = select.getColumns()[i].dataType();
-            }
-        }
-        return executeQuery(connection, select(select), dataTypes);
-    }
-
-    /**
      * Transforms definition to representation.
      *
      * @param insert Insert definition object.
@@ -252,24 +168,6 @@ public abstract class SqlBuilder {
     protected abstract void insertEndReturning(Insert insert, Sql sql);
 
     /**
-     * Executes insert.
-     *
-     * @param connection Connection.
-     * @param insert     Insert definition object.
-     * @return Value if insert returning value else null.
-     * @throws SQLException Any exception
-     */
-    public Object insert(final Connection connection, final Insert insert) throws SQLException {
-        Object result = null;
-        if (insert.getReturning() == null) {
-            execute(connection, insert(insert));
-        } else {
-            result = execute(connection, insert(insert), insert.getReturning().dataType());
-        }
-        return result;
-    }
-
-    /**
      * Transforms definition to representation.
      *
      * @param update Update definition object.
@@ -293,17 +191,6 @@ public abstract class SqlBuilder {
     }
 
     /**
-     * Executes update.
-     *
-     * @param connection Connection.
-     * @param update     Update definition object.
-     * @throws SQLException Any exception
-     */
-    public void update(final Connection connection, final Update update) throws SQLException {
-        execute(connection, update(update));
-    }
-
-    /**
      * Transforms definition to representation.
      *
      * @param delete Delete definition object.
@@ -316,95 +203,6 @@ public abstract class SqlBuilder {
             sql.append(" ").WHERE().append(criteriaManagerSQL(true, delete.getCriteriaManager(), null));
         }
         return sql;
-    }
-
-    /**
-     * Executes delete.
-     *
-     * @param connection Connection.
-     * @param delete     Delete definition object.
-     * @throws SQLException Any exception
-     */
-    public void delete(final Connection connection, final Delete delete) throws SQLException {
-        execute(connection, delete(delete));
-    }
-
-    /**
-     * Executes sql representation.
-     *
-     * @param connection Connection.
-     * @param sql        Sql representation object.
-     * @throws SQLException Any exception
-     */
-    public abstract void execute(Connection connection, Sql sql) throws SQLException;
-
-    /**
-     * Executes sql representation.
-     *
-     * @param connection Connection.
-     * @param sql        Sql representation object.
-     * @param dataType   Returning data type.
-     * @return Returning value.
-     * @throws SQLException Any exception
-     */
-    public abstract Object execute(Connection connection, Sql sql, DataType dataType) throws SQLException;
-
-    /**
-     * Executes sql representation.
-     *
-     * @param connection Connection.
-     * @param sql        Sql representation object.
-     * @param dataTypes  Returning data types.
-     * @return List of result rows like arrays of objects.
-     * @throws SQLException Any exception
-     */
-    public abstract List<Object[]> executeQuery(Connection connection, Sql sql, DataType... dataTypes) throws SQLException;
-
-    /**
-     * Write file to stream.
-     *
-     * @param source source file
-     * @param target target output stream
-     */
-    protected void fileToStream(final File source, final OutputStream target) {
-        try (final InputStream is = new BufferedInputStream(new FileInputStream(source));
-             final OutputStream os = new BufferedOutputStream(target)) {
-            is.transferTo(os);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Write stream to file.
-     *
-     * @param source source input stream
-     * @param target target file
-     */
-    protected void streamToFile(final InputStream source, final File target) {
-        try (
-                final InputStream is = new BufferedInputStream(source);
-                final OutputStream os = new BufferedOutputStream(new FileOutputStream(target, false))
-        ) {
-            is.transferTo(os);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Close closeable.
-     *
-     * @param closeable object to close
-     */
-    protected void close(final Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (final IOException ex) {
-                LOGGER.warn("close", ex);
-            }
-        }
     }
 
     protected String tableSQL(final boolean onlyName, final Table table) {
@@ -646,5 +444,54 @@ public abstract class SqlBuilder {
             }
         }
         return sql;
+    }
+
+    public Object[] getRow(final ResultSet resultSet, final DataType... dataTypes) throws SQLException {
+        final Object[] result = new Object[dataTypes.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getColumn(resultSet, i + 1, dataTypes[i]);
+        }
+        return result;
+    }
+
+    public Object getColumn(final ResultSet resultSet, final int index, final DataType dataType) throws SQLException {
+        Object result = null;
+        if (resultSet.getObject(index) != null) {
+            switch (dataType) {
+                case BOOLEAN -> result = resultSet.getBoolean(index);
+                case STRING -> result = resultSet.getString(index);
+                case SHORT -> result = resultSet.getShort(index);
+                case INTEGER -> result = resultSet.getInt(index);
+                case LONG -> result = resultSet.getLong(index);
+                case BIG_DECIMAL -> result = resultSet.getBigDecimal(index);
+                case DATE -> result = resultSet.getDate(index).toLocalDate();
+                case TIME -> result = resultSet.getTime(index).toLocalTime();
+                case TIME_STAMP -> result = resultSet.getTimestamp(index).toLocalDateTime();
+                case BLOB -> result = resultSet.getBytes(index);
+            }
+        }
+        return result;
+    }
+
+    public void setParams(final PreparedStatement preparedStatement, final SqlParam[] params) throws SQLException {
+        int i = 1;
+        for (final SqlParam param : params) {
+            setParam(preparedStatement, i++, param);
+        }
+    }
+
+    public void setParam(final PreparedStatement preparedStatement, final int index, final SqlParam param) throws SQLException {
+        if (param.value() != null) {
+            switch (param.dataType()) {
+                case BLOB -> preparedStatement.setBytes(index, (byte[]) param.value());
+                case DATE -> preparedStatement.setDate(index, Date.valueOf(((LocalDate) param.value())));
+                case TIME -> preparedStatement.setTime(index, Time.valueOf(((LocalTime) param.value())));
+                case TIME_STAMP ->
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(((LocalDateTime) param.value())));
+                default -> preparedStatement.setObject(index, param.value());
+            }
+        } else {
+            preparedStatement.setNull(index, Types.NULL);
+        }
     }
 }

@@ -1,5 +1,3 @@
-version: '3.2'
-
 services:
   postgresdb:
     image: gvenzl/oracle-xe:latest

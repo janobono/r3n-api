@@ -5,7 +5,6 @@
  */
 package sk.r3n.plugin;
 
-import org.apache.maven.plugin.logging.Log;
 import sk.r3n.plugin.oracle.OracleStructureLoader;
 import sk.r3n.plugin.postgres.PostgreStructureLoader;
 import sk.r3n.sql.Column;
@@ -31,19 +30,19 @@ public abstract class StructureLoader implements Serializable {
         };
     }
 
-    Structure load(final Log log, final Connection connection) {
+    Structure load(final Connection connection) {
         final Structure structure = new Structure();
 
-        loadSequences(log, connection, structure);
-        loadTables(log, connection, structure);
+        loadSequences(connection, structure);
+        loadTables(connection, structure);
 
-        structure.getTables().forEach(table -> structure.getColumns(table).addAll(loadColumns(log, connection, table)));
+        structure.getTables().forEach(table -> structure.getColumns(table).addAll(loadColumns(connection, table)));
         return structure;
     }
 
-    protected abstract void loadSequences(Log log, Connection connection, Structure structure);
+    protected abstract void loadSequences(Connection connection, Structure structure);
 
-    protected abstract void loadTables(Log log, Connection connection, Structure structure);
+    protected abstract void loadTables(Connection connection, Structure structure);
 
-    protected abstract List<Column> loadColumns(Log log, Connection connection, Table table);
+    protected abstract List<Column> loadColumns(Connection connection, Table table);
 }

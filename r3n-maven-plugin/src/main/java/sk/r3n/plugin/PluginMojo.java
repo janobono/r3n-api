@@ -8,7 +8,8 @@ package sk.r3n.plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import sk.r3n.jdbc.SqlUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -24,6 +25,8 @@ import java.sql.DriverManager;
  */
 @Mojo(name = "r3n-gen")
 public class PluginMojo extends AbstractMojo {
+
+    final static Logger log = LoggerFactory.getLogger(PluginMojo.class);
 
     @Parameter(defaultValue = "true", required = true)
     private boolean blobFile;
@@ -54,24 +57,25 @@ public class PluginMojo extends AbstractMojo {
         baseDir = new File(baseDir, "/" + targetPackage.replaceAll("\\.", "/"));
         baseDir.mkdirs();
 
-        getLog().info(baseDir.getAbsolutePath());
-        getLog().info(targetPackage);
+        log.info(baseDir.getAbsolutePath());
+        log.info(targetPackage);
 
-        Connection connection = null;
         try {
             Class.forName(jdbcDriver);
-            connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPassword);
-            final Structure structure = StructureLoader.getInstance(jdbcDriver).load(getLog(), connection);
+        } catch (final ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        try (final Connection connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPassword)) {
+            final Structure structure = StructureLoader.getInstance(jdbcDriver).load(connection);
             new StructureWriter(
                     readTemplate("/MetaSequence.txt"),
                     readTemplate("/MetaTable.txt"),
                     readTemplate("/MetaColumn.txt"),
                     readTemplate("/Dto.txt")
-            ).write(getLog(), blobFile, overwrite, baseDir, targetPackage, structure);
+            ).write(blobFile, overwrite, baseDir, targetPackage, structure);
         } catch (final Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            SqlUtil.close(connection);
         }
     }
 

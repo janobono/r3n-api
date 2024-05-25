@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import sk.r3n.example.api.service.so.HotelInputSO;
 import sk.r3n.example.api.service.so.HotelSO;
@@ -38,6 +39,7 @@ public class HotelApiService {
         return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
+    @Transactional
     public HotelSO insertHotel(final HotelInputSO hotelInputSO) {
         LOGGER.debug("insertHotel({})", hotelInputSO);
         HotelDto hotelDto = new HotelDto(-1L, hotelInputSO.name(), hotelInputSO.note());
@@ -45,6 +47,7 @@ public class HotelApiService {
         return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
+    @Transactional
     public HotelSO updateHotel(final HotelSO hotelSO) {
         LOGGER.debug("updateHotel({})", hotelSO);
         if (!hotelRepository.exists(hotelSO.id())) {
@@ -55,6 +58,7 @@ public class HotelApiService {
         return new HotelSO(hotelDto.id(), hotelDto.name(), hotelDto.note());
     }
 
+    @Transactional
     public void deleteHotel(final Long id) {
         LOGGER.debug("deleteHotel({})", id);
         if (!hotelRepository.exists(id)) {
